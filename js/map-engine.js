@@ -25,7 +25,7 @@ const MapEngine = {
     VENUE_DATA.floors.forEach(floor => {
       const mapEl = document.getElementById(`map-${floor.id}`);
       // 既存動的コンテンツのクリア（背景画像は残す）
-      mapEl.querySelectorAll('.room-pin-container, .acp-pin-container, .zone-layer-svg, .route-layer-svg').forEach(el => el.remove());
+      mapEl.querySelectorAll('.room-pin-container, .acp-pin-container, .zone-layer-svg, .zone-badge-container, .route-layer-svg').forEach(el => el.remove());
 
       // 諸室ピンコンテナの生成
       const roomContainer = document.createElement('div');
@@ -112,11 +112,14 @@ const MapEngine = {
       });
       mapEl.appendChild(acpContainer);
 
-      // 📐 ゾーン多角形 SVG レイヤーの生成
+      // 📐 ゾーン多角形 SVG レイヤー ＆ HTML バッジコンテナの生成
       const zoneSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       zoneSvg.setAttribute('class', 'zone-layer-svg');
       zoneSvg.setAttribute('viewBox', '0 0 100 100');
       zoneSvg.setAttribute('preserveAspectRatio', 'none');
+
+      const zoneBadgeContainer = document.createElement('div');
+      zoneBadgeContainer.className = 'zone-badge-container';
 
       const floorZones = VENUE_DATA.zones.filter(z => z.floor === floor.id);
       floorZones.forEach(zone => {
@@ -147,22 +150,23 @@ const MapEngine = {
 
         zoneSvg.appendChild(polygon);
 
-        // ゾーンの中央位置に区分名ラベル（<text>）を重ねて描画
+        // ゾーンの中央位置に歪まないHTMLバッジ（諸室/ACPと同等のフォントサイズ）を生成
         if (zone.points && zone.points.length > 0) {
           const cx = Math.round((zone.points.reduce((sum, p) => sum + p[0], 0) / zone.points.length) * 10) / 10;
           const cy = Math.round((zone.points.reduce((sum, p) => sum + p[1], 0) / zone.points.length) * 10) / 10;
 
-          const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          textEl.setAttribute('x', cx);
-          textEl.setAttribute('y', cy);
-          textEl.setAttribute('text-anchor', 'middle');
-          textEl.setAttribute('dominant-baseline', 'central');
-          textEl.setAttribute('class', 'zone-center-label');
-          textEl.textContent = zone.name || zone.id;
-          zoneSvg.appendChild(textEl);
+          const badge = document.createElement('div');
+          badge.className = 'zone-center-badge';
+          badge.style.left = `${cx}%`;
+          badge.style.top = `${cy}%`;
+          badge.style.borderColor = zone.borderColor || '#007aff';
+          badge.innerHTML = `<span class="zone-badge-dot" style="background:${zone.borderColor || '#007aff'}"></span>${zone.name || zone.id}`;
+          
+          zoneBadgeContainer.appendChild(badge);
         }
       });
       mapEl.appendChild(zoneSvg);
+      mapEl.appendChild(zoneBadgeContainer);
 
       // 〰️ ルート描画用 SVG レイヤー
       const routeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

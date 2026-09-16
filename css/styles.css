@@ -769,18 +769,52 @@ body.vertex-editing-active .floor-map {
   cursor: crosshair !important;
 }
 
-/* ゾーン中央テキストラベル */
-.zone-center-label {
-  font-size: 3.2px;
-  font-weight: 800;
-  fill: #ffffff;
-  stroke: rgba(0, 0, 0, 0.75);
-  stroke-width: 0.5px;
-  paint-order: stroke fill;
+/* ゾーン中心のアンチストレッチ HTMLバッジ（諸室/ACPに揃えた11px標準バッジ） */
+.zone-badge-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-  user-select: none;
-  letter-spacing: 0.1px;
+  z-index: 6;
+  display: none;
 }
+
+#layer-zone:checked ~ .map-viewport .zone-badge-container,
+body.zone-drawing-active .map-viewport .zone-badge-container,
+body.vertex-editing-active .map-viewport .zone-badge-container {
+  display: block !important;
+}
+
+.zone-center-badge {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid #007aff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  white-space: nowrap;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.zone-badge-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
 
 /* 描画中の頂点マーカー */
 .zone-vertex-dot {
@@ -922,5 +956,16 @@ body.vertex-editing-active .map-viewport .zone-layer-svg {
 
   .detail-item .value {
     font-size: 9px !important;
+  }
+
+  .zone-center-badge {
+    padding: 2px 6px !important;
+    font-size: 9px !important;
+    border-radius: 4px !important;
+  }
+
+  .zone-badge-dot {
+    width: 5px !important;
+    height: 5px !important;
   }
 }

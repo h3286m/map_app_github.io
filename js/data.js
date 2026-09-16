@@ -2579,13 +2579,16 @@ const DataStorage = {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.rooms && parsed.acps) {
+        if (Array.isArray(parsed.rooms) && parsed.rooms.length > 0) {
           VENUE_DATA.rooms = parsed.rooms;
-          VENUE_DATA.acps = parsed.acps;
-          if (parsed.zones) {
-            VENUE_DATA.zones = parsed.zones.filter(z => !['ZONE_1F_MAIN', 'ZONE_2F_MAIN', 'ZONE_OUTDOOR_MAIN'].includes(z.id));
-          }
         }
+        if (Array.isArray(parsed.acps) && parsed.acps.length > 0) {
+          VENUE_DATA.acps = parsed.acps;
+        }
+        if (Array.isArray(parsed.zones)) {
+          VENUE_DATA.zones = parsed.zones;
+        }
+        console.log(`✅ Loaded venue data from LocalStorage: ${VENUE_DATA.rooms.length} rooms, ${VENUE_DATA.acps.length} ACPs, ${VENUE_DATA.zones.length} zones`);
       } catch (e) {
         console.warn('Failed to parse saved venue data:', e);
       }
@@ -2593,11 +2596,16 @@ const DataStorage = {
   },
 
   save() {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
-      rooms: VENUE_DATA.rooms,
-      acps: VENUE_DATA.acps,
-      zones: VENUE_DATA.zones
-    }));
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
+        rooms: VENUE_DATA.rooms,
+        acps: VENUE_DATA.acps,
+        zones: VENUE_DATA.zones
+      }));
+      console.log(`💾 Saved venue data to LocalStorage: ${VENUE_DATA.zones.length} zones`);
+    } catch (e) {
+      console.error('Failed to save venue data to LocalStorage:', e);
+    }
   },
 
   reset() {

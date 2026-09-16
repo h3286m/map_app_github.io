@@ -16,6 +16,10 @@ const MapEngine = {
 
   init() {
     this.bindEvents();
+    if (VENUE_DATA.zones && VENUE_DATA.zones.length > 0) {
+      const zoneChk = document.getElementById('layer-zone');
+      if (zoneChk) zoneChk.checked = true;
+    }
     this.renderAllFloors();
     this.setupPanZoom();
   },
@@ -672,7 +676,17 @@ const MapEngine = {
 
   // ゾーン描画モードの起動・終了
   toggleZoneDrawingMode(enable) {
-    this.isZoneDrawingMode = enable !== undefined ? enable : !this.isZoneDrawingMode;
+    const targetEnable = enable !== undefined ? enable : !this.isZoneDrawingMode;
+
+    // 描画モードを終了しようとした時、未保存の頂点（3点以上）がある場合は保存確認プロンプトを出す
+    if (!targetEnable && this.isZoneDrawingMode && this.currentZonePoints && this.currentZonePoints.length >= 3) {
+      if (confirm('描画中のゾーンがまだ保存されていません。「OK」を押してゾーンを自動保存して終了しますか？\n（キャンセルを押すと保存せずに破棄します）')) {
+        this.saveCurrentZone();
+        return;
+      }
+    }
+
+    this.isZoneDrawingMode = targetEnable;
     document.body.classList.toggle('zone-drawing-active', this.isZoneDrawingMode);
 
     // ゾーンレイヤーを自動ON

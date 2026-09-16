@@ -22,9 +22,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. ピン編集モーダルのセットアップ
   setupEditorModal();
 
-  // 5. データ書き出しモーダルのセットアップ
+  // 5. ゾーン多角形描画コントロールのセットアップ
+  setupZoneDrawerControls();
+
+  // 6. データ書き出しモーダルのセットアップ
   setupExportModal();
 });
+
+// ゾーン多角形ビジュアル描画ツールの動的制御
+function setupZoneDrawerControls() {
+  const toggleZoneBtn = document.getElementById('toggle-zone-drawer-btn');
+  const undoBtn = document.getElementById('zone-undo-btn');
+  const clearBtn = document.getElementById('zone-clear-btn');
+  const saveBtn = document.getElementById('zone-save-btn');
+  const cancelBtn = document.getElementById('zone-cancel-btn');
+
+  if (toggleZoneBtn) {
+    toggleZoneBtn.addEventListener('click', () => {
+      MapEngine.toggleZoneDrawingMode();
+    });
+  }
+
+  undoBtn?.addEventListener('click', () => MapEngine.undoZonePoint());
+  clearBtn?.addEventListener('click', () => MapEngine.clearCurrentZoneDrawing());
+  saveBtn?.addEventListener('click', () => MapEngine.saveCurrentZone());
+  cancelBtn?.addEventListener('click', () => MapEngine.toggleZoneDrawingMode(false));
+}
 
 // 検索と部署フィルターの動的制御
 function setupSearchAndFilters() {

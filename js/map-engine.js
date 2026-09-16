@@ -359,6 +359,7 @@ const MapEngine = {
     }
   },
 
+  // ゾーン選択時の詳細表示
   selectZone(zone) {
     const panel = document.getElementById('info-panel');
     if (!panel) return;
@@ -368,15 +369,148 @@ const MapEngine = {
         <div class="detail-header">
           <div>
             <div class="detail-title">📐 ゾーン: ${zone.name}</div>
-            <div class="detail-code">Zone ID: ${zone.id} | ${zone.nameEn}</div>
+            <div class="detail-code">Zone ID: ${zone.id} | ${zone.nameEn || ''}</div>
           </div>
-          <span class="badge" style="background:${zone.borderColor || '#007aff'}">${zone.floor.toUpperCase()} ゾーン</span>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <button onclick="MapEngine.deleteZone('${zone.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#ef4444; color:#fff; font-weight:bold; cursor:pointer;">🗑️ ゾーン削除</button>
+            <span class="badge" style="background:${zone.borderColor || '#007aff'}">${zone.floor.toUpperCase()} ゾーン</span>
+          </div>
         </div>
         <div style="margin-top:6px; font-size:12px; color:var(--text-secondary);">
-          本エリアの区画内に含まれる諸室およびACPは、レイヤーメニューから個別に表示/非表示を切り替え可能です。
+          頂点数: ${zone.points ? zone.points.length : 0} 点の多角形区画。<br>
+          本エリア内の諸室・ACPはレイヤーメニューで表示切替が可能です。
         </div>
       </div>
     `;
+  },
+
+  // ゾーン描画モードの起動・終了
+  toggleZoneDrawingMode(enable) {
+    this.isZoneDrawingMode = enable !== undefined ? enable : !this.isZoneDrawingMode;
+    document.body.classList.toggle('zone-drawing-active', this.isZoneDrawingMode);
+
+    // ゾーンレイヤーを自動ON
+    const zoneChk = document.getElementById('layer-zone');
+    if (this.isZoneDrawingMode && zoneChk) zoneChk.checked = true;
+
+    if (!this.isZoneDrawingMode) {
+      this.clearCurrentZoneDrawing();
+    }
+  },
+
+  // クリックでゾーンの頂点ポイントを追加
+  addZonePoint(x, y) {
+    if (!this.isZoneDrawingMode) return;
+    if (!this.currentZonePoints) this.currentZonePoints = [];
+    this.currentZonePoints.push([Math.round(x * 10) / 10, Math.round(y * 10) / 10]);
+    this.updateZoneDrawingPreview();
+  },
+
+  // 1点戻す
+  undoZonePoint() {
+    if (this.currentZonePoints && this.currentZonePoints.length > 0) {
+      this.currentZonePoints.pop();
+      this.updateZoneDrawingPreview();
+    }
+  },
+
+  // 全消去
+  clearCurrentZoneDrawing() {
+    this.currentZonePoints = [];
+    const mapEl = document.getElementById(`map-${this.activeFloor}`);
+    if (mapEl) {
+      mapEl.querySelectorAll('.zone-vertex-dot, .temp-zone-preview-polygon').forEach(el => el.remove());
+    }
+    const countEl = document.getElementById('zone-point-count');
+    if (countEl) countEl.textContent = '点数: 0';
+  },
+
+  // ライブプレビュー更新
+  updateZoneDrawingPreview() {
+    const mapEl = document.getElementById(`map-${this.activeFloor}`);
+    if (!mapEl) return;
+
+    // 既存プレビュー消去
+    mapEl.querySelectorAll('.zone-vertex-dot, .temp-zone-preview-polygon').forEach(el => el.remove());
+
+    const countEl = document.getElementById('zone-point-count');
+    if (countEl) countEl.textContent = `点数: ${this.currentZonePoints ? this.currentZonePoints.length : 0}`;
+
+    if (!this.currentZonePoints || this.currentZonePoints.length === 0) return;
+
+    // 頂点ドットの描画
+    this.currentZonePoints.forEach(pt => {
+      const dot = document.createElement('div');
+      dot.className = 'zone-vertex-dot';
+      dot.style.left = `${pt[0]}%`;
+      dot.style.top = `${pt[1]}%`;
+      mapEl.appendChild(dot);
+    });
+
+    // 多角形SVGプレビュー
+    if (this.currentZonePoints.length >= 2) {
+      const zoneSvg = mapEl.querySelector('.zone-layer-svg');
+      if (zoneSvg) {
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        const pointsStr = this.currentZonePoints.map(pt => `${pt[0]},${pt[1]}`).join(' ');
+        const color = document.getElementById('zone-draw-color')?.value || 'rgba(175,82,222,0.35)';
+
+        polygon.setAttribute('points', pointsStr);
+        polygon.setAttribute('fill', color);
+        polygon.setAttribute('stroke', '#af52de');
+        polygon.setAttribute('stroke-width', '1.2');
+        polygon.setAttribute('stroke-dasharray', '2 2');
+        polygon.setAttribute('class', 'temp-zone-preview-polygon');
+
+        zoneSvg.appendChild(polygon);
+      }
+    }
+  },
+
+  // ゾーンを完成・保存
+  saveCurrentZone() {
+    if (!this.currentZonePoints || this.currentZonePoints.length < 3) {
+      alert('ゾーンを形成するには最低3箇所の点（角）をクリックしてください。');
+      return;
+    }
+
+    const name = document.getElementById('zone-draw-name')?.value.trim() || `Zone-${Date.now().toString().slice(-4)}`;
+    const color = document.getElementById('zone-draw-color')?.value || 'rgba(175,82,222,0.35)';
+
+    const newZone = {
+      id: `ZONE-${Date.now()}`,
+      name: name,
+      nameEn: name,
+      floor: this.activeFloor,
+      points: [...this.currentZonePoints],
+      color: color,
+      borderColor: '#af52de'
+    };
+
+    VENUE_DATA.zones.push(newZone);
+
+    if (window.DataStorage) window.DataStorage.save();
+
+    this.toggleZoneDrawingMode(false);
+    this.renderAllFloors();
+
+    const panel = document.getElementById('info-panel');
+    if (panel) {
+      panel.innerHTML = `
+        <div style="color:#af52de; font-weight:bold; font-size:13px; padding:6px 0;">
+          📐 新しいゾーン「${name}」を作成・保存しました！ (${newZone.points.length}頂点)
+        </div>
+      `;
+    }
+  },
+
+  deleteZone(zoneId) {
+    if (confirm('このゾーンを削除しますか？')) {
+      VENUE_DATA.zones = VENUE_DATA.zones.filter(z => z.id !== zoneId);
+      if (window.DataStorage) window.DataStorage.save();
+      this.renderAllFloors();
+      this.clearSpotPreview();
+    }
   },
 
   // 3. パン＆ズーム物理エンジンのセットアップ
@@ -447,15 +581,22 @@ const MapEngine = {
       this.isDragging = false;
     });
 
-    // ビジュアルピン追加モーダル起動 (クリックした位置の%座標を自動入力)
+    // ビジュアルマップクリック (ゾーン頂点追加 または ピン追加モーダル起動)
     viewport.addEventListener('click', (e) => {
-      if (!this.isEditorMode || e.target.closest('.room-pin, .acp-pin, .zoom-controls')) return;
+      if (e.target.closest('.zoom-controls, .zone-drawer-bar, .modal-backdrop')) return;
       const rect = viewport.getBoundingClientRect();
       const x = (((e.clientX - rect.left - this.panX) / this.scale) / rect.width) * 100;
       const y = (((e.clientY - rect.top - this.panY) / this.scale) / rect.height) * 100;
 
-      if (window.openSpotEditor) {
-        window.openSpotEditor({ x, y, floor: this.activeFloor });
+      if (this.isZoneDrawingMode) {
+        this.addZonePoint(x, y);
+        return;
+      }
+
+      if (this.isEditorMode && !e.target.closest('.room-pin, .acp-pin')) {
+        if (window.openSpotEditor) {
+          window.openSpotEditor({ x, y, floor: this.activeFloor });
+        }
       }
     });
 

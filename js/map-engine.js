@@ -123,20 +123,44 @@ const MapEngine = {
         const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
         const pointsStr = zone.points.map(pt => `${pt[0]},${pt[1]}`).join(' ');
         polygon.setAttribute('points', pointsStr);
-        polygon.setAttribute('fill', zone.color || 'rgba(0,122,255,0.3)');
+        polygon.setAttribute('fill', zone.color || 'rgba(0,122,255,0.25)');
         polygon.setAttribute('stroke', zone.borderColor || '#007aff');
         polygon.setAttribute('vector-effect', 'non-scaling-stroke');
         polygon.setAttribute('data-id', zone.id);
         polygon.setAttribute('class', 'zone-polygon');
 
+        // ホバー時のゾーンプレビュー
+        polygon.addEventListener('mouseenter', () => {
+          this.previewZone(zone);
+        });
+
+        polygon.addEventListener('mouseleave', () => {
+          this.clearZonePreview();
+        });
+
         // ゾーンタップ時の情報表示
         polygon.addEventListener('click', (e) => {
-          if (this.isZoneDrawingMode || this.isVertexEditingMode) return; // 描画/編集モード時はクリックを通させて頂点追加・移動を優先
+          if (this.isZoneDrawingMode || this.isVertexEditingMode) return;
           e.stopPropagation();
           this.selectZone(zone);
         });
 
         zoneSvg.appendChild(polygon);
+
+        // ゾーンの中央位置に区分名ラベル（<text>）を重ねて描画
+        if (zone.points && zone.points.length > 0) {
+          const cx = Math.round((zone.points.reduce((sum, p) => sum + p[0], 0) / zone.points.length) * 10) / 10;
+          const cy = Math.round((zone.points.reduce((sum, p) => sum + p[1], 0) / zone.points.length) * 10) / 10;
+
+          const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          textEl.setAttribute('x', cx);
+          textEl.setAttribute('y', cy);
+          textEl.setAttribute('text-anchor', 'middle');
+          textEl.setAttribute('dominant-baseline', 'central');
+          textEl.setAttribute('class', 'zone-center-label');
+          textEl.textContent = zone.name || zone.id;
+          zoneSvg.appendChild(textEl);
+        }
       });
       mapEl.appendChild(zoneSvg);
 
@@ -361,8 +385,8 @@ const MapEngine = {
     }
   },
 
-  // ゾーン選択時の詳細表示
-  selectZone(zone) {
+  previewZone(zone) {
+    if (this.isZoneDrawingMode || this.isVertexEditingMode || this.activePinId) return;
     const panel = document.getElementById('info-panel');
     if (!panel) return;
 
@@ -370,19 +394,46 @@ const MapEngine = {
       <div class="detail-card">
         <div class="detail-header">
           <div>
-            <div class="detail-title">📐 ゾーン: ${zone.name}</div>
+            <div class="detail-title">📐 ゾーン: ${zone.name} <span style="font-size:11px; opacity:0.7;">(プレビュー)</span></div>
             <div class="detail-code">Zone ID: ${zone.id} | フロア: ${zone.floor.toUpperCase()}</div>
+          </div>
+          <span class="badge" style="background:${zone.borderColor || '#007aff'}; color:#fff;">${zone.name}</span>
+        </div>
+        <div style="margin-top:6px; font-size:12px; color:var(--text-secondary);">
+          ゾーン区分: <b>${zone.name}</b> (${zone.points ? zone.points.length : 0}頂点)。クリックで詳細情報・頂点編集を開きます。
+        </div>
+      </div>
+    `;
+  },
+
+  clearZonePreview() {
+    if (!this.activePinId) this.clearSpotPreview();
+  },
+
+  // ゾーン選択時の詳細表示
+  selectZone(zone) {
+    this.activePinId = zone.id;
+    const panel = document.getElementById('info-panel');
+    if (!panel) return;
+
+    panel.innerHTML = `
+      <div class="detail-card">
+        <div class="detail-header">
+          <div>
+            <div class="detail-title">📐 ゾーン区分: ${zone.name}</div>
+            <div class="detail-code">Zone ID: ${zone.id} | 設置フロア: ${zone.floor.toUpperCase()}</div>
           </div>
           <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
             <button onclick="MapEngine.startEditingZoneVerticesById('${zone.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">📍 頂点を編集</button>
             <button onclick="MapEngine.openZoneEditor('${zone.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#007aff; color:#fff; font-weight:bold; cursor:pointer;">✏️ 名称変更</button>
             <button onclick="MapEngine.deleteZone('${zone.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#ef4444; color:#fff; font-weight:bold; cursor:pointer;">🗑️ 削除</button>
-            <span class="badge" style="background:${zone.borderColor || '#007aff'}">${zone.floor.toUpperCase()} ゾーン</span>
+            <span class="badge" style="background:${zone.borderColor || '#007aff'}; color:#fff; font-weight:800;">${zone.name}</span>
           </div>
         </div>
-        <div style="margin-top:6px; font-size:12px; color:var(--text-secondary);">
-          頂点数: ${zone.points ? zone.points.length : 0} 点の多角形区画。<br>
-          表示カラー: <span style="display:inline-block; width:12px; height:12px; background:${zone.color}; border:1px solid #fff; vertical-align:middle; border-radius:2px;"></span>
+        <div style="margin-top:6px; font-size:12px; color:var(--text-secondary); display:flex; align-items:center; gap:8px;">
+          <span>頂点数: <b>${zone.points ? zone.points.length : 0} 点</b> の多角形区画</span>
+          <span>•</span>
+          <span>表示カラー: <span style="display:inline-block; width:14px; height:14px; background:${zone.color}; border:2px solid ${zone.borderColor || '#007aff'}; vertical-align:middle; border-radius:3px;"></span> (${zone.borderColor})</span>
         </div>
       </div>
     `;
@@ -706,8 +757,15 @@ const MapEngine = {
       return;
     }
 
-    const name = document.getElementById('zone-draw-name')?.value.trim() || `Zone-${Date.now().toString().slice(-4)}`;
-    const color = document.getElementById('zone-draw-color')?.value || 'rgba(175,82,222,0.35)';
+    const selectEl = document.getElementById('zone-draw-color');
+    const selectedOpt = selectEl ? selectEl.options[selectEl.selectedIndex] : null;
+
+    const color = selectEl?.value || 'rgba(0,122,255,0.25)';
+    const borderColor = selectedOpt?.dataset.border || '#007aff';
+    const catName = selectedOpt?.dataset.name || 'Zone';
+
+    const nameInput = document.getElementById('zone-draw-name');
+    const name = nameInput?.value.trim() || `Zone ${catName}`;
 
     const newZone = {
       id: `ZONE-${Date.now()}`,
@@ -716,7 +774,7 @@ const MapEngine = {
       floor: this.activeFloor,
       points: [...this.currentZonePoints],
       color: color,
-      borderColor: '#af52de'
+      borderColor: borderColor
     };
 
     VENUE_DATA.zones.push(newZone);
@@ -725,11 +783,12 @@ const MapEngine = {
 
     this.toggleZoneDrawingMode(false);
     this.renderAllFloors();
+    this.selectZone(newZone);
 
     const panel = document.getElementById('info-panel');
     if (panel) {
       panel.innerHTML = `
-        <div style="color:#af52de; font-weight:bold; font-size:13px; padding:6px 0;">
+        <div style="color:#007aff; font-weight:bold; font-size:13px; padding:6px 0;">
           📐 新しいゾーン「${name}」を作成・保存しました！ (${newZone.points.length}頂点)
         </div>
       `;

@@ -166,6 +166,8 @@
     body.zone-drawing-active .control-panel label[for="layer-zone"] { background: var(--accent-zone) !important; color: #fff !important; border-color: var(--accent-zone) !important; }
     .temp-zone-preview-polygon { pointer-events: none !important; vector-effect: non-scaling-stroke !important; stroke-width: 2px !important; }
     .zone-vertex-dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #af52de; border: 2px solid #ffffff; transform: translate(-50%, -50%); box-shadow: 0 0 8px rgba(175, 82, 222, 1); pointer-events: none; z-index: 100; }
+    body.zone-drawing-active .map-viewport, body.zone-drawing-active .map-container, body.zone-drawing-active .floor-map, body.vertex-editing-active .map-viewport, body.vertex-editing-active .map-container, body.vertex-editing-active .floor-map { cursor: crosshair !important; }
+    .zone-center-label { font-size: 3.2px; font-weight: 800; fill: #ffffff; stroke: rgba(0, 0, 0, 0.75); stroke-width: 0.5px; paint-order: stroke fill; pointer-events: none; user-select: none; letter-spacing: 0.1px; }
 
     @media (max-width: 768px) {
       .pin-tooltip { padding: 4px 8px !important; border-radius: 6px !important; max-width: 180px !important; white-space: normal !important; word-break: break-word !important; box-shadow: 0 4px 15px rgba(0,0,0,0.8) !important; }
@@ -244,13 +246,14 @@
         <input type="text" id="zone-draw-name" placeholder="ゾーン名 (例: Zone 2, RED)" style="padding:4px 8px; border-radius:6px; border:1px solid var(--panel-border); font-size:12px; width:130px; background:var(--card-bg); color:#fff;">
         
         <select id="zone-draw-color" style="padding:4px 6px; border-radius:6px; border:1px solid var(--panel-border); font-size:12px; background:var(--card-bg); color:#fff;">
-          <option value="rgba(0,122,255,0.35)">🔵 BLUEゾーン (Zone BLUE / 選手動線)</option>
-          <option value="rgba(239,68,68,0.35)">🔴 REDゾーン (Zone RED / 競技エリア)</option>
-          <option value="rgba(175,82,222,0.35)">🟣 PURPLEゾーン (Zone 5,6 / 役員・VIP)</option>
-          <option value="rgba(52,199,89,0.35)">🟢 GREENゾーン (Zone 4 / チーム役員)</option>
-          <option value="rgba(245,158,11,0.35)">🟡 YELLOWゾーン (Zone FOH / 観客・一般)</option>
-          <option value="rgba(255,255,255,0.25)">⚪ WHITEゾーン (Zone WHITE / 駐車場・物流)</option>
-          <option value="rgba(0,199,190,0.35)">🩵 CYANゾーン (Zone 2等)</option>
+          <option value="rgba(239,68,68,0.25)" data-border="#ef4444" data-name="FOP">🏆 Zone FOP (競技エリア / Field of Play)</option>
+          <option value="rgba(0,122,255,0.25)" data-border="#007aff" data-name="BLUE">🔵 Zone BLUE (選手動線・ウォームアップ)</option>
+          <option value="rgba(255,45,85,0.25)" data-border="#ff2d55" data-name="RED">🔴 Zone RED (競技専用・セキュリティ)</option>
+          <option value="rgba(175,82,222,0.25)" data-border="#af52de" data-name="PURPLE">🟣 Zone PURPLE / Zone 5,6 (役員・VIP)</option>
+          <option value="rgba(52,199,89,0.25)" data-border="#34c759" data-name="GREEN">🟢 Zone GREEN / Zone 4 (チーム役員)</option>
+          <option value="rgba(245,158,11,0.25)" data-border="#f59e0b" data-name="YELLOW">🟡 Zone YELLOW / Zone FOH (観客・一般)</option>
+          <option value="rgba(255,255,255,0.20)" data-border="#ffffff" data-name="WHITE">⚪ Zone WHITE (駐車場・物流)</option>
+          <option value="rgba(0,199,190,0.25)" data-border="#00c7be" data-name="CYAN">🩵 Zone CYAN / Zone 2 (諸室・運営)</option>
         </select>
 
         <span id="zone-point-count" style="font-size:11px; color:#94a3b8; font-weight:bold;">点数: 0</span>

@@ -52,6 +52,24 @@ function setupZoneDrawerControls() {
     });
   }
 
+  // ゾーン選択切り替え時に名称フィールドを連動補完
+  const zoneColorSelect = document.getElementById('zone-draw-color');
+  const zoneNameInput = document.getElementById('zone-draw-name');
+
+  zoneColorSelect?.addEventListener('change', () => {
+    const opt = zoneColorSelect.options[zoneColorSelect.selectedIndex];
+    if (opt && opt.dataset.name) {
+      if (!zoneNameInput.value || zoneNameInput.dataset.auto === 'true') {
+        zoneNameInput.value = `Zone ${opt.dataset.name}`;
+        zoneNameInput.dataset.auto = 'true';
+      }
+    }
+  });
+
+  zoneNameInput?.addEventListener('input', () => {
+    delete zoneNameInput.dataset.auto;
+  });
+
   undoBtn?.addEventListener('click', () => MapEngine.undoZonePoint());
   clearBtn?.addEventListener('click', () => MapEngine.clearCurrentZoneDrawing());
   saveBtn?.addEventListener('click', () => MapEngine.saveCurrentZone());

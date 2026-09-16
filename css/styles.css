@@ -735,6 +735,29 @@ body.zone-drawing-active .control-panel label[for="layer-zone"] {
   stroke-width: 2px !important;
 }
 
+/* ゾーン描画・頂点編集モード時のペン/十字カーソル (手のひら非表示) */
+body.zone-drawing-active .map-viewport,
+body.zone-drawing-active .map-container,
+body.zone-drawing-active .floor-map,
+body.vertex-editing-active .map-viewport,
+body.vertex-editing-active .map-container,
+body.vertex-editing-active .floor-map {
+  cursor: crosshair !important;
+}
+
+/* ゾーン中央テキストラベル */
+.zone-center-label {
+  font-size: 3.2px;
+  font-weight: 800;
+  fill: #ffffff;
+  stroke: rgba(0, 0, 0, 0.75);
+  stroke-width: 0.5px;
+  paint-order: stroke fill;
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: 0.1px;
+}
+
 /* 描画中の頂点マーカー */
 .zone-vertex-dot {
   position: absolute;

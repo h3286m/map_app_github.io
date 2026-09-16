@@ -24,8 +24,6 @@ const MapEngine = {
   renderAllFloors() {
     VENUE_DATA.floors.forEach(floor => {
       const mapEl = document.getElementById(`map-${floor.id}`);
-      if (!mapEl) return;
-
       // 既存動的コンテンツのクリア（背景画像は残す）
       mapEl.querySelectorAll('.room-pin-container, .acp-pin-container, .zone-layer-svg, .route-layer-svg').forEach(el => el.remove());
 
@@ -43,11 +41,17 @@ const MapEngine = {
 
         // 部署カラーを取得
         const dept = VENUE_DATA.departments.find(d => d.code === room.dept) || { color: '#007aff' };
+        if (dept.color) pin.style.backgroundColor = dept.color;
         
         pin.innerHTML = `
-          <span class="dept-tag" style="background:${dept.color}">${room.dept}</span>
-          ${room.name}
-          <span class="en">${room.code} | ${room.nameEn}</span>
+          <div class="pin-tooltip">
+            <div class="pin-tooltip-title">
+              <span class="dept-badge" style="background:${dept.color}">${room.dept}</span>
+              ${room.name}
+            </div>
+            <div class="pin-tooltip-sub">${room.code} ${room.nameEn ? '| ' + room.nameEn : ''}</div>
+            ${room.acp && room.acp !== 'なし' ? `<div class="pin-tooltip-acp-badge">🛡️ ACP: ${room.acp}</div>` : ''}
+          </div>
         `;
 
         pin.addEventListener('mouseenter', () => {
@@ -60,14 +64,16 @@ const MapEngine = {
 
         pin.addEventListener('click', (e) => {
           e.stopPropagation();
+          if (this.isEditorMode) return;
           this.selectSpot('room', room);
         });
 
+        this.bindPinDragEvents(pin, 'room', room);
         roomContainer.appendChild(pin);
       });
       mapEl.appendChild(roomContainer);
 
-      // 🛡️ ACP (Access Control Post) ピンコンテナの生成
+      // 🛡️ ACP (Access Control Point) ピンコンテナの生成
       const acpContainer = document.createElement('div');
       acpContainer.className = 'acp-pin-container';
 
@@ -79,13 +85,29 @@ const MapEngine = {
         pin.style.left = `${acp.x}%`;
         pin.style.top = `${acp.y}%`;
 
-        pin.innerHTML = `🛡️ ${acp.code} <span style="font-size:9px; opacity:0.8;">(${acp.passLevel.split(' ')[0]})</span>`;
+        pin.innerHTML = `
+          🛡
+          <div class="pin-tooltip">
+            <div class="pin-tooltip-title">🛡️ ${acp.code} ${acp.name && acp.name !== acp.code ? '- ' + acp.name : ''}</div>
+            <div class="pin-tooltip-sub">Access Pass: ${acp.passLevel}</div>
+          </div>
+        `;
+
+        pin.addEventListener('mouseenter', () => {
+          this.previewSpot('acp', acp);
+        });
+
+        pin.addEventListener('mouseleave', () => {
+          this.clearSpotPreview();
+        });
 
         pin.addEventListener('click', (e) => {
           e.stopPropagation();
+          if (this.isEditorMode) return;
           this.selectSpot('acp', acp);
         });
 
+        this.bindPinDragEvents(pin, 'acp', acp);
         acpContainer.appendChild(pin);
       });
       mapEl.appendChild(acpContainer);
@@ -126,12 +148,100 @@ const MapEngine = {
     });
   },
 
+  // ピンのドラッグ＆ドロップ移動イベント登録 (編集モード用)
+  bindPinDragEvents(pinEl, type, item) {
+    let startX = 0, startY = 0;
+    let hasDragged = false;
+
+    const onStart = (e) => {
+      if (!this.isEditorMode) return;
+      e.stopPropagation();
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      startX = clientX;
+      startY = clientY;
+      hasDragged = false;
+      this.isPinDragging = true;
+      this.draggedSpotItem = item;
+      this.draggedPinEl = pinEl;
+
+      pinEl.classList.add('is-dragging');
+
+      const onMove = (moveEvent) => {
+        if (!this.isPinDragging) return;
+        const curX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
+        const curY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
+
+        if (Math.hypot(curX - startX, curY - startY) > 3) {
+          hasDragged = true;
+        }
+
+        const viewport = document.querySelector('.map-viewport');
+        if (!viewport) return;
+        const rect = viewport.getBoundingClientRect();
+
+        const newX = Math.min(Math.max((((curX - rect.left - this.panX) / this.scale) / rect.width) * 100, 0), 100);
+        const newY = Math.min(Math.max((((curY - rect.top - this.panY) / this.scale) / rect.height) * 100, 0), 100);
+
+        pinEl.style.left = `${newX.toFixed(1)}%`;
+        pinEl.style.top = `${newY.toFixed(1)}%`;
+      };
+
+      const onEnd = () => {
+        pinEl.classList.remove('is-dragging');
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onEnd);
+        window.removeEventListener('touchmove', onMove);
+        window.removeEventListener('touchend', onEnd);
+
+        if (hasDragged) {
+          const finalX = parseFloat(pinEl.style.left);
+          const finalY = parseFloat(pinEl.style.top);
+
+          item.x = Math.round(finalX * 10) / 10;
+          item.y = Math.round(finalY * 10) / 10;
+
+          if (window.DataStorage) window.DataStorage.save();
+
+          const panel = document.getElementById('info-panel');
+          if (panel) {
+            panel.innerHTML = `
+              <div style="color:#34c759; font-weight:bold; font-size:13px; padding:6px 0;">
+                ✅ 「${item.name}」の位置をドラッグ移動し、自動保存しました！ (X: ${item.x}%, Y: ${item.y}%)
+              </div>
+            `;
+          }
+        } else {
+          // ドラッグ移動しなかった場合（通常のクリック） ➔ 編集ダイアログを開く
+          if (this.isEditorMode && window.openSpotEditorById) {
+            window.openSpotEditorById(item.id);
+          }
+        }
+
+        this.isPinDragging = false;
+        this.draggedSpotItem = null;
+        this.draggedPinEl = null;
+      };
+
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onEnd);
+      window.addEventListener('touchmove', onMove, { passive: false });
+      window.addEventListener('touchend', onEnd);
+    };
+
+    pinEl.addEventListener('mousedown', onStart);
+    pinEl.addEventListener('touchstart', onStart, { passive: false });
+  },
+
   // 2. ピン/スポットタップ時の詳細情報パネル更新
   previewSpot(type, item) {
     this.renderSpotInfo(type, item, true);
   },
 
   clearSpotPreview() {
+    if (this.activePinId) return; // 既に選択（クリック）されているピンがある場合はパネル内容を維持
     const panel = document.getElementById('info-panel');
     if (!panel) return;
 
@@ -142,7 +252,7 @@ const MapEngine = {
           <span class="badge badge-dept">OFFLINE ACTIVE</span>
         </div>
         <div style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-top:4px;">
-          マップ上の <b>📍 諸室ピン</b> や <b>🛡️ ACP (アクセス管理関所)</b> にカーソルを重ねると詳細情報が表示されます。
+          マップ上の <b>📍 諸室ピン</b> や <b>🛡️ ACP (アクセスポイント)</b> にカーソルを重ねると詳細情報が表示されます。
         </div>
       </div>
     `;
@@ -183,8 +293,8 @@ const MapEngine = {
               <span class="value">${zone.name}</span>
             </div>
             <div class="detail-item">
-              <span class="label">最寄関所 (ACP要件)</span>
-              <span class="value">${item.acp !== 'なし' ? '🛡️ ' + item.acp : '関所制限なし'}</span>
+              <span class="label">最寄ACP (パス要件)</span>
+              <span class="value">${item.acp !== 'なし' ? '🛡️ ' + item.acp : '制限なし'}</span>
             </div>
             <div class="detail-item">
               <span class="label">所在フロア / 座標</span>
@@ -211,7 +321,7 @@ const MapEngine = {
           <div class="detail-header">
             <div>
               <div class="detail-title">🛡️ ${item.name} (${item.code}) ${isPreview ? '<span style="font-size:11px; opacity:0.7;">(プレビュー)</span>' : ''}</div>
-              <div class="detail-code">アクセス管理関所 ID: ${item.id}</div>
+              <div class="detail-code">アクセスポイント ID: ${item.id}</div>
             </div>
             <div style="display:flex; gap:6px; align-items:center;">
               <button onclick="window.openSpotEditorById('${item.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">✏️ 編集</button>
@@ -220,11 +330,11 @@ const MapEngine = {
           </div>
           <div class="detail-grid">
             <div class="detail-item">
-              <span class="label">関所コード</span>
+              <span class="label">ACPコード</span>
               <span class="value">${item.code}</span>
             </div>
             <div class="detail-item">
-              <span class="label">通過許可レベル</span>
+              <span class="label">通行許可レベル</span>
               <span class="value">${item.passLevel}</span>
             </div>
             <div class="detail-item">

@@ -93,7 +93,7 @@ function setupEditorModal() {
     const panel = document.getElementById('info-panel');
     if (panel) {
       panel.innerHTML = MapEngine.isEditorMode
-        ? '<div style="color:#f59e0b; font-weight:bold;">✏️ ピン追加モード有効: マップ上の好きな場所をクリックすると、新しい諸室・関所を画面上で直接追加できます！</div>'
+        ? '<div style="color:#f59e0b; font-weight:bold;">✏️ ピン追加モード有効: マップ上の好きな場所をクリックすると、新しい諸室・ACPを画面上で直接追加できます！</div>'
         : '<div style="color:var(--text-secondary);">💡 ピン追加モードを終了しました。</div>';
     }
   });
@@ -101,6 +101,21 @@ function setupEditorModal() {
   const closeModal = () => editorModal.classList.remove('open');
   closeBtn?.addEventListener('click', closeModal);
   cancelBtn?.addEventListener('click', closeModal);
+
+  // ACP通行レベル選択プルダウンとカスタム入力の連動
+  const acpSelect = document.getElementById('form-acp-select');
+  const acpInput = document.getElementById('form-acp');
+
+  acpSelect?.addEventListener('change', () => {
+    if (acpSelect.value === 'custom') {
+      acpInput.style.display = 'block';
+      acpInput.value = '';
+      acpInput.focus();
+    } else {
+      acpInput.style.display = 'none';
+      acpInput.value = acpSelect.value;
+    }
+  });
 
   // フォーム送信（新規追加・更新）
   spotForm.addEventListener('submit', (e) => {
@@ -115,7 +130,11 @@ function setupEditorModal() {
     const floor = document.getElementById('form-floor').value;
     const x = parseFloat(document.getElementById('form-x').value);
     const y = parseFloat(document.getElementById('form-y').value);
-    const acp = document.getElementById('form-acp').value.trim() || 'なし';
+
+    const acpSelVal = acpSelect ? acpSelect.value : '';
+    const acpInpVal = acpInput ? acpInput.value.trim() : '';
+    const acp = (acpSelVal === 'custom' ? acpInpVal : acpSelVal) || 'Level 6 (大会運営・スタッフエリア)';
+
     const pdfUrl = document.getElementById('form-pdf').value.trim();
     const desc = document.getElementById('form-desc').value.trim();
 
@@ -215,13 +234,31 @@ window.openSpotEditor = function({ spotItem, x, y, floor }) {
     document.getElementById('form-floor').value = spotItem.floor || '1f';
     document.getElementById('form-x').value = spotItem.x;
     document.getElementById('form-y').value = spotItem.y;
-    document.getElementById('form-acp').value = spotItem.acp || spotItem.passLevel || '';
+
+    const acpVal = spotItem.acp || spotItem.passLevel || '';
+    const acpSelect = document.getElementById('form-acp-select');
+    const acpInput = document.getElementById('form-acp');
+
+    if (acpSelect) {
+      const matchOpt = Array.from(acpSelect.options).find(opt => opt.value === acpVal);
+      if (matchOpt) {
+        acpSelect.value = acpVal;
+        if (acpInput) acpInput.style.display = 'none';
+      } else {
+        acpSelect.value = 'custom';
+        if (acpInput) {
+          acpInput.style.display = 'block';
+          acpInput.value = acpVal;
+        }
+      }
+    }
+
     document.getElementById('form-pdf').value = spotItem.pdfUrl || '';
     document.getElementById('form-desc').value = spotItem.desc || '';
     if (deleteBtn) deleteBtn.style.display = 'block';
   } else {
     // 新規追加
-    title.textContent = `📍 新しい諸室・関所の追加`;
+    title.textContent = `📍 新しい諸室・ACPの追加`;
     idInput.value = '';
     document.getElementById('spot-form').reset();
     if (floor) document.getElementById('form-floor').value = floor;

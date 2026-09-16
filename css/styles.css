@@ -285,97 +285,166 @@ body > input[type="radio"], body > input[type="checkbox"] {
   background: var(--card-hover);
 }
 
-/* --- ピン・レイヤースタイル --- */
+/* --- ピン・レイヤースタイル (コンパクトドット ＆ ホバーポップアップ) --- */
 .room-pin-container, .acp-pin-container {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
   pointer-events: none;
 }
 
-/* 📍 諸室ピン (デフォルトはコンパクト表示) */
+/* 📍 諸室ピン (超極小ピンポイント・ドット表示: 約7px) */
 .room-pin {
   position: absolute;
   pointer-events: auto;
-  background: rgba(15, 23, 42, 0.85);
-  border: 2px solid var(--primary);
-  color: #fff;
-  padding: 2px 6px;
-  border-radius: 12px;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-  white-space: nowrap;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 10;
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  opacity: 0.85;
-}
-
-/* カーソルオーバー（ホバー）時のみ拡大展開 */
-.room-pin:hover {
-  opacity: 1;
-  max-width: 320px;
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  transform: translate(-50%, -50%) scale(1.15);
-  border-color: #38bdf8;
-  box-shadow: 0 0 18px rgba(56, 189, 248, 0.9);
-  background: rgba(15, 23, 42, 0.96);
-  z-index: 30;
-}
-
-.room-pin .en {
-  font-size: 9px;
-  color: #94a3b8;
-  display: none;
-  font-weight: 400;
-}
-
-.room-pin:hover .en {
-  display: block;
-}
-
-.room-pin .dept-tag {
-  display: inline-block;
-  font-size: 8px;
-  padding: 1px 4px;
-  border-radius: 3px;
-  margin-right: 3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
   background: var(--primary);
-  color: #fff;
+  border: 1px solid #ffffff;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, z-index 0.2s;
+  z-index: 10;
 }
 
-/* 🛡️ ACP (Access Control Post) ピン */
+.room-pin:hover {
+  transform: translate(-50%, -50%) scale(2.2);
+  z-index: 900;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.9), 0 0 0 2px rgba(255, 255, 255, 0.9);
+}
+
+/* 🛡️ ACP (Access Control Point) ピン (極小赤色グラデーションドット: 約9px) */
 .acp-pin {
   position: absolute;
   pointer-events: auto;
-  background: rgba(239, 68, 68, 0.95);
-  border: 2px solid #ffffff;
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 10px;
-  font-weight: 800;
-  cursor: pointer;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff4d4d 0%, #dc2626 100%);
+  border: 1px solid #ffffff;
   transform: translate(-50%, -50%);
-  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.5);
-  white-space: nowrap;
-  transition: transform 0.15s ease, box-shadow 0.15s;
-  z-index: 12;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.8), 0 1px 4px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  font-size: 0px;
+  color: transparent;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, z-index 0.2s;
+  z-index: 12;
 }
 
 .acp-pin:hover {
-  transform: translate(-50%, -50%) scale(1.2);
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.9);
-  z-index: 26;
+  transform: translate(-50%, -50%) scale(2.2);
+  z-index: 900;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 1), 0 0 0 2px rgba(255, 255, 255, 0.9);
+}
+
+/* ✏️ 編集モード有効時のドラッグ用ピンハイライト (少し操作しやすく拡大) */
+body.editor-active .room-pin {
+  width: 10px;
+  height: 10px;
+  cursor: grab !important;
+  box-shadow: 0 0 0 3px #f59e0b, 0 0 10px rgba(245, 158, 11, 0.8) !important;
+  animation: pulse-ring 1.5s infinite ease-in-out;
+}
+
+body.editor-active .acp-pin {
+  width: 12px;
+  height: 12px;
+  cursor: grab !important;
+  box-shadow: 0 0 0 3px #f59e0b, 0 0 10px rgba(245, 158, 11, 0.8) !important;
+  animation: pulse-ring 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 2px #f59e0b, 0 0 6px rgba(245, 158, 11, 0.6); }
+  50% { box-shadow: 0 0 0 4px #f59e0b, 0 0 14px rgba(245, 158, 11, 0.9); }
+  100% { box-shadow: 0 0 0 2px #f59e0b, 0 0 6px rgba(245, 158, 11, 0.6); }
+}
+
+.room-pin.is-dragging,
+.acp-pin.is-dragging {
+  cursor: grabbing !important;
+  transform: translate(-50%, -50%) scale(2.2) !important;
+  z-index: 9999 !important;
+  box-shadow: 0 0 0 4px #ef4444, 0 0 20px rgba(239, 68, 68, 1) !important;
+  transition: none !important;
+}
+
+/* ポップアップ ツールチップ (カーソルオーバー / タップ時) */
+.pin-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  white-space: nowrap;
+  pointer-events: none !important; /* マウスイベントの干渉を完全防止 */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+  z-index: 1000;
+  color: #ffffff;
+  text-align: left;
+}
+
+/* ツールチップの三角形矢印 */
+.pin-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgba(15, 23, 42, 0.96) transparent transparent transparent;
+  pointer-events: none !important;
+}
+
+.room-pin:hover .pin-tooltip,
+.acp-pin:hover .pin-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+.pin-tooltip-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pin-tooltip-sub {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.pin-tooltip-acp-badge {
+  font-size: 9px;
+  color: #fca5a5;
+  margin-top: 3px;
+  font-weight: 700;
+}
+
+.dept-badge {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  color: #ffffff;
 }
 
 /* 📐 ゾーン SVG オーバーレイ */
@@ -400,19 +469,20 @@ body > input[type="radio"], body > input[type="checkbox"] {
   stroke-width: 3px !important;
 }
 
-/* --- 下部情報パネル (Detail Drawer) --- */
+/* --- 下部情報パネル (Detail Drawer: リフロー・画面振れ防止のため高さ固定) --- */
 .info-panel {
   background: var(--panel-bg);
   backdrop-filter: blur(12px);
-  padding: 14px 18px;
+  padding: 12px 18px;
   border-top: 1px solid var(--panel-border);
   font-size: 13px;
   color: var(--text-primary);
-  max-height: 32vh;
+  height: 140px; /* 固定高さによりマップビューポートのリサイズ振れを完全防止 */
+  min-height: 140px;
+  flex-shrink: 0; /* Flexboxのリサイズによるレイアウトシフトを無効化 */
   overflow-y: auto;
   z-index: 35;
   box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
 }
 
 .detail-card {
@@ -606,4 +676,73 @@ body > input[type="radio"], body > input[type="checkbox"] {
 
 .editor-active .editor-badge {
   display: block;
+}
+
+/* ==========================================================================
+   モバイル端末（スマホ・タブレット）専用レスポンシブスタイル
+   ========================================================================== */
+@media (max-width: 768px) {
+  .pin-tooltip {
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    max-width: 180px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.8) !important;
+  }
+
+  .pin-tooltip-title {
+    font-size: 10px !important;
+    gap: 4px !important;
+    line-height: 1.25 !important;
+  }
+
+  .pin-tooltip-sub {
+    font-size: 8px !important;
+    margin-top: 1px !important;
+    line-height: 1.2 !important;
+  }
+
+  .pin-tooltip-acp-badge {
+    font-size: 8px !important;
+    margin-top: 2px !important;
+  }
+
+  .dept-badge {
+    padding: 1px 3px !important;
+    font-size: 8px !important;
+    border-radius: 3px !important;
+  }
+
+  .info-panel {
+    height: 110px !important;
+    min-height: 110px !important;
+    padding: 8px 12px !important;
+    font-size: 11px !important;
+  }
+
+  .detail-title {
+    font-size: 13px !important;
+  }
+
+  .detail-code {
+    font-size: 10px !important;
+  }
+
+  .detail-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 4px !important;
+  }
+
+  .detail-item {
+    padding: 3px 6px !important;
+  }
+
+  .detail-item .label {
+    font-size: 8px !important;
+  }
+
+  .detail-item .value {
+    font-size: 9px !important;
+  }
 }

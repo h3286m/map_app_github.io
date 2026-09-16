@@ -16,10 +16,16 @@ const MapEngine = {
 
   init() {
     this.bindEvents();
-    if (VENUE_DATA.zones && VENUE_DATA.zones.length > 0) {
-      const zoneChk = document.getElementById('layer-zone');
-      if (zoneChk) zoneChk.checked = true;
+    
+    // 最後に表示していたフロアを復元（デフォルトは outdoor）
+    const lastFloor = localStorage.getItem('OFFLINE_VENUE_MAP_LAST_FLOOR');
+    if (lastFloor && ['outdoor', '1f', '2f'].includes(lastFloor)) {
+      this.switchFloor(lastFloor);
     }
+
+    const zoneChk = document.getElementById('layer-zone');
+    if (zoneChk) zoneChk.checked = true;
+
     this.renderAllFloors();
     this.setupPanZoom();
   },
@@ -799,6 +805,8 @@ const MapEngine = {
 
     if (window.DataStorage) window.DataStorage.save();
 
+    // 描画中ポイントを作業用リストからクリアしてから描画モードを終了
+    this.currentZonePoints = [];
     this.toggleZoneDrawingMode(false);
     this.renderAllFloors();
     this.selectZone(newZone);
@@ -933,6 +941,12 @@ const MapEngine = {
     this.activeFloor = floorId;
     const tabRadio = document.getElementById(`tab-${floorId}`);
     if (tabRadio) tabRadio.checked = true;
+
+    try {
+      localStorage.setItem('OFFLINE_VENUE_MAP_LAST_FLOOR', floorId);
+    } catch (e) {
+      console.warn('Failed to save last floor:', e);
+    }
 
     // ズーム・位置をリセット
     this.scale = 1;

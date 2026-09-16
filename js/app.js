@@ -90,11 +90,19 @@ function setupEditorModal() {
     toggleEditorBtn.style.color = '#fff';
     toggleEditorBtn.textContent = MapEngine.isEditorMode ? '✕ 編集を終了' : '✏️ ピン追加・編集';
 
+    // 編集モード起動時は諸室・ACPレイヤーを全点灯し、すべてのピンをドラッグ操作可能にする
+    if (MapEngine.isEditorMode) {
+      const roomChk = document.getElementById('layer-room');
+      const acpChk = document.getElementById('layer-acp');
+      if (roomChk) roomChk.checked = true;
+      if (acpChk) acpChk.checked = true;
+    }
+
     const panel = document.getElementById('info-panel');
     if (panel) {
       panel.innerHTML = MapEngine.isEditorMode
-        ? '<div style="color:#f59e0b; font-weight:bold;">✏️ ピン追加モード有効: マップ上の好きな場所をクリックすると、新しい諸室・ACPを画面上で直接追加できます！</div>'
-        : '<div style="color:var(--text-secondary);">💡 ピン追加モードを終了しました。</div>';
+        ? '<div style="color:#f59e0b; font-weight:bold;">✏️ ピン移動・編集モード有効: マップ上のドットを掴んで好きな場所へドラッグ移動、またはクリックで名称編集ができます！</div>'
+        : '<div style="color:var(--text-secondary);">💡 編集モードを終了しました。</div>';
     }
   });
 

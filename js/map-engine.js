@@ -123,14 +123,15 @@ const MapEngine = {
         const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
         const pointsStr = zone.points.map(pt => `${pt[0]},${pt[1]}`).join(' ');
         polygon.setAttribute('points', pointsStr);
-        polygon.setAttribute('fill', zone.color || 'rgba(0,122,255,0.2)');
+        polygon.setAttribute('fill', zone.color || 'rgba(0,122,255,0.3)');
         polygon.setAttribute('stroke', zone.borderColor || '#007aff');
-        polygon.setAttribute('stroke-width', '0.8');
+        polygon.setAttribute('vector-effect', 'non-scaling-stroke');
+        polygon.setAttribute('data-id', zone.id);
         polygon.setAttribute('class', 'zone-polygon');
 
         // ゾーンタップ時の情報表示
         polygon.addEventListener('click', (e) => {
-          if (this.isZoneDrawingMode) return; // ゾーン描画モード時はクリックを通させて頂点追加を許可
+          if (this.isZoneDrawingMode || this.isVertexEditingMode) return; // 描画/編集モード時はクリックを通させて頂点追加・移動を優先
           e.stopPropagation();
           this.selectZone(zone);
         });
@@ -372,9 +373,10 @@ const MapEngine = {
             <div class="detail-title">📐 ゾーン: ${zone.name}</div>
             <div class="detail-code">Zone ID: ${zone.id} | フロア: ${zone.floor.toUpperCase()}</div>
           </div>
-          <div style="display:flex; gap:6px; align-items:center;">
-            <button onclick="MapEngine.openZoneEditor('${zone.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">✏️ 編集</button>
-            <button onclick="MapEngine.deleteZone('${zone.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#ef4444; color:#fff; font-weight:bold; cursor:pointer;">🗑️ ゾーン削除</button>
+          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+            <button onclick="MapEngine.startEditingZoneVerticesById('${zone.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">📍 頂点を編集</button>
+            <button onclick="MapEngine.openZoneEditor('${zone.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#007aff; color:#fff; font-weight:bold; cursor:pointer;">✏️ 名称変更</button>
+            <button onclick="MapEngine.deleteZone('${zone.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#ef4444; color:#fff; font-weight:bold; cursor:pointer;">🗑️ 削除</button>
             <span class="badge" style="background:${zone.borderColor || '#007aff'}">${zone.floor.toUpperCase()} ゾーン</span>
           </div>
         </div>
@@ -401,6 +403,216 @@ const MapEngine = {
       this.renderAllFloors();
       this.selectZone(zone);
     }
+  },
+
+  // ゾーン頂点編集モード (PowerPoint風 「頂点の編集」)
+  startEditingZoneVerticesById(zoneId) {
+    const zone = VENUE_DATA.zones.find(z => z.id === zoneId);
+    if (zone) this.startEditingZoneVertices(zone);
+  },
+
+  startEditingZoneVertices(zone) {
+    if (this.isZoneDrawingMode) this.toggleZoneDrawingMode(false);
+
+    this.editingZone = zone;
+    this.editingZonePoints = zone.points.map(pt => [...pt]);
+    this.selectedVertexIndex = null;
+    this.isVertexEditingMode = true;
+
+    document.body.classList.add('vertex-editing-active');
+
+    const zoneChk = document.getElementById('layer-zone');
+    if (zoneChk) zoneChk.checked = true;
+
+    this.renderVertexEditUI();
+  },
+
+  renderVertexEditUI() {
+    if (!this.editingZone || !this.editingZonePoints) return;
+
+    if (this.activeFloor !== this.editingZone.floor) {
+      this.switchFloor(this.editingZone.floor);
+    }
+
+    const mapEl = document.getElementById(`map-${this.editingZone.floor}`);
+    if (!mapEl) return;
+
+    mapEl.querySelectorAll('.zone-edit-handle').forEach(el => el.remove());
+
+    const bar = document.getElementById('vertex-editor-bar');
+    if (bar) {
+      bar.style.display = 'block';
+      const nameEl = document.getElementById('vertex-edit-name');
+      if (nameEl) nameEl.textContent = `📍 ゾーン: ${this.editingZone.name}`;
+      const countEl = document.getElementById('vertex-count-badge');
+      if (countEl) countEl.textContent = `頂点数: ${this.editingZonePoints.length}`;
+    }
+
+    const zoneSvg = mapEl.querySelector('.zone-layer-svg');
+    if (zoneSvg) {
+      let polyEl = zoneSvg.querySelector(`.temp-editing-polygon`);
+      if (!polyEl) {
+        polyEl = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polyEl.setAttribute('class', 'temp-editing-polygon');
+        polyEl.setAttribute('fill', this.editingZone.color || 'rgba(0,122,255,0.3)');
+        polyEl.setAttribute('stroke', '#f59e0b');
+        polyEl.setAttribute('stroke-width', '2');
+        polyEl.setAttribute('stroke-dasharray', '4 2');
+        polyEl.setAttribute('vector-effect', 'non-scaling-stroke');
+        polyEl.style.pointerEvents = 'none';
+        zoneSvg.appendChild(polyEl);
+      }
+      const pointsStr = this.editingZonePoints.map(pt => `${pt[0]},${pt[1]}`).join(' ');
+      polyEl.setAttribute('points', pointsStr);
+    }
+
+    this.editingZonePoints.forEach((pt, index) => {
+      const handle = document.createElement('div');
+      handle.className = `zone-edit-handle ${this.selectedVertexIndex === index ? 'is-selected' : ''}`;
+      handle.style.left = `${pt[0]}%`;
+      handle.style.top = `${pt[1]}%`;
+      handle.title = `頂点 #${index + 1} (${pt[0]}%, ${pt[1]}%) - ドラッグで移動`;
+      handle.innerHTML = `<span style="font-size:9px; font-weight:bold; color:#000;">${index + 1}</span>`;
+
+      this.bindVertexHandleDrag(handle, index);
+      mapEl.appendChild(handle);
+    });
+  },
+
+  bindVertexHandleDrag(handleEl, index) {
+    let startX = 0, startY = 0;
+
+    const onStart = (e) => {
+      e.stopPropagation();
+      this.selectedVertexIndex = index;
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      startX = clientX;
+      startY = clientY;
+      handleEl.classList.add('is-dragging');
+
+      const onMove = (moveEvt) => {
+        const curX = moveEvt.touches ? moveEvt.touches[0].clientX : moveEvt.clientX;
+        const curY = moveEvt.touches ? moveEvt.touches[0].clientY : moveEvt.clientY;
+
+        const viewport = document.querySelector('.map-viewport');
+        if (!viewport) return;
+        const rect = viewport.getBoundingClientRect();
+
+        const newX = Math.min(Math.max((((curX - rect.left - this.panX) / this.scale) / rect.width) * 100, 0), 100);
+        const newY = Math.min(Math.max((((curY - rect.top - this.panY) / this.scale) / rect.height) * 100, 0), 100);
+
+        const roundX = Math.round(newX * 10) / 10;
+        const roundY = Math.round(newY * 10) / 10;
+
+        this.editingZonePoints[index] = [roundX, roundY];
+
+        handleEl.style.left = `${roundX}%`;
+        handleEl.style.top = `${roundY}%`;
+
+        const mapEl = document.getElementById(`map-${this.editingZone.floor}`);
+        if (mapEl) {
+          const polyEl = mapEl.querySelector('.temp-editing-polygon');
+          if (polyEl) {
+            const pointsStr = this.editingZonePoints.map(p => `${p[0]},${p[1]}`).join(' ');
+            polyEl.setAttribute('points', pointsStr);
+          }
+        }
+      };
+
+      const onEnd = () => {
+        handleEl.classList.remove('is-dragging');
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onEnd);
+        window.removeEventListener('touchmove', onMove);
+        window.removeEventListener('touchend', onEnd);
+
+        this.renderVertexEditUI();
+      };
+
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onEnd);
+      window.addEventListener('touchmove', onMove, { passive: false });
+      window.addEventListener('touchend', onEnd);
+    };
+
+    handleEl.addEventListener('mousedown', onStart);
+    handleEl.addEventListener('touchstart', onStart, { passive: false });
+  },
+
+  addVertexToEditingZone() {
+    if (!this.editingZonePoints || this.editingZonePoints.length < 2) return;
+    
+    let maxDist = 0;
+    let insertIdx = 0;
+    let newPt = [50, 50];
+
+    for (let i = 0; i < this.editingZonePoints.length; i++) {
+      const p1 = this.editingZonePoints[i];
+      const p2 = this.editingZonePoints[(i + 1) % this.editingZonePoints.length];
+      const dist = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]);
+      if (dist > maxDist) {
+        maxDist = dist;
+        insertIdx = i + 1;
+        newPt = [
+          Math.round(((p1[0] + p2[0]) / 2) * 10) / 10,
+          Math.round(((p1[1] + p2[1]) / 2) * 10) / 10
+        ];
+      }
+    }
+
+    this.editingZonePoints.splice(insertIdx, 0, newPt);
+    this.selectedVertexIndex = insertIdx;
+    this.renderVertexEditUI();
+  },
+
+  deleteSelectedVertex() {
+    if (!this.editingZonePoints || this.editingZonePoints.length <= 3) {
+      alert('多角形を維持するには最低3個の頂点が必要です。');
+      return;
+    }
+    const idx = this.selectedVertexIndex !== null ? this.selectedVertexIndex : this.editingZonePoints.length - 1;
+    this.editingZonePoints.splice(idx, 1);
+    this.selectedVertexIndex = Math.min(idx, this.editingZonePoints.length - 1);
+    this.renderVertexEditUI();
+  },
+
+  saveEditingZoneVertices() {
+    if (!this.editingZone || !this.editingZonePoints || this.editingZonePoints.length < 3) return;
+
+    this.editingZone.points = [...this.editingZonePoints.map(pt => [...pt])];
+    
+    if (window.DataStorage) window.DataStorage.save();
+
+    const savedZone = this.editingZone;
+    this.exitVertexEditingMode();
+    this.renderAllFloors();
+    this.selectZone(savedZone);
+
+    const panel = document.getElementById('info-panel');
+    if (panel) {
+      panel.innerHTML = `
+        <div style="color:#f59e0b; font-weight:bold; font-size:13px; padding:6px 0;">
+          ✅ ゾーン「${savedZone.name}」の頂点位置を保存・反映しました！ (${savedZone.points.length}頂点)
+        </div>
+      `;
+    }
+  },
+
+  exitVertexEditingMode() {
+    this.isVertexEditingMode = false;
+    this.editingZone = null;
+    this.editingZonePoints = null;
+    this.selectedVertexIndex = null;
+
+    document.body.classList.remove('vertex-editing-active');
+
+    const bar = document.getElementById('vertex-editor-bar');
+    if (bar) bar.style.display = 'none';
+
+    document.querySelectorAll('.zone-edit-handle, .temp-editing-polygon').forEach(el => el.remove());
   },
 
   // ゾーン描画モードの起動・終了

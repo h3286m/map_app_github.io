@@ -479,12 +479,14 @@ body.editor-active .acp-pin::before {
 .zone-polygon {
   pointer-events: auto;
   cursor: pointer;
+  vector-effect: non-scaling-stroke !important;
+  stroke-width: 2px !important;
   transition: fill-opacity 0.2s, stroke-width 0.2s;
 }
 
 .zone-polygon:hover {
-  fill-opacity: 0.45 !important;
-  stroke-width: 3px !important;
+  fill-opacity: 0.55 !important;
+  stroke-width: 3.5px !important;
 }
 
 /* --- 下部情報パネル (Detail Drawer: リフロー・画面振れ防止のため高さ固定) --- */
@@ -729,6 +731,8 @@ body.zone-drawing-active .control-panel label[for="layer-zone"] {
 
 .temp-zone-preview-polygon {
   pointer-events: none !important;
+  vector-effect: non-scaling-stroke !important;
+  stroke-width: 2px !important;
 }
 
 /* 描画中の頂点マーカー */
@@ -743,6 +747,66 @@ body.zone-drawing-active .control-panel label[for="layer-zone"] {
   box-shadow: 0 0 8px rgba(175, 82, 222, 1);
   pointer-events: none;
   z-index: 100;
+}
+
+/* PowerPoint風 頂点編集バー */
+.vertex-drawer-bar {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  right: 60px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid #f59e0b;
+  border-radius: 10px;
+  padding: 8px 12px;
+  z-index: 50;
+  display: none;
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+}
+
+body.vertex-editing-active .vertex-drawer-bar {
+  display: block;
+}
+
+body.vertex-editing-active .map-viewport .zone-layer-svg {
+  display: block !important;
+}
+
+/* 頂点編集用ドラッグハンドル (18px丸型ドットバッジ) */
+.zone-edit-handle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f59e0b;
+  border: 2px solid #ffffff;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.9), 0 2px 6px rgba(0, 0, 0, 0.5);
+  cursor: grab;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.zone-edit-handle:hover, .zone-edit-handle.is-selected {
+  transform: translate(-50%, -50%) scale(1.4);
+  background: #00c7be;
+  box-shadow: 0 0 15px rgba(0, 199, 190, 1), 0 0 0 3px #ffffff;
+  z-index: 130;
+}
+
+.zone-edit-handle.is-dragging {
+  cursor: grabbing !important;
+  transform: translate(-50%, -50%) scale(1.6) !important;
+  background: #ef4444 !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 1) !important;
+  z-index: 9999 !important;
 }
 
 /* ==========================================================================

@@ -113,8 +113,8 @@
     .dept-badge { display: inline-block; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: 800; color: #ffffff; }
 
     .zone-layer-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
-    .zone-polygon { pointer-events: auto; cursor: pointer; transition: fill-opacity 0.2s, stroke-width 0.2s; }
-    .zone-polygon:hover { fill-opacity: 0.45 !important; stroke-width: 3px !important; }
+    .zone-polygon { pointer-events: auto; cursor: pointer; vector-effect: non-scaling-stroke !important; stroke-width: 2px !important; transition: fill-opacity 0.2s, stroke-width 0.2s; }
+    .zone-polygon:hover { fill-opacity: 0.55 !important; stroke-width: 3.5px !important; }
 
     .info-panel { background: var(--panel-bg); backdrop-filter: blur(12px); padding: 12px 18px; border-top: 1px solid var(--panel-border); font-size: 13px; color: var(--text-primary); height: 140px; min-height: 140px; flex-shrink: 0; overflow-y: auto; z-index: 35; box-shadow: 0 -5px 20px rgba(0,0,0,0.3); }
     .detail-card { display: flex; flex-direction: column; gap: 8px; }
@@ -164,7 +164,7 @@
     .zone-drawing-active .zone-drawer-bar { display: block; }
     body.zone-drawing-active .map-viewport .zone-layer-svg { display: block !important; }
     body.zone-drawing-active .control-panel label[for="layer-zone"] { background: var(--accent-zone) !important; color: #fff !important; border-color: var(--accent-zone) !important; }
-    .temp-zone-preview-polygon { pointer-events: none !important; }
+    .temp-zone-preview-polygon { pointer-events: none !important; vector-effect: non-scaling-stroke !important; stroke-width: 2px !important; }
     .zone-vertex-dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #af52de; border: 2px solid #ffffff; transform: translate(-50%, -50%); box-shadow: 0 0 8px rgba(175, 82, 222, 1); pointer-events: none; z-index: 100; }
 
     @media (max-width: 768px) {
@@ -244,12 +244,13 @@
         <input type="text" id="zone-draw-name" placeholder="ゾーン名 (例: Zone 2, RED)" style="padding:4px 8px; border-radius:6px; border:1px solid var(--panel-border); font-size:12px; width:130px; background:var(--card-bg); color:#fff;">
         
         <select id="zone-draw-color" style="padding:4px 6px; border-radius:6px; border:1px solid var(--panel-border); font-size:12px; background:var(--card-bg); color:#fff;">
-          <option value="rgba(0,122,255,0.3)">🔵 青ゾーン (Zone 2等)</option>
-          <option value="rgba(239,68,68,0.35)">🔴 赤ゾーン (Zone RED等)</option>
-          <option value="rgba(175,82,222,0.35)">🟣 紫ゾーン (Zone 5,6等)</option>
-          <option value="rgba(52,199,89,0.35)">🟢 緑ゾーン (Zone 4等)</option>
-          <option value="rgba(245,158,11,0.35)">🟡 黄ゾーン (Zone FOH等)</option>
-          <option value="rgba(255,255,255,0.25)">⚪ 白ゾーン (Zone WHITE等)</option>
+          <option value="rgba(0,122,255,0.35)">🔵 BLUEゾーン (Zone BLUE / 選手動線)</option>
+          <option value="rgba(239,68,68,0.35)">🔴 REDゾーン (Zone RED / 競技エリア)</option>
+          <option value="rgba(175,82,222,0.35)">🟣 PURPLEゾーン (Zone 5,6 / 役員・VIP)</option>
+          <option value="rgba(52,199,89,0.35)">🟢 GREENゾーン (Zone 4 / チーム役員)</option>
+          <option value="rgba(245,158,11,0.35)">🟡 YELLOWゾーン (Zone FOH / 観客・一般)</option>
+          <option value="rgba(255,255,255,0.25)">⚪ WHITEゾーン (Zone WHITE / 駐車場・物流)</option>
+          <option value="rgba(0,199,190,0.35)">🩵 CYANゾーン (Zone 2等)</option>
         </select>
 
         <span id="zone-point-count" style="font-size:11px; color:#94a3b8; font-weight:bold;">点数: 0</span>
@@ -263,6 +264,25 @@
       </div>
       <div style="font-size:10px; color:#94a3b8; margin-top:4px;">
         💡 図面上の角を順番にクリックして多角形を描き、「💾 ゾーン保存」を押してください。
+      </div>
+    </div>
+
+    <!-- 頂点編集コントロールバー (PowerPoint風 頂点の編集) -->
+    <div id="vertex-editor-bar" class="vertex-drawer-bar">
+      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <span style="font-weight:800; font-size:12px; color:#f59e0b;">📍 頂点の編集モード:</span>
+        <span id="vertex-edit-name" style="font-size:12px; font-weight:bold; color:#fff;">ゾーン名</span>
+        <span id="vertex-count-badge" style="font-size:11px; color:#94a3b8; font-weight:bold;">頂点数: 0</span>
+
+        <div style="display:flex; gap:4px; margin-left:auto; flex-wrap:wrap;">
+          <button id="vertex-add-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px;">➕ 頂点を追加</button>
+          <button id="vertex-del-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px; color:#ef4444; border-color:#ef4444;">🗑️ 頂点を削除</button>
+          <button id="vertex-save-btn" class="btn-primary" style="padding:4px 10px; font-size:11px; background:#f59e0b; color:#000; font-weight:bold;">💾 頂点調整を保存</button>
+          <button id="vertex-cancel-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px;">✕ キャンセル</button>
+        </div>
+      </div>
+      <div style="font-size:10px; color:#94a3b8; margin-top:4px;">
+        💡 黄色の頂点ドット（①, ②, ③...）をマウスや指でドラッグしてゾーンの形を自由に変形調整できます。
       </div>
     </div>
 

@@ -56,6 +56,12 @@ function setupZoneDrawerControls() {
   clearBtn?.addEventListener('click', () => MapEngine.clearCurrentZoneDrawing());
   saveBtn?.addEventListener('click', () => MapEngine.saveCurrentZone());
   cancelBtn?.addEventListener('click', () => MapEngine.toggleZoneDrawingMode(false));
+
+  // PowerPoint風 頂点編集バーのイベント
+  document.getElementById('vertex-add-btn')?.addEventListener('click', () => MapEngine.addVertexToEditingZone());
+  document.getElementById('vertex-del-btn')?.addEventListener('click', () => MapEngine.deleteSelectedVertex());
+  document.getElementById('vertex-save-btn')?.addEventListener('click', () => MapEngine.saveEditingZoneVertices());
+  document.getElementById('vertex-cancel-btn')?.addEventListener('click', () => MapEngine.exitVertexEditingMode());
 }
 
 // 検索と部署フィルターの動的制御

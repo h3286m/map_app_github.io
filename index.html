@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>オフライン多機能会場マップ (ACP・諸室・ゾーン連動)</title>
+  <link rel="stylesheet" href="css/styles.css?v=2.0">
+  <style>
+    /* 強制インライン表示制御 (ブラウザキャッシュによる崩れ防止) */
+    body > input[type="radio"], body > input[type="checkbox"] {
+      display: none !important;
+      position: absolute !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 状態管理用ラジオ・チェックボックス (CSS Selector連動ロジック) -->
+  <input type="radio" id="tab-outdoor" name="floor" checked>
+  <input type="radio" id="tab-1f" name="floor">
+  <input type="radio" id="tab-2f" name="floor">
+
+  <input type="checkbox" id="layer-room" checked>
+  <input type="checkbox" id="layer-acp" checked>
+  <input type="checkbox" id="layer-zone" checked>
+
+  <!-- ヘッダー・操作コントロールパネル -->
+  <div class="control-panel">
+    <div class="top-row">
+      <!-- フロア選択タブ -->
+      <div class="floor-tabs">
+        <label for="tab-outdoor" class="tab-btn" onclick="MapEngine.switchFloor('outdoor')">屋外</label>
+        <label for="tab-1f" class="tab-btn" onclick="MapEngine.switchFloor('1f')">1階</label>
+        <label for="tab-2f" class="tab-btn" onclick="MapEngine.switchFloor('2f')">2階</label>
+      </div>
+
+      <!-- レイヤー表示/非表示トグルメニュー -->
+      <div class="layer-menu">
+        <label for="layer-room">📍 諸室</label>
+        <label for="layer-acp">🛡️ ACP</label>
+        <label for="layer-zone">📐 ゾーン</label>
+      </div>
+
+      <!-- 便利ボタン (テーマ・データ編集) -->
+      <div style="display:flex; gap:4px; flex-wrap:wrap;">
+        <button id="toggle-editor-btn" class="btn-primary" style="background:#f59e0b; color:#000;">✏️ ピン追加・編集</button>
+        <button id="export-data-btn" class="btn-secondary" title="編集データを保存・ダウンロード">📥 保存/書き出し</button>
+        <button id="toggle-theme-btn" class="btn-secondary">🌙 テーマ</button>
+      </div>
+    </div>
+
+    <!-- 検索＆部署フィルター行 -->
+    <div class="search-filter-row">
+      <div class="search-box-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" class="search-input" placeholder="諸室名・ACPコード・英語名で即座に検索..." list="search-suggestions">
+        <datalist id="search-suggestions"></datalist>
+      </div>
+      <select id="dept-select" class="dept-select">
+        <!-- JSで自動挿入 -->
+      </select>
+    </div>
+  </div>
+
+  <!-- マップ表示エリア (Map Viewport with Pan/Zoom) -->
+  <div class="map-viewport">
+    <div class="editor-badge">📍 座標取得モード ON</div>
+
+    <!-- ズーム・パン物理コントロール -->
+    <div class="zoom-controls">
+      <button id="zoom-in" class="zoom-btn" title="拡大">+</button>
+      <button id="zoom-out" class="zoom-btn" title="縮小">−</button>
+      <button id="zoom-reset" class="zoom-btn" title="位置リセット" style="font-size:12px;">⟲</button>
+    </div>
+
+    <!-- Pan & Zoom Transform Container -->
+    <div class="map-container">
+
+      <!-- 屋外マップ -->
+      <div id="map-outdoor" class="floor-map">
+        <img src="assets/outdoor.png" alt="Outdoor Map" class="bg-svg">
+      </div>
+
+      <!-- 1階マップ -->
+      <div id="map-1f" class="floor-map">
+        <img src="assets/floor1.png" alt="1F Floor Map" class="bg-svg">
+      </div>
+
+      <!-- 2階マップ -->
+      <div id="map-2f" class="floor-map">
+        <img src="assets/floor2.png" alt="2F Floor Map" class="bg-svg">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 下部リアルタイム詳細情報パネル (Detail Drawer) -->
+  <div class="info-panel" id="info-panel">
+    <div class="detail-card">
+      <div class="detail-header">
+        <div class="detail-title">💡 オフライン会場マップ案内</div>
+        <span class="badge badge-dept">OFFLINE ACTIVE</span>
+      </div>
+      <div style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-top:4px;">
+        マップ上の <b>📍 諸室ピン</b> または <b>🛡️ ACP (アクセス管理関所)</b> をタップすると、詳細情報（諸室名・英語表記・担当部署・ACP要件）がここに即座に表示されます。<br>
+        ヘッダーの「階層タブ」や「レイヤー切替」、または検索バーで目的の場所を探索できます。
+      </div>
+    </div>
+  </div>
+
+  <!-- モーダル1: 諸室・関所の追加・編集モーダル -->
+  <div id="spot-editor-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title" style="margin:0; font-size:16px;">📍 諸室・関所の追加・編集</h3>
+        <button id="modal-close-btn" class="modal-close">✕</button>
+      </div>
+      <form id="spot-form" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+        <input type="hidden" id="edit-spot-id">
+        
+        <div class="form-row">
+          <label>種別:</label>
+          <div style="display:flex; gap:12px;">
+            <label style="cursor:pointer;"><input type="radio" name="spot-type" value="room" checked style="display:inline;"> 📍 諸室</label>
+            <label style="cursor:pointer;"><input type="radio" name="spot-type" value="acp" style="display:inline;"> 🛡️ ACP (関所)</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-name">名称 (諸室名 / 関所名): *</label>
+          <input type="text" id="form-name" required placeholder="例: 大会本部室, 北側メインゲート">
+        </div>
+
+        <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div class="form-group">
+            <label for="form-code">部屋コード:</label>
+            <input type="text" id="form-code" placeholder="例: ADM-01">
+          </div>
+          <div class="form-group">
+            <label for="form-dept">担当部署:</label>
+            <select id="form-dept" class="dept-select" style="width:100%;">
+              <!-- JSで自動挿入 -->
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-name-en">英語表記:</label>
+          <input type="text" id="form-name-en" placeholder="例: ADM01_TournamentHQ">
+        </div>
+
+        <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+          <div class="form-group">
+            <label for="form-floor">フロア:</label>
+            <select id="form-floor" style="padding:6px; border-radius:6px; border:1px solid var(--panel-border); background:var(--card-bg); color:var(--text-primary);">
+              <option value="outdoor">屋外</option>
+              <option value="1f">1階</option>
+              <option value="2f">2階</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="form-x">X座標 (%):</label>
+            <input type="number" id="form-x" step="0.1" min="0" max="100" required>
+          </div>
+          <div class="form-group">
+            <label for="form-y">Y座標 (%):</label>
+            <input type="number" id="form-y" step="0.1" min="0" max="100" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-acp">関所パス要件 / 最寄関所:</label>
+          <input type="text" id="form-acp" placeholder="例: Level A (選手・役員), または ACP-1F-01">
+        </div>
+
+        <div class="form-group">
+          <label for="form-pdf">📄 関連PDF資料・マニュアル (任意):</label>
+          <input type="text" id="form-pdf" placeholder="例: assets/docs/manual.pdf または PDFファイル名">
+        </div>
+
+        <div class="form-group">
+          <label for="form-desc">概要・説明:</label>
+          <textarea id="form-desc" rows="2" placeholder="特記事項・運用仕様を入力..."></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+          <button type="button" id="form-delete-btn" class="btn-secondary" style="background:#ef4444; color:#fff; display:none;">🗑️ 削除</button>
+          <div style="display:flex; gap:8px; margin-left:auto;">
+            <button type="button" id="form-cancel-btn" class="btn-secondary">キャンセル</button>
+            <button type="submit" class="btn-primary">💾 保存</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- モーダル2: データ保存・書き出しモーダル -->
+  <div id="export-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="margin:0; font-size:16px;">📥 データ保存・書き出し</h3>
+        <button id="export-close-btn" class="modal-close">✕</button>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:12px; font-size:13px; color:var(--text-secondary);">
+        <div>
+          ブラウザ上で編集した最新データは自動的にブラウザ（LocalStorage）に保存されています。
+        </div>
+
+        <button id="download-datajs-btn" class="btn-primary" style="padding:10px; font-size:13px;">
+          📄 js/data.js ファイルとして保存（ダウンロード）
+        </button>
+
+        <button id="reset-default-data-btn" class="btn-secondary" style="color:#ef4444; border-color:#ef4444;">
+          🔄 初期データ状態にリセット
+        </button>
+  <!-- スクリプト読み込み (順序重要: data.js -> map-engine.js -> app.js) -->
+  <script src="js/data.js"></script>
+  <script src="js/map-engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

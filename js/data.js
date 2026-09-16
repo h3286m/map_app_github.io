@@ -1,0 +1,2703 @@
+/**
+ * オフライン会場マップ - データ管理モジュール (VENUE_DATA)
+ * ユーザー様提供のエクセルデータ (HSC Venue Cluster 6) に基いて全件自動生成
+ */
+
+const VENUE_DATA = {
+  floors: [
+  {
+    "id": "outdoor",
+    "name": "屋外",
+    "nameEn": "Outdoor Site Plan",
+    "mapBg": "assets/outdoor.png"
+  },
+  {
+    "id": "1f",
+    "name": "1階",
+    "nameEn": "1st Floor (Pools & Field Operations)",
+    "mapBg": "assets/floor1.png"
+  },
+  {
+    "id": "2f",
+    "name": "2階",
+    "nameEn": "2nd Floor (VIP, Press & Commentary)",
+    "mapBg": "assets/floor2.png"
+  }
+],
+  departments: [
+  {
+    "code": "ALL",
+    "name": "全部署 (All Departments)"
+  },
+  {
+    "code": "SPT",
+    "name": "競技・スポーツ (Sports)",
+    "color": "#007aff"
+  },
+  {
+    "code": "OFS",
+    "name": "大会要人・プロトコル (Official / Protocol)",
+    "color": "#af52de"
+  },
+  {
+    "code": "TEC",
+    "name": "計測・テクノロジー (Technology & OVR)",
+    "color": "#00c7be"
+  },
+  {
+    "code": "SEC",
+    "name": "警備・セキュリティ (Security / VSCC)",
+    "color": "#ff3b30"
+  },
+  {
+    "code": "SPP",
+    "name": "演出・プロダクション (Special Production)",
+    "color": "#ff9500"
+  },
+  {
+    "code": "CER",
+    "name": "表彰・セレモニー (Ceremonies)",
+    "color": "#ff2d55"
+  },
+  {
+    "code": "BRS",
+    "name": "放送・中継 (Broadcast / HB)",
+    "color": "#5856d6"
+  },
+  {
+    "code": "PRS",
+    "name": "報道・プレス (Press & Media)",
+    "color": "#ff9500"
+  },
+  {
+    "code": "DOP",
+    "name": "ドーピング検査 (Doping Control)",
+    "color": "#34c759"
+  },
+  {
+    "code": "PEM",
+    "name": "アクレディ・ID (Check-In)",
+    "color": "#ff2d55"
+  },
+  {
+    "code": "VEM",
+    "name": "ボランティア (Volunteer & VOC)",
+    "color": "#34c759"
+  },
+  {
+    "code": "CNW",
+    "name": "清掃・廃棄物 (Cleaning & Waste)",
+    "color": "#8e8e93"
+  },
+  {
+    "code": "LOG",
+    "name": "資材・物流 (Logistics)",
+    "color": "#5856d6"
+  },
+  {
+    "code": "TRA",
+    "name": "輸送・駐車場 (Transport)",
+    "color": "#007aff"
+  },
+  {
+    "code": "VNI",
+    "name": "会場インフラ (Infrastructure)",
+    "color": "#64748b"
+  },
+  {
+    "code": "BIL",
+    "name": "二国間・運営 (Bilateral)",
+    "color": "#64748b"
+  },
+  {
+    "code": "EVS",
+    "name": "観客・案内サービス (Event Services)",
+    "color": "#ff9500"
+  },
+  {
+    "code": "FNB",
+    "name": "飲食・ケータリング (Food & Beverage)",
+    "color": "#ff9500"
+  },
+  {
+    "code": "MED",
+    "name": "救護・医務 (Medical)",
+    "color": "#34c759"
+  },
+  {
+    "code": "NRG",
+    "name": "電力・エネルギー (Energy / Power)",
+    "color": "#ffcc00"
+  },
+  {
+    "code": "GLE",
+    "name": "敷地管理 (Green & Landscape)",
+    "color": "#34c759"
+  },
+  {
+    "code": "TKT",
+    "name": "チケット (Ticketing)",
+    "color": "#ff2d55"
+  }
+],
+  zones: [
+  {
+    "id": "ZONE_1F_MAIN",
+    "floor": "1f",
+    "name": "1階アリーナ・競技運営エリア",
+    "nameEn": "1F Field & Operations Area",
+    "color": "rgba(0, 122, 255, 0.2)",
+    "borderColor": "#007aff",
+    "points": [
+      [
+        20,
+        20
+      ],
+      [
+        85,
+        20
+      ],
+      [
+        85,
+        85
+      ],
+      [
+        20,
+        85
+      ]
+    ]
+  },
+  {
+    "id": "ZONE_2F_MAIN",
+    "floor": "2f",
+    "name": "2階メディア・プロトコル観覧エリア",
+    "nameEn": "2F Media & Protocol Level",
+    "color": "rgba(175, 82, 222, 0.2)",
+    "borderColor": "#af52de",
+    "points": [
+      [
+        15,
+        15
+      ],
+      [
+        88,
+        15
+      ],
+      [
+        88,
+        80
+      ],
+      [
+        15,
+        80
+      ]
+    ]
+  },
+  {
+    "id": "ZONE_OUTDOOR_MAIN",
+    "floor": "outdoor",
+    "name": "屋外配置・駐車場・スクリーニングエリア",
+    "nameEn": "Outdoor Site & Screening Area",
+    "color": "rgba(52, 199, 89, 0.2)",
+    "borderColor": "#34c759",
+    "points": [
+      [
+        10,
+        10
+      ],
+      [
+        90,
+        10
+      ],
+      [
+        90,
+        90
+      ],
+      [
+        10,
+        90
+      ]
+    ]
+  }
+],
+  rooms: [
+  {
+    "id": "RM-SPT-001",
+    "code": "SPT-1",
+    "name": "Sport Information",
+    "nameEn": "SPT 1 - Sport Information",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 25,
+    "y": 30,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-002",
+    "code": "SPT-9",
+    "name": "Athlete Training Area (Warm Up Pool)",
+    "nameEn": "SPT 9 - Athlete Training Area (Warm Up Pool)",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 36,
+    "y": 37,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: BLUE | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-003",
+    "code": "SPT-10",
+    "name": "FOP Equipment Storage",
+    "nameEn": "SPT 10 - FOP Equipment Storage",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 47,
+    "y": 44,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: RED | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-004",
+    "code": "SPT-11",
+    "name": "Sport Equipment Storage",
+    "nameEn": "SPT 11 - Sport Equipment Storage",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 58,
+    "y": 51,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-005",
+    "code": "SPT-14",
+    "name": "Athlete Change Room (Men)",
+    "nameEn": "SPT 14 - Athlete Change Room (Men)",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 69,
+    "y": 58,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-006",
+    "code": "SPT-15",
+    "name": "Athlete Change Room (Women)",
+    "nameEn": "SPT 15 - Athlete Change Room (Women)",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 30,
+    "y": 30,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-007",
+    "code": "SPT-17",
+    "name": "Athlete Lounge",
+    "nameEn": "SPT 17 - Athlete Lounge",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 41,
+    "y": 37,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-008",
+    "code": "SPT-18",
+    "name": "Athlete Dining",
+    "nameEn": "SPT 18 - Athlete Dining",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 52,
+    "y": 44,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-009",
+    "code": "SPT-23",
+    "name": "Call Room",
+    "nameEn": "SPT 23 - Call Room",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 63,
+    "y": 51,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-010",
+    "code": "SPT-59",
+    "name": "Technical Officials Meeting Room",
+    "nameEn": "SPT 59 - Technical Officials Meeting Room",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 74,
+    "y": 58,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-011",
+    "code": "SPT-64",
+    "name": "Video Judge Room",
+    "nameEn": "SPT 64 - Video Judge Room",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 35,
+    "y": 30,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-012",
+    "code": "SPT-66",
+    "name": "Kiss&Cry",
+    "nameEn": "SPT 66 - Kiss&Cry",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 46,
+    "y": 37,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-013",
+    "code": "SPT-67",
+    "name": "Free Swimming Area",
+    "nameEn": "SPT 67 - Free Swimming Area",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 57,
+    "y": 44,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-014",
+    "code": "SPT-68",
+    "name": "Dry Land Training Stretch Area",
+    "nameEn": "SPT 68 - Dry Land Training Stretch Area",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 68,
+    "y": 51,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-015",
+    "code": "SPT-69",
+    "name": "Hair Setting Space",
+    "nameEn": "SPT 69 - Hair Setting Space",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 29,
+    "y": 58,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-016",
+    "code": "SPT-83",
+    "name": "Preparation Area",
+    "nameEn": "SPT 83 - Preparation Area",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 40,
+    "y": 30,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-017",
+    "code": "SPT-90",
+    "name": "Pray Room for Athletes",
+    "nameEn": "SPT 90 - Pray Room for Athletes",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 51,
+    "y": 37,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-018",
+    "code": "SPT-101",
+    "name": "Competition Management",
+    "nameEn": "SPT 101 - Competition Management",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 62,
+    "y": 44,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-019",
+    "code": "SPT-106",
+    "name": "Staff Toilets-Men Urinal",
+    "nameEn": "SPT 106 - Staff Toilets-Men Urinal",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 73,
+    "y": 51,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-020",
+    "code": "SPT-107",
+    "name": "Staff Toilets-Men",
+    "nameEn": "SPT 107 - Staff Toilets-Men",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 34,
+    "y": 58,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-021",
+    "code": "SPT-108",
+    "name": "Staff Toilets-Women",
+    "nameEn": "SPT 108 - Staff Toilets-Women",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 45,
+    "y": 30,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-022",
+    "code": "SPT-109",
+    "name": "Staff Toilets-Accessible",
+    "nameEn": "SPT 109 - Staff Toilets-Accessible",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 56,
+    "y": 37,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-023",
+    "code": "SPT-201",
+    "name": "IF Office",
+    "nameEn": "SPT 201 - IF Office",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 67,
+    "y": 44,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-024",
+    "code": "SPT-203+227",
+    "name": "IF/AF President Office",
+    "nameEn": "SPT 203+227 - IF/AF President Office",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 28,
+    "y": 51,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-025",
+    "code": "SPT-205",
+    "name": "TD Office",
+    "nameEn": "SPT 205 - TD Office",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 39,
+    "y": 58,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-026",
+    "code": "SPT-508",
+    "name": "Team Leaders Meeting Room",
+    "nameEn": "SPT 508 - Team Leaders Meeting Room",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 50,
+    "y": 30,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-027",
+    "code": "SPT-509",
+    "name": "Judges/TC Platform 1",
+    "nameEn": "SPT 509 - Judges/TC Platform 1",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 61,
+    "y": 37,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-028",
+    "code": "SPT-509",
+    "name": "Judges/TC Platform 2",
+    "nameEn": "SPT 509 - Judges/TC Platform 2",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 72,
+    "y": 44,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-SPT-029",
+    "code": "SPT-513",
+    "name": "Music Operations Room",
+    "nameEn": "SPT 513 - Music Operations Room",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 33,
+    "y": 51,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-OFS-030",
+    "code": "OFS-1",
+    "name": "Staff Office",
+    "nameEn": "OFS 1 - Staff Office",
+    "dept": "OFS",
+    "floor": "outdoor",
+    "x": 76,
+    "y": 32,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: OFS (大会要人・プロトコル (Official / Protocol))"
+  },
+  {
+    "id": "RM-OFS-031",
+    "code": "OFS-2",
+    "name": "Protocol Office",
+    "nameEn": "OFS 2 - Protocol Office",
+    "dept": "OFS",
+    "floor": "2f",
+    "x": 25,
+    "y": 40,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-OFS-2",
+    "desc": "Zone: 6 | Department: OFS (大会要人・プロトコル (Official / Protocol))"
+  },
+  {
+    "id": "RM-OFS-032",
+    "code": "OFS-3",
+    "name": "OCA Family Lounge",
+    "nameEn": "OFS 3 - OCA Family Lounge",
+    "dept": "OFS",
+    "floor": "2f",
+    "x": 30,
+    "y": 49,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 6 | Department: OFS (大会要人・プロトコル (Official / Protocol))"
+  },
+  {
+    "id": "RM-OFS-033",
+    "code": "OFS-6",
+    "name": "Flag Area for Ceremonies",
+    "nameEn": "OFS 6 - Flag Area for Ceremonies",
+    "dept": "OFS",
+    "floor": "2f",
+    "x": 35,
+    "y": 58,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 6 | Department: OFS (大会要人・プロトコル (Official / Protocol))"
+  },
+  {
+    "id": "RM-OFS-034",
+    "code": "OFS-7",
+    "name": "Urinal Toilet (Men)",
+    "nameEn": "OFS 7 - Urinal Toilet (Men)",
+    "dept": "OFS",
+    "floor": "2f",
+    "x": 40,
+    "y": 67,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 6 | Department: OFS (大会要人・プロトコル (Official / Protocol))"
+  },
+  {
+    "id": "RM-OFS-035",
+    "code": "OFS-8",
+    "name": "Cubicle Toilet (Men)",
+    "nameEn": "OFS 8 - Cubicle Toilet (Men)",
+    "dept": "OFS",
+    "floor": "2f",
+    "x": 45,
+    "y": 26,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 6 | Department: OFS (大会要人・プロトコル (Official / Protocol))"
+  },
+  {
+    "id": "RM-OFS-036",
+    "code": "OFS-9",
+    "name": "Cubicle Toilet (Women)",
+    "nameEn": "OFS 9 - Cubicle Toilet (Women)",
+    "dept": "OFS",
+    "floor": "2f",
+    "x": 50,
+    "y": 35,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 6 | Department: OFS (大会要人・プロトコル (Official / Protocol))"
+  },
+  {
+    "id": "RM-OFS-037",
+    "code": "OFS-10",
+    "name": "Accessible Toilet",
+    "nameEn": "OFS 10 - Accessible Toilet",
+    "dept": "OFS",
+    "floor": "2f",
+    "x": 25,
+    "y": 44,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 6 | Department: OFS (大会要人・プロトコル (Official / Protocol))"
+  },
+  {
+    "id": "RM-TEC-038",
+    "code": "TEC-1",
+    "name": "T&S",
+    "nameEn": "TEC 1 - T&S",
+    "dept": "TEC",
+    "floor": "1f",
+    "x": 43,
+    "y": 70,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-TEC-1",
+    "desc": "Zone: RED | Department: TEC (計測・テクノロジー (Technology & OVR))"
+  },
+  {
+    "id": "RM-TEC-039",
+    "code": "TEC-2",
+    "name": "OVR",
+    "nameEn": "TEC 2 - OVR",
+    "dept": "TEC",
+    "floor": "1f",
+    "x": 52,
+    "y": 75,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-TEC-2",
+    "desc": "Zone: RED | Department: TEC (計測・テクノロジー (Technology & OVR))"
+  },
+  {
+    "id": "RM-TEC-040",
+    "code": "TEC-3",
+    "name": "Storage for T&S",
+    "nameEn": "TEC 3 - Storage for T&S",
+    "dept": "TEC",
+    "floor": "1f",
+    "x": 61,
+    "y": 80,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-TEC-3",
+    "desc": "Zone: RED | Department: TEC (計測・テクノロジー (Technology & OVR))"
+  },
+  {
+    "id": "RM-TEC-041",
+    "code": "TEC-4",
+    "name": "TER",
+    "nameEn": "TEC 4 - TER",
+    "dept": "TEC",
+    "floor": "1f",
+    "x": 30,
+    "y": 65,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-TEC-4",
+    "desc": "Zone: RED | Department: TEC (計測・テクノロジー (Technology & OVR))"
+  },
+  {
+    "id": "RM-TEC-042",
+    "code": "TEC-6",
+    "name": "Cross Connect Frame",
+    "nameEn": "TEC 6 - Cross Connect Frame",
+    "dept": "TEC",
+    "floor": "1f",
+    "x": 39,
+    "y": 70,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-TEC-6",
+    "desc": "Zone: RED | Department: TEC (計測・テクノロジー (Technology & OVR))"
+  },
+  {
+    "id": "RM-TEC-043",
+    "code": "TEC-7",
+    "name": "VTO",
+    "nameEn": "TEC 7 - VTO",
+    "dept": "TEC",
+    "floor": "1f",
+    "x": 48,
+    "y": 75,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-TEC-7",
+    "desc": "Zone: RED | Department: TEC (計測・テクノロジー (Technology & OVR))"
+  },
+  {
+    "id": "RM-TEC-044",
+    "code": "TEC-10",
+    "name": "Radio Distribution Room",
+    "nameEn": "TEC 10 - Radio Distribution Room",
+    "dept": "TEC",
+    "floor": "1f",
+    "x": 57,
+    "y": 80,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-TEC-10",
+    "desc": "Zone: RED | Department: TEC (計測・テクノロジー (Technology & OVR))"
+  },
+  {
+    "id": "RM-TEC-045",
+    "code": "TEC-11",
+    "name": "Screen",
+    "nameEn": "TEC 11 - Screen",
+    "dept": "TEC",
+    "floor": "1f",
+    "x": 66,
+    "y": 65,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-TEC-11",
+    "desc": "Zone: RED | Department: TEC (計測・テクノロジー (Technology & OVR))"
+  },
+  {
+    "id": "RM-SEC-046",
+    "code": "SEC-1",
+    "name": "VSCC",
+    "nameEn": "SEC 1 - VSCC",
+    "dept": "SEC",
+    "floor": "1f",
+    "x": 35,
+    "y": 70,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-SEC-1",
+    "desc": "Zone: RED | Department: SEC (警備・セキュリティ (Security))"
+  },
+  {
+    "id": "RM-SEC-047",
+    "code": "SEC-2",
+    "name": "Fire Command Centre",
+    "nameEn": "SEC 2 - Fire Command Centre",
+    "dept": "SEC",
+    "floor": "1f",
+    "x": 44,
+    "y": 75,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-SEC-2",
+    "desc": "Zone: RED | Department: SEC (警備・セキュリティ (Security))"
+  },
+  {
+    "id": "RM-SEC-048",
+    "code": "SEC-5",
+    "name": "Police Break & Dining Area",
+    "nameEn": "SEC 5 - Police Break & Dining Area",
+    "dept": "SEC",
+    "floor": "1f",
+    "x": 53,
+    "y": 80,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-SEC-5",
+    "desc": "Zone: RED | Department: SEC (警備・セキュリティ (Security))"
+  },
+  {
+    "id": "RM-SPP-049",
+    "code": "SPP-1",
+    "name": "SPP Control Area",
+    "nameEn": "SPP 1 - SPP Control Area",
+    "dept": "SPP",
+    "floor": "1f",
+    "x": 39,
+    "y": 79,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-SPP-1",
+    "desc": "Zone: RED | Department: SPP (演出・プロダクション (Special Production))"
+  },
+  {
+    "id": "RM-SPP-050",
+    "code": "SPP-2",
+    "name": "SPP Work Room",
+    "nameEn": "SPP 2 - SPP Work Room",
+    "dept": "SPP",
+    "floor": "1f",
+    "x": 56,
+    "y": 37,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-SPP-2",
+    "desc": "Zone: RED | Department: SPP (演出・プロダクション (Special Production))"
+  },
+  {
+    "id": "RM-SPP-051",
+    "code": "SPP-3",
+    "name": "SPP Storage",
+    "nameEn": "SPP 3 - SPP Storage",
+    "dept": "SPP",
+    "floor": "1f",
+    "x": 73,
+    "y": 60,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-SPP-3",
+    "desc": "Zone: RED | Department: SPP (演出・プロダクション (Special Production))"
+  },
+  {
+    "id": "RM-SPP-052",
+    "code": "SPP-4",
+    "name": "Performer Waiting Room",
+    "nameEn": "SPP 4 - Performer Waiting Room",
+    "dept": "SPP",
+    "floor": "1f",
+    "x": 18,
+    "y": 18,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-SPP-4",
+    "desc": "Zone: RED | Department: SPP (演出・プロダクション (Special Production))"
+  },
+  {
+    "id": "RM-CER-053",
+    "code": "CER-1",
+    "name": "Waiting Room",
+    "nameEn": "CER 1 - Waiting Room",
+    "dept": "CER",
+    "floor": "1f",
+    "x": 35,
+    "y": 41,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-CER-1",
+    "desc": "Zone: 2 | Department: CER (表彰・セレモニー (Ceremonies))"
+  },
+  {
+    "id": "RM-CER-054",
+    "code": "CER-2",
+    "name": "Preparation Room",
+    "nameEn": "CER 2 - Preparation Room",
+    "dept": "CER",
+    "floor": "2f",
+    "x": 52,
+    "y": 64,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-CER-2",
+    "desc": "Zone: 5 | Department: CER (表彰・セレモニー (Ceremonies))"
+  },
+  {
+    "id": "RM-CER-055",
+    "code": "CER-3",
+    "name": "Storage for Ceremonies",
+    "nameEn": "CER 3 - Storage for Ceremonies",
+    "dept": "CER",
+    "floor": "1f",
+    "x": 69,
+    "y": 22,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-CER-3",
+    "desc": "Zone: RED | Department: CER (表彰・セレモニー (Ceremonies))"
+  },
+  {
+    "id": "RM-CER-056",
+    "code": "CER-4",
+    "name": "Changing Room",
+    "nameEn": "CER 4 - Changing Room",
+    "dept": "CER",
+    "floor": "outdoor",
+    "x": 86,
+    "y": 45,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: CER (表彰・セレモニー (Ceremonies))"
+  },
+  {
+    "id": "RM-BRS-057",
+    "code": "BRS-15",
+    "name": "Staff Office",
+    "nameEn": "BRS 15 - Staff Office",
+    "dept": "BRS",
+    "floor": "outdoor",
+    "x": 31,
+    "y": 68,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-058",
+    "code": "BRS-19",
+    "name": "Broadcast Mixed Zone",
+    "nameEn": "BRS 19 - Broadcast Mixed Zone",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 69,
+    "y": 46,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-19",
+    "desc": "Zone: 4,5+SACDS | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-059",
+    "code": "BRS-20",
+    "name": "HB Camera Platform",
+    "nameEn": "BRS 20 - HB Camera Platform",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 76,
+    "y": 59,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-060",
+    "code": "BRS-20",
+    "name": "HB Camera Platform (footprint)",
+    "nameEn": "BRS 20 - HB Camera Platform (footprint)",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 83,
+    "y": 72,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-061",
+    "code": "BRS-20",
+    "name": "HB Camera Platform",
+    "nameEn": "BRS 20 - HB Camera Platform",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 60,
+    "y": 30,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-PRS-062",
+    "code": "PRS-3",
+    "name": "Mixed Zone",
+    "nameEn": "PRS 3 - Mixed Zone",
+    "dept": "PRS",
+    "floor": "2f",
+    "x": 67,
+    "y": 43,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-PRS-3",
+    "desc": "Zone: 4,5+SACDS | Department: PRS (報道・プレス (Press & Media))"
+  },
+  {
+    "id": "RM-PRS-063",
+    "code": "PRS-4",
+    "name": "Photographer Position",
+    "nameEn": "PRS 4 - Photographer Position",
+    "dept": "PRS",
+    "floor": "2f",
+    "x": 74,
+    "y": 56,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-PRS-4",
+    "desc": "Zone: 4 | Department: PRS (報道・プレス (Press & Media))"
+  },
+  {
+    "id": "RM-DOP-064",
+    "code": "DOP-1",
+    "name": "Doping Control Station",
+    "nameEn": "DOP 1 - Doping Control Station",
+    "dept": "DOP",
+    "floor": "1f",
+    "x": 70,
+    "y": 64,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-DOP-1",
+    "desc": "Zone: 2+SACDs | Department: DOP (ドーピング検査 (Doping Control))"
+  },
+  {
+    "id": "RM-PEM-065",
+    "code": "PEM-1",
+    "name": "Check-In & Help Desk (Check In Centre)",
+    "nameEn": "PEM 1 - Check-In & Help Desk (Check In Centre)",
+    "dept": "PEM",
+    "floor": "1f",
+    "x": 23,
+    "y": 57,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: PEM (アクレディテーション・ID (Check-In / ID))"
+  },
+  {
+    "id": "RM-VEM-066",
+    "code": "VEM-1",
+    "name": "VOC",
+    "nameEn": "VEM 1 - VOC",
+    "dept": "VEM",
+    "floor": "outdoor",
+    "x": 40,
+    "y": 15,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: VEM (ボランティア (Volunteer & VOC))"
+  },
+  {
+    "id": "RM-CNW-067",
+    "code": "CNW-1",
+    "name": "Staff Office",
+    "nameEn": "CNW 1 - Staff Office",
+    "dept": "CNW",
+    "floor": "outdoor",
+    "x": 57,
+    "y": 38,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: CNW (清掃・廃棄物 (Cleaning & Waste))"
+  },
+  {
+    "id": "RM-CNW-068",
+    "code": "CNW-2",
+    "name": "Contractor Office",
+    "nameEn": "CNW 2 - Contractor Office",
+    "dept": "CNW",
+    "floor": "outdoor",
+    "x": 74,
+    "y": 61,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: CNW (清掃・廃棄物 (Cleaning & Waste))"
+  },
+  {
+    "id": "RM-LOG-069",
+    "code": "LOG-1",
+    "name": "Staff Office",
+    "nameEn": "LOG 1 - Staff Office",
+    "dept": "LOG",
+    "floor": "outdoor",
+    "x": 19,
+    "y": 19,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: LOG (資材・物流 (Logistics))"
+  },
+  {
+    "id": "RM-LOG-070",
+    "code": "LOG-2",
+    "name": "Contractor Office",
+    "nameEn": "LOG 2 - Contractor Office",
+    "dept": "LOG",
+    "floor": "outdoor",
+    "x": 36,
+    "y": 42,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: LOG (資材・物流 (Logistics))"
+  },
+  {
+    "id": "RM-TRA-071",
+    "code": "TRA-1",
+    "name": "Staff Office",
+    "nameEn": "TRA 1 - Staff Office",
+    "dept": "TRA",
+    "floor": "outdoor",
+    "x": 15,
+    "y": 70,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: TRA (輸送・駐車場 (Transport))"
+  },
+  {
+    "id": "RM-TRA-072",
+    "code": "TRA-2",
+    "name": "Contractor Office",
+    "nameEn": "TRA 2 - Contractor Office",
+    "dept": "TRA",
+    "floor": "outdoor",
+    "x": 28,
+    "y": 16,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: TRA (輸送・駐車場 (Transport))"
+  },
+  {
+    "id": "RM-VNI-073",
+    "code": "VNI-1",
+    "name": "Staff Office",
+    "nameEn": "VNI 1 - Staff Office",
+    "dept": "VNI",
+    "floor": "outdoor",
+    "x": 15,
+    "y": 46,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: VNI (会場インフラ (Venue Infrastructure))"
+  },
+  {
+    "id": "RM-VNI-074",
+    "code": "VNI-2",
+    "name": "Contractor Office",
+    "nameEn": "VNI 2 - Contractor Office",
+    "dept": "VNI",
+    "floor": "outdoor",
+    "x": 32,
+    "y": 69,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: VNI (会場インフラ (Venue Infrastructure))"
+  },
+  {
+    "id": "RM-BIL-075",
+    "code": "BIL-2",
+    "name": "Contractor Office",
+    "nameEn": "BIL 2 - Contractor Office",
+    "dept": "BIL",
+    "floor": "outdoor",
+    "x": 49,
+    "y": 27,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: BIL (二国間・運営 (Bilateral))"
+  },
+  {
+    "id": "RM-EVS-076",
+    "code": "EVS-2",
+    "name": "Public Information Booth",
+    "nameEn": "EVS 2 - Public Information Booth",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 66,
+    "y": 50,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-EVS-077",
+    "code": "EVS-3",
+    "name": "Multi Faith Room",
+    "nameEn": "EVS 3 - Multi Faith Room",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 83,
+    "y": 73,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-EVS-078",
+    "code": "EVS-4",
+    "name": "Accessible Nursery & Baby Change Room",
+    "nameEn": "EVS 4 - Accessible Nursery & Baby Change Room",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 28,
+    "y": 31,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-EVS-079",
+    "code": "EVS-5",
+    "name": "Wheelchair Storage Area",
+    "nameEn": "EVS 5 - Wheelchair Storage Area",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 45,
+    "y": 54,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-EVS-080",
+    "code": "EVS-6",
+    "name": "Stroller Storage Area",
+    "nameEn": "EVS 6 - Stroller Storage Area",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 62,
+    "y": 77,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-EVS-081",
+    "code": "EVS-7",
+    "name": "Assistant Dog Toilet",
+    "nameEn": "EVS 7 - Assistant Dog Toilet",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 79,
+    "y": 35,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-EVS-082",
+    "code": "EVS-9",
+    "name": "Spectator Seating",
+    "nameEn": "EVS 9 - Spectator Seating",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 24,
+    "y": 58,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-EVS-083",
+    "code": "EVS-10",
+    "name": "Accessible Seating",
+    "nameEn": "EVS 10 - Accessible Seating",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 41,
+    "y": 16,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-EVS-084",
+    "code": "EVS-11",
+    "name": "Calm Down/Cool Down Room",
+    "nameEn": "EVS 11 - Calm Down/Cool Down Room",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 58,
+    "y": 39,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-EVS-085",
+    "code": "EVS-12",
+    "name": "Urinal Toilet (Men)",
+    "nameEn": "EVS 12 - Urinal Toilet (Men)",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 75,
+    "y": 62,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-EVS-086",
+    "code": "EVS-13",
+    "name": "Cubicle Toilet (Men)",
+    "nameEn": "EVS 13 - Cubicle Toilet (Men)",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 20,
+    "y": 20,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-EVS-087",
+    "code": "EVS-14",
+    "name": "Cubicle Toilet (Women)",
+    "nameEn": "EVS 14 - Cubicle Toilet (Women)",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 37,
+    "y": 43,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-EVS-088",
+    "code": "EVS-15",
+    "name": "Accessible Toilet",
+    "nameEn": "EVS 15 - Accessible Toilet",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 54,
+    "y": 66,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-PRS-089",
+    "code": "PRS-1",
+    "name": "Sub Press Center",
+    "nameEn": "PRS 1 - Sub Press Center",
+    "dept": "PRS",
+    "floor": "2f",
+    "x": 76,
+    "y": 64,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-PRS-1",
+    "desc": "Zone: 4 | Department: PRS (報道・プレス (Press & Media))"
+  },
+  {
+    "id": "RM-PRS-090",
+    "code": "PRS-2",
+    "name": "Press Conference Room",
+    "nameEn": "PRS 2 - Press Conference Room",
+    "dept": "PRS",
+    "floor": "2f",
+    "x": 83,
+    "y": 22,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-PRS-2",
+    "desc": "Zone: 4 | Department: PRS (報道・プレス (Press & Media))"
+  },
+  {
+    "id": "RM-PRS-091",
+    "code": "PRS-4",
+    "name": "Photographer Position",
+    "nameEn": "PRS 4 - Photographer Position",
+    "dept": "PRS",
+    "floor": "2f",
+    "x": 60,
+    "y": 35,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-PRS-4",
+    "desc": "Zone: 4 | Department: PRS (報道・プレス (Press & Media))"
+  },
+  {
+    "id": "RM-PRS-092",
+    "code": "PRS-5",
+    "name": "Press Tribune-No Table",
+    "nameEn": "PRS 5 - Press Tribune-No Table",
+    "dept": "PRS",
+    "floor": "2f",
+    "x": 67,
+    "y": 48,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 4 | Department: PRS (報道・プレス (Press & Media))"
+  },
+  {
+    "id": "RM-PRS-093",
+    "code": "PRS-6",
+    "name": "Press Tribune-With Table",
+    "nameEn": "PRS 6 - Press Tribune-With Table",
+    "dept": "PRS",
+    "floor": "2f",
+    "x": 74,
+    "y": 61,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-PRS-6",
+    "desc": "Zone: 4 | Department: PRS (報道・プレス (Press & Media))"
+  },
+  {
+    "id": "RM-PRS-094",
+    "code": "PRS-7",
+    "name": "Press Tribune-With Table-Accessible",
+    "nameEn": "PRS 7 - Press Tribune-With Table-Accessible",
+    "dept": "PRS",
+    "floor": "2f",
+    "x": 81,
+    "y": 74,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 4 | Department: PRS (報道・プレス (Press & Media))"
+  },
+  {
+    "id": "RM-PRS-095",
+    "code": "PRS-8",
+    "name": "Press Operation Office",
+    "nameEn": "PRS 8 - Press Operation Office",
+    "dept": "PRS",
+    "floor": "2f",
+    "x": 88,
+    "y": 32,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-PRS-8",
+    "desc": "Zone: 4 | Department: PRS (報道・プレス (Press & Media))"
+  },
+  {
+    "id": "RM-BRS-096",
+    "code": "BRS-17",
+    "name": "RHB Commentary Position",
+    "nameEn": "BRS 17 - RHB Commentary Position",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 65,
+    "y": 45,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-17",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-097",
+    "code": "BRS-20",
+    "name": "HB Camera Platform",
+    "nameEn": "BRS 20 - HB Camera Platform",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 72,
+    "y": 58,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-OFS-098",
+    "code": "OFS-4",
+    "name": "OCA Family Seating",
+    "nameEn": "OFS 4 - OCA Family Seating",
+    "dept": "OFS",
+    "floor": "2f",
+    "x": 30,
+    "y": 43,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-OFS-4",
+    "desc": "Zone: 6 | Department: OFS (大会要人・プロトコル (Official / Protocol))"
+  },
+  {
+    "id": "RM-BRS-099",
+    "code": "BRS-23",
+    "name": "Observer Seats",
+    "nameEn": "BRS 23 - Observer Seats",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 86,
+    "y": 29,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-23",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-100",
+    "code": "BRS-24",
+    "name": "Presentation Studio",
+    "nameEn": "BRS 24 - Presentation Studio",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 63,
+    "y": 42,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-24",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-101",
+    "code": "BRS-25",
+    "name": "Urinal Toilet (Men)",
+    "nameEn": "BRS 25 - Urinal Toilet (Men)",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 70,
+    "y": 55,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-102",
+    "code": "BRS-26",
+    "name": "Cubicle Toilet (Men)",
+    "nameEn": "BRS 26 - Cubicle Toilet (Men)",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 77,
+    "y": 68,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-103",
+    "code": "BRS-27",
+    "name": "Cubicle Toilet (Women)",
+    "nameEn": "BRS 27 - Cubicle Toilet (Women)",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 84,
+    "y": 26,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-104",
+    "code": "BRS-28",
+    "name": "Accessible Toilet",
+    "nameEn": "BRS 28 - Accessible Toilet",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 61,
+    "y": 39,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-FNB-105",
+    "code": "FNB-1",
+    "name": "Concessions/Points of Sale (POS)",
+    "nameEn": "FNB 1 - Concessions/Points of Sale (POS)",
+    "dept": "FNB",
+    "floor": "1f",
+    "x": 55,
+    "y": 67,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: FNB (飲食・ケータリング (Food & Beverage))"
+  },
+  {
+    "id": "RM-MED-106",
+    "code": "MED-3",
+    "name": "Aid Station",
+    "nameEn": "MED 3 - Aid Station",
+    "dept": "MED",
+    "floor": "1f",
+    "x": 70,
+    "y": 55,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: MED (救護・医務 (Medical))"
+  },
+  {
+    "id": "RM-VEM-107",
+    "code": "VEM-2",
+    "name": "Workforce Break & Dining Area",
+    "nameEn": "VEM 2 - Workforce Break & Dining Area",
+    "dept": "VEM",
+    "floor": "outdoor",
+    "x": 17,
+    "y": 48,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: VEM (ボランティア (Volunteer & VOC))"
+  },
+  {
+    "id": "RM-SEC-108",
+    "code": "SEC-4",
+    "name": "Fire Break & Dining Area",
+    "nameEn": "SEC 4 - Fire Break & Dining Area",
+    "dept": "SEC",
+    "floor": "outdoor",
+    "x": 41,
+    "y": 22,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: SEC (警備・セキュリティ (Security))"
+  },
+  {
+    "id": "RM-TRA-109",
+    "code": "TRA-3",
+    "name": "Driver's Waiting Room (In Secure)",
+    "nameEn": "TRA 3 - Driver's Waiting Room (In Secure)",
+    "dept": "TRA",
+    "floor": "1f",
+    "x": 51,
+    "y": 29,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: RED | Department: TRA (輸送・駐車場 (Transport))"
+  },
+  {
+    "id": "RM-SPT-110",
+    "code": "SPT-2",
+    "name": "Athlete Seating (SDA)",
+    "nameEn": "SPT 2 - Athlete Seating (SDA)",
+    "dept": "SPT",
+    "floor": "1f",
+    "x": 74,
+    "y": 58,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-SPT-2",
+    "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))"
+  },
+  {
+    "id": "RM-CNW-111",
+    "code": "CNW-3",
+    "name": "Waste Storage Area",
+    "nameEn": "CNW 3 - Waste Storage Area",
+    "dept": "CNW",
+    "floor": "outdoor",
+    "x": 85,
+    "y": 75,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: CNW (清掃・廃棄物 (Cleaning & Waste))"
+  },
+  {
+    "id": "RM-CNW-112",
+    "code": "CNW-4",
+    "name": "Waste Sorting Area",
+    "nameEn": "CNW 4 - Waste Sorting Area",
+    "dept": "CNW",
+    "floor": "outdoor",
+    "x": 30,
+    "y": 33,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: CNW (清掃・廃棄物 (Cleaning & Waste))"
+  },
+  {
+    "id": "RM-SEC-113",
+    "code": "SEC-3",
+    "name": "Police Command Centre",
+    "nameEn": "SEC 3 - Police Command Centre",
+    "dept": "SEC",
+    "floor": "1f",
+    "x": 38,
+    "y": 65,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-SEC-3",
+    "desc": "Zone: RED | Department: SEC (警備・セキュリティ (Security))"
+  },
+  {
+    "id": "RM-SEC-114",
+    "code": "SEC-6",
+    "name": "Vehicle Screening Area (VSA)",
+    "nameEn": "SEC 6 - Vehicle Screening Area (VSA)",
+    "dept": "SEC",
+    "floor": "1f",
+    "x": 47,
+    "y": 70,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: SEC (警備・セキュリティ (Security))"
+  },
+  {
+    "id": "RM-SEC-115",
+    "code": "SEC-7",
+    "name": "Vehicle Screening Area (VSA)",
+    "nameEn": "SEC 7 - Vehicle Screening Area (VSA)",
+    "dept": "SEC",
+    "floor": "1f",
+    "x": 56,
+    "y": 75,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: SEC (警備・セキュリティ (Security))"
+  },
+  {
+    "id": "RM-SEC-116",
+    "code": "SEC-8",
+    "name": "Pedestrian Screening Area - Accredited (PSA)",
+    "nameEn": "SEC 8 - Pedestrian Screening Area - Accredited (PSA)",
+    "dept": "SEC",
+    "floor": "1f",
+    "x": 65,
+    "y": 80,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-SEC-8",
+    "desc": "Zone: FOH | Department: SEC (警備・セキュリティ (Security))"
+  },
+  {
+    "id": "RM-SEC-117",
+    "code": "SEC-9",
+    "name": "Pedestrian Screening Area - Spectators (PSA)",
+    "nameEn": "SEC 9 - Pedestrian Screening Area - Spectators (PSA)",
+    "dept": "SEC",
+    "floor": "1f",
+    "x": 34,
+    "y": 65,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "ACP-SEC-9",
+    "desc": "Zone: FOH | Department: SEC (警備・セキュリティ (Security))"
+  },
+  {
+    "id": "RM-SEC-118",
+    "code": "SEC-11",
+    "name": "Police Parking",
+    "nameEn": "SEC 11 - Police Parking",
+    "dept": "SEC",
+    "floor": "1f",
+    "x": 43,
+    "y": 70,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: SEC (警備・セキュリティ (Security))"
+  },
+  {
+    "id": "RM-SEC-119",
+    "code": "SEC-12",
+    "name": "Self-Defense Forces Command Centre",
+    "nameEn": "SEC 12 - Self-Defense Forces Command Centre",
+    "dept": "SEC",
+    "floor": "1f",
+    "x": 52,
+    "y": 75,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: RED | Department: SEC (警備・セキュリティ (Security))"
+  },
+  {
+    "id": "RM-SEC-120",
+    "code": "SEC-13",
+    "name": "Self-Defense Forces Command Parking",
+    "nameEn": "SEC 13 - Self-Defense Forces Command Parking",
+    "dept": "SEC",
+    "floor": "1f",
+    "x": 61,
+    "y": 80,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: RED | Department: SEC (警備・セキュリティ (Security))"
+  },
+  {
+    "id": "RM-BRS-121",
+    "code": "BRS-1",
+    "name": "HB Office",
+    "nameEn": "BRS 1 - HB Office",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 60,
+    "y": 40,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-1",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-122",
+    "code": "BRS-2",
+    "name": "RHB Office",
+    "nameEn": "BRS 2 - RHB Office",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 67,
+    "y": 53,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-2",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-123",
+    "code": "BRS-3",
+    "name": "HB Dining",
+    "nameEn": "BRS 3 - HB Dining",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 74,
+    "y": 66,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-3",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-124",
+    "code": "BRS-4",
+    "name": "RHB Dining",
+    "nameEn": "BRS 4 - RHB Dining",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 81,
+    "y": 24,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-4",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-125",
+    "code": "BRS-5",
+    "name": "HB Production Room",
+    "nameEn": "BRS 5 - HB Production Room",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 88,
+    "y": 37,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-5",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-126",
+    "code": "BRS-7",
+    "name": "HB Audio",
+    "nameEn": "BRS 7 - HB Audio",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 65,
+    "y": 50,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-7",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-127",
+    "code": "BRS-9",
+    "name": "HB CER (Centralized Equipment Room)",
+    "nameEn": "BRS 9 - HB CER (Centralized Equipment Room)",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 72,
+    "y": 63,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-9",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-128",
+    "code": "BRS-11",
+    "name": "TOC (Technical Operation Centre)",
+    "nameEn": "BRS 11 - TOC (Technical Operation Centre)",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 79,
+    "y": 21,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-11",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-129",
+    "code": "BRS-13",
+    "name": "HB Equipment Storage",
+    "nameEn": "BRS 13 - HB Equipment Storage",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 86,
+    "y": 34,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-13",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-BRS-130",
+    "code": "BRS-14",
+    "name": "RHB Equipment Storage",
+    "nameEn": "BRS 14 - RHB Equipment Storage",
+    "dept": "BRS",
+    "floor": "2f",
+    "x": 63,
+    "y": 47,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "ACP-BRS-14",
+    "desc": "Zone: 5 | Department: BRS (放送・中継 (Broadcast / HB))"
+  },
+  {
+    "id": "RM-NRG-131",
+    "code": "NRG-1",
+    "name": "Staff Office",
+    "nameEn": "NRG 1 - Staff Office",
+    "dept": "NRG",
+    "floor": "outdoor",
+    "x": 65,
+    "y": 15,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: NRG (電力・エネルギー (Energy / Power))"
+  },
+  {
+    "id": "RM-NRG-132",
+    "code": "NRG-2",
+    "name": "Storage",
+    "nameEn": "NRG 2 - Storage",
+    "dept": "NRG",
+    "floor": "outdoor",
+    "x": 82,
+    "y": 38,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: NRG (電力・エネルギー (Energy / Power))"
+  },
+  {
+    "id": "RM-NRG-133",
+    "code": "NRG-3",
+    "name": "Overlay Power Area",
+    "nameEn": "NRG 3 - Overlay Power Area",
+    "dept": "NRG",
+    "floor": "outdoor",
+    "x": 27,
+    "y": 61,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: NRG (電力・エネルギー (Energy / Power))"
+  },
+  {
+    "id": "RM-NRG-134",
+    "code": "NRG-4",
+    "name": "Break Area",
+    "nameEn": "NRG 4 - Break Area",
+    "dept": "NRG",
+    "floor": "outdoor",
+    "x": 44,
+    "y": 19,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: NRG (電力・エネルギー (Energy / Power))"
+  },
+  {
+    "id": "RM-GLE-135",
+    "code": "GLE-1",
+    "name": "Site Office",
+    "nameEn": "GLE 1 - Site Office",
+    "dept": "GLE",
+    "floor": "outdoor",
+    "x": 61,
+    "y": 42,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: GLE (敷地管理 (Green & Landscape))"
+  },
+  {
+    "id": "RM-GLE-136",
+    "code": "GLE-2",
+    "name": "Break Area",
+    "nameEn": "GLE 2 - Break Area",
+    "dept": "GLE",
+    "floor": "outdoor",
+    "x": 78,
+    "y": 65,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: GLE (敷地管理 (Green & Landscape))"
+  },
+  {
+    "id": "RM-GLE-137",
+    "code": "GLE-3",
+    "name": "Storage",
+    "nameEn": "GLE 3 - Storage",
+    "dept": "GLE",
+    "floor": "outdoor",
+    "x": 23,
+    "y": 23,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: GLE (敷地管理 (Green & Landscape))"
+  },
+  {
+    "id": "RM-FNB-138",
+    "code": "FNB-3",
+    "name": "Kitchen Car Area (For Staff)",
+    "nameEn": "FNB 3 - Kitchen Car Area (For Staff)",
+    "dept": "FNB",
+    "floor": "outdoor",
+    "x": 40,
+    "y": 46,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: FNB (飲食・ケータリング (Food & Beverage))"
+  },
+  {
+    "id": "RM-FNB-139",
+    "code": "FNB-10",
+    "name": "Freezing & Cold Temperature Storage",
+    "nameEn": "FNB 10 - Freezing & Cold Temperature Storage",
+    "dept": "FNB",
+    "floor": "outdoor",
+    "x": 57,
+    "y": 69,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: FNB (飲食・ケータリング (Food & Beverage))"
+  },
+  {
+    "id": "RM-FNB-140",
+    "code": "FNB-11",
+    "name": "Normal Temperature Storage",
+    "nameEn": "FNB 11 - Normal Temperature Storage",
+    "dept": "FNB",
+    "floor": "outdoor",
+    "x": 74,
+    "y": 27,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: FNB (飲食・ケータリング (Food & Beverage))"
+  },
+  {
+    "id": "RM-TRA-141",
+    "code": "TRA-4",
+    "name": "Parking (In Secure)",
+    "nameEn": "TRA 4 - Parking (In Secure)",
+    "dept": "TRA",
+    "floor": "1f",
+    "x": 19,
+    "y": 50,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: TRA (輸送・駐車場 (Transport))"
+  },
+  {
+    "id": "RM-TRA-142",
+    "code": "TRA-5",
+    "name": "Parking (Non Secure)",
+    "nameEn": "TRA 5 - Parking (Non Secure)",
+    "dept": "TRA",
+    "floor": "outdoor",
+    "x": 28,
+    "y": 71,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: TRA (輸送・駐車場 (Transport))"
+  },
+  {
+    "id": "RM-LOG-143",
+    "code": "LOG-3",
+    "name": "Compound",
+    "nameEn": "LOG 3 - Compound",
+    "dept": "LOG",
+    "floor": "outdoor",
+    "x": 53,
+    "y": 31,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: LOG (資材・物流 (Logistics))"
+  },
+  {
+    "id": "RM-TKT-144",
+    "code": "TKT-1",
+    "name": "Ticket Box Office (TBO)",
+    "nameEn": "TKT 1 - Ticket Box Office (TBO)",
+    "dept": "TKT",
+    "floor": "outdoor",
+    "x": 31,
+    "y": 75,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: TKT (チケット (Ticketing))"
+  },
+  {
+    "id": "RM-TKT-145",
+    "code": "TKT-2",
+    "name": "Ticket Resolution Office (TRO)",
+    "nameEn": "TKT 2 - Ticket Resolution Office (TRO)",
+    "dept": "TKT",
+    "floor": "outdoor",
+    "x": 38,
+    "y": 80,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: TKT (チケット (Ticketing))"
+  },
+  {
+    "id": "RM-TKT-146",
+    "code": "TKT-3",
+    "name": "Ticket Team Office (TTO)",
+    "nameEn": "TKT 3 - Ticket Team Office (TTO)",
+    "dept": "TKT",
+    "floor": "outdoor",
+    "x": 45,
+    "y": 60,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: TKT (チケット (Ticketing))"
+  },
+  {
+    "id": "RM-TEC-147",
+    "code": "TEC-5",
+    "name": "Storage",
+    "nameEn": "TEC 5 - Storage",
+    "dept": "TEC",
+    "floor": "outdoor",
+    "x": 49,
+    "y": 58,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: TEC (計測・テクノロジー (Technology & OVR))"
+  },
+  {
+    "id": "RM-TEC-148",
+    "code": "TEC-12",
+    "name": "Parking for Radio Monitoring Vehicle",
+    "nameEn": "TEC 12 - Parking for Radio Monitoring Vehicle",
+    "dept": "TEC",
+    "floor": "outdoor",
+    "x": 66,
+    "y": 16,
+    "zoneId": "ZONE_OUTDOOR_MAIN",
+    "acp": "なし",
+    "desc": "Zone: WHITE | Department: TEC (計測・テクノロジー (Technology & OVR))"
+  },
+  {
+    "id": "RM-TEC-149",
+    "code": "TEC-13",
+    "name": "Spectrum Desk",
+    "nameEn": "TEC 13 - Spectrum Desk",
+    "dept": "TEC",
+    "floor": "1f",
+    "x": 42,
+    "y": 65,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: TEC (計測・テクノロジー (Technology & OVR))"
+  },
+  {
+    "id": "RM-EVS-150",
+    "code": "EVS-8",
+    "name": "Queueing Area",
+    "nameEn": "EVS 8 - Queueing Area",
+    "dept": "EVS",
+    "floor": "1f",
+    "x": 28,
+    "y": 62,
+    "zoneId": "ZONE_1F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))"
+  },
+  {
+    "id": "RM-OFS-151",
+    "code": "OFS-5",
+    "name": "Flag Area for Participants",
+    "nameEn": "OFS 5 - Flag Area for Participants",
+    "dept": "OFS",
+    "floor": "2f",
+    "x": 25,
+    "y": 20,
+    "zoneId": "ZONE_2F_MAIN",
+    "acp": "なし",
+    "desc": "Zone: BLUE | Department: OFS (大会要人・プロトコル (Official / Protocol))"
+  }
+],
+  acps: [
+  {
+    "id": "ACP-OFS-2",
+    "code": "ACP-OFS-2",
+    "name": "関所: Protocol Office (OFS-2)",
+    "floor": "2f",
+    "x": 23,
+    "y": 38,
+    "passLevel": "Level OFS (認証関係者パス)",
+    "desc": "Zone 6 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-TEC-1",
+    "code": "ACP-TEC-1",
+    "name": "関所: T&S (TEC-1)",
+    "floor": "1f",
+    "x": 41,
+    "y": 68,
+    "passLevel": "Level TEC (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-TEC-2",
+    "code": "ACP-TEC-2",
+    "name": "関所: OVR (TEC-2)",
+    "floor": "1f",
+    "x": 50,
+    "y": 73,
+    "passLevel": "Level TEC (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-TEC-3",
+    "code": "ACP-TEC-3",
+    "name": "関所: Storage for T&S (TEC-3)",
+    "floor": "1f",
+    "x": 59,
+    "y": 78,
+    "passLevel": "Level TEC (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-TEC-4",
+    "code": "ACP-TEC-4",
+    "name": "関所: TER (TEC-4)",
+    "floor": "1f",
+    "x": 28,
+    "y": 63,
+    "passLevel": "Level TEC (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-TEC-6",
+    "code": "ACP-TEC-6",
+    "name": "関所: Cross Connect Frame (TEC-6)",
+    "floor": "1f",
+    "x": 37,
+    "y": 68,
+    "passLevel": "Level TEC (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-TEC-7",
+    "code": "ACP-TEC-7",
+    "name": "関所: VTO (TEC-7)",
+    "floor": "1f",
+    "x": 46,
+    "y": 73,
+    "passLevel": "Level TEC (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-TEC-10",
+    "code": "ACP-TEC-10",
+    "name": "関所: Radio Distribution Room (TEC-10)",
+    "floor": "1f",
+    "x": 55,
+    "y": 78,
+    "passLevel": "Level TEC (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-TEC-11",
+    "code": "ACP-TEC-11",
+    "name": "関所: Screen (TEC-11)",
+    "floor": "1f",
+    "x": 64,
+    "y": 63,
+    "passLevel": "Level TEC (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-SEC-1",
+    "code": "ACP-SEC-1",
+    "name": "関所: VSCC (SEC-1)",
+    "floor": "1f",
+    "x": 33,
+    "y": 68,
+    "passLevel": "Level SEC (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-SEC-2",
+    "code": "ACP-SEC-2",
+    "name": "関所: Fire Command Centre (SEC-2)",
+    "floor": "1f",
+    "x": 42,
+    "y": 73,
+    "passLevel": "Level SEC (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-SEC-5",
+    "code": "ACP-SEC-5",
+    "name": "関所: Police Break & Dining Area (SEC-5)",
+    "floor": "1f",
+    "x": 51,
+    "y": 78,
+    "passLevel": "Level SEC (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-SPP-1",
+    "code": "ACP-SPP-1",
+    "name": "関所: SPP Control Area (SPP-1)",
+    "floor": "1f",
+    "x": 37,
+    "y": 77,
+    "passLevel": "Level SPP (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-SPP-2",
+    "code": "ACP-SPP-2",
+    "name": "関所: SPP Work Room (SPP-2)",
+    "floor": "1f",
+    "x": 54,
+    "y": 35,
+    "passLevel": "Level SPP (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-SPP-3",
+    "code": "ACP-SPP-3",
+    "name": "関所: SPP Storage (SPP-3)",
+    "floor": "1f",
+    "x": 71,
+    "y": 58,
+    "passLevel": "Level SPP (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-SPP-4",
+    "code": "ACP-SPP-4",
+    "name": "関所: Performer Waiting Room (SPP-4)",
+    "floor": "1f",
+    "x": 16,
+    "y": 16,
+    "passLevel": "Level SPP (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-CER-1",
+    "code": "ACP-CER-1",
+    "name": "関所: Waiting Room (CER-1)",
+    "floor": "1f",
+    "x": 33,
+    "y": 39,
+    "passLevel": "Level CER (認証関係者パス)",
+    "desc": "Zone 2 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-CER-2",
+    "code": "ACP-CER-2",
+    "name": "関所: Preparation Room (CER-2)",
+    "floor": "2f",
+    "x": 50,
+    "y": 62,
+    "passLevel": "Level CER (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-CER-3",
+    "code": "ACP-CER-3",
+    "name": "関所: Storage for Ceremonies (CER-3)",
+    "floor": "1f",
+    "x": 67,
+    "y": 20,
+    "passLevel": "Level CER (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-19",
+    "code": "ACP-BRS-19",
+    "name": "関所: Broadcast Mixed Zone (BRS-19)",
+    "floor": "2f",
+    "x": 67,
+    "y": 44,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 4,5+SACDS へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-PRS-3",
+    "code": "ACP-PRS-3",
+    "name": "関所: Mixed Zone (PRS-3)",
+    "floor": "2f",
+    "x": 65,
+    "y": 41,
+    "passLevel": "Level PRS (認証関係者パス)",
+    "desc": "Zone 4,5+SACDS へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-PRS-4",
+    "code": "ACP-PRS-4",
+    "name": "関所: Photographer Position (PRS-4)",
+    "floor": "2f",
+    "x": 72,
+    "y": 54,
+    "passLevel": "Level PRS (認証関係者パス)",
+    "desc": "Zone 4 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-DOP-1",
+    "code": "ACP-DOP-1",
+    "name": "関所: Doping Control Station (DOP-1)",
+    "floor": "1f",
+    "x": 68,
+    "y": 62,
+    "passLevel": "Level DOP (認証関係者パス)",
+    "desc": "Zone 2+SACDs へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-PRS-1",
+    "code": "ACP-PRS-1",
+    "name": "関所: Sub Press Center (PRS-1)",
+    "floor": "2f",
+    "x": 74,
+    "y": 62,
+    "passLevel": "Level PRS (認証関係者パス)",
+    "desc": "Zone 4 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-PRS-2",
+    "code": "ACP-PRS-2",
+    "name": "関所: Press Conference Room (PRS-2)",
+    "floor": "2f",
+    "x": 81,
+    "y": 20,
+    "passLevel": "Level PRS (認証関係者パス)",
+    "desc": "Zone 4 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-PRS-4",
+    "code": "ACP-PRS-4",
+    "name": "関所: Photographer Position (PRS-4)",
+    "floor": "2f",
+    "x": 58,
+    "y": 33,
+    "passLevel": "Level PRS (認証関係者パス)",
+    "desc": "Zone 4 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-PRS-6",
+    "code": "ACP-PRS-6",
+    "name": "関所: Press Tribune-With Table (PRS-6)",
+    "floor": "2f",
+    "x": 72,
+    "y": 59,
+    "passLevel": "Level PRS (認証関係者パス)",
+    "desc": "Zone 4 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-PRS-8",
+    "code": "ACP-PRS-8",
+    "name": "関所: Press Operation Office (PRS-8)",
+    "floor": "2f",
+    "x": 86,
+    "y": 30,
+    "passLevel": "Level PRS (認証関係者パス)",
+    "desc": "Zone 4 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-17",
+    "code": "ACP-BRS-17",
+    "name": "関所: RHB Commentary Position (BRS-17)",
+    "floor": "2f",
+    "x": 63,
+    "y": 43,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-OFS-4",
+    "code": "ACP-OFS-4",
+    "name": "関所: OCA Family Seating (OFS-4)",
+    "floor": "2f",
+    "x": 28,
+    "y": 41,
+    "passLevel": "Level OFS (認証関係者パス)",
+    "desc": "Zone 6 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-23",
+    "code": "ACP-BRS-23",
+    "name": "関所: Observer Seats (BRS-23)",
+    "floor": "2f",
+    "x": 84,
+    "y": 27,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-24",
+    "code": "ACP-BRS-24",
+    "name": "関所: Presentation Studio (BRS-24)",
+    "floor": "2f",
+    "x": 61,
+    "y": 40,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-SPT-2",
+    "code": "ACP-SPT-2",
+    "name": "関所: Athlete Seating (SDA) (SPT-2)",
+    "floor": "1f",
+    "x": 72,
+    "y": 56,
+    "passLevel": "Level SPT (認証関係者パス)",
+    "desc": "Zone 2 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-SEC-3",
+    "code": "ACP-SEC-3",
+    "name": "関所: Police Command Centre (SEC-3)",
+    "floor": "1f",
+    "x": 36,
+    "y": 63,
+    "passLevel": "Level SEC (認証関係者パス)",
+    "desc": "Zone RED へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-SEC-8",
+    "code": "ACP-SEC-8",
+    "name": "関所: Pedestrian Screening Area - Accredited (PSA) (SEC-8)",
+    "floor": "1f",
+    "x": 63,
+    "y": 78,
+    "passLevel": "Level SEC (認証関係者パス)",
+    "desc": "Zone FOH へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-SEC-9",
+    "code": "ACP-SEC-9",
+    "name": "関所: Pedestrian Screening Area - Spectators (PSA) (SEC-9)",
+    "floor": "1f",
+    "x": 32,
+    "y": 63,
+    "passLevel": "Level SEC (認証関係者パス)",
+    "desc": "Zone FOH へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-1",
+    "code": "ACP-BRS-1",
+    "name": "関所: HB Office (BRS-1)",
+    "floor": "2f",
+    "x": 58,
+    "y": 38,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-2",
+    "code": "ACP-BRS-2",
+    "name": "関所: RHB Office (BRS-2)",
+    "floor": "2f",
+    "x": 65,
+    "y": 51,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-3",
+    "code": "ACP-BRS-3",
+    "name": "関所: HB Dining (BRS-3)",
+    "floor": "2f",
+    "x": 72,
+    "y": 64,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-4",
+    "code": "ACP-BRS-4",
+    "name": "関所: RHB Dining (BRS-4)",
+    "floor": "2f",
+    "x": 79,
+    "y": 22,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-5",
+    "code": "ACP-BRS-5",
+    "name": "関所: HB Production Room (BRS-5)",
+    "floor": "2f",
+    "x": 86,
+    "y": 35,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-7",
+    "code": "ACP-BRS-7",
+    "name": "関所: HB Audio (BRS-7)",
+    "floor": "2f",
+    "x": 63,
+    "y": 48,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-9",
+    "code": "ACP-BRS-9",
+    "name": "関所: HB CER (Centralized Equipment Room) (BRS-9)",
+    "floor": "2f",
+    "x": 70,
+    "y": 61,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-11",
+    "code": "ACP-BRS-11",
+    "name": "関所: TOC (Technical Operation Centre) (BRS-11)",
+    "floor": "2f",
+    "x": 77,
+    "y": 19,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-13",
+    "code": "ACP-BRS-13",
+    "name": "関所: HB Equipment Storage (BRS-13)",
+    "floor": "2f",
+    "x": 84,
+    "y": 32,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  },
+  {
+    "id": "ACP-BRS-14",
+    "code": "ACP-BRS-14",
+    "name": "関所: RHB Equipment Storage (BRS-14)",
+    "floor": "2f",
+    "x": 61,
+    "y": 45,
+    "passLevel": "Level BRS (認証関係者パス)",
+    "desc": "Zone 5 へのアクセス管理検問ポータル。"
+  }
+]
+};
+
+// データ永続化 (LocalStorage) & 自動保存ヘルパー
+const DataStorage = {
+  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V2',
+
+  init() {
+    const saved = localStorage.getItem(this.STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.rooms && parsed.acps) {
+          VENUE_DATA.rooms = parsed.rooms;
+          VENUE_DATA.acps = parsed.acps;
+          if (parsed.zones) VENUE_DATA.zones = parsed.zones;
+        }
+      } catch (e) {
+        console.warn('Failed to parse saved venue data:', e);
+      }
+    }
+  },
+
+  save() {
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
+      rooms: VENUE_DATA.rooms,
+      acps: VENUE_DATA.acps,
+      zones: VENUE_DATA.zones
+    }));
+  },
+
+  reset() {
+    localStorage.removeItem(this.STORAGE_KEY);
+    location.reload();
+  },
+
+  exportDataJs() {
+    const jsContent = `/**
+ * オフライン会場マップ - データ管理モジュール (VENUE_DATA)
+ * 最新編集データ
+ */
+
+const VENUE_DATA = ${JSON.stringify(VENUE_DATA, null, 2)};
+`;
+    const blob = new Blob([jsContent], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'data.js';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+};
+
+DataStorage.init();

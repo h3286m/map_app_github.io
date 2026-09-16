@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="100%" height="100%">
+  <defs>
+    <pattern id="grid-2f" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="vip-gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="100%" stop-color="#fde68a"/>
+    </linearGradient>
+    <linearGradient id="press-blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Floor Plate -->
+  <rect width="1000" height="700" fill="#fafafa"/>
+  <rect width="1000" height="700" fill="url(#grid-2f)" opacity="0.6"/>
+
+  <!-- Outer Walls -->
+  <rect x="80" y="60" width="840" height="580" fill="none" stroke="#334155" stroke-width="8" rx="20"/>
+
+  <!-- Center Atrium Void (Looking down onto 1F Arena) -->
+  <rect x="280" y="240" width="440" height="220" fill="#e2e8f0" stroke="#94a3b8" stroke-width="4" stroke-dasharray="10 6" rx="10"/>
+  <text x="500" y="350" font-size="22" font-weight="bold" fill="#64748b" text-anchor="middle">中央吹き抜け (1階アリーナ俯瞰エリア)</text>
+
+  <!-- West Wing: VIP & Royal Suite -->
+  <g id="vip-wing">
+    <rect x="100" y="80" width="360" height="140" fill="url(#vip-gold)" stroke="#d97706" stroke-width="3" rx="12"/>
+    <text x="280" y="150" font-size="20" font-weight="bold" fill="#92400e" text-anchor="middle">VIPロイヤルラウンジ・貴賓室</text>
+
+    <!-- VIP Tribune Balcony -->
+    <rect x="100" y="240" width="160" height="220" fill="#fef3c7" stroke="#d97706" stroke-width="2" rx="8"/>
+    <text x="180" y="350" font-size="16" font-weight="bold" fill="#b45309" text-anchor="middle">特別観覧バルコニー</text>
+  </g>
+
+  <!-- East Wing: Main Press Center & Conference -->
+  <g id="press-wing">
+    <rect x="540" y="80" width="360" height="140" fill="url(#press-blue)" stroke="#0284c7" stroke-width="3" rx="12"/>
+    <text x="720" y="150" font-size="20" font-weight="bold" fill="#0369a1" text-anchor="middle">メインプレスセンター (MPC)</text>
+
+    <!-- Press Conf Room -->
+    <rect x="740" y="240" width="160" height="220" fill="#e0f2fe" stroke="#0284c7" stroke-width="2" rx="8"/>
+    <text x="820" y="350" font-size="16" font-weight="bold" fill="#0369a1" text-anchor="middle">記者会見ホール</text>
+  </g>
+
+  <!-- South Boardrooms & Administrative Suites -->
+  <g id="south-boardrooms">
+    <rect x="100" y="480" width="800" height="140" fill="#f1f5f9" stroke="#475569" stroke-width="3" rx="12"/>
+    <text x="500" y="555" font-size="20" font-weight="bold" fill="#334155" text-anchor="middle">大会組織委員会 役員室・各種委員会室</text>
+  </g>
+
+  <!-- Connecting Bridges -->
+  <rect x="460" y="115" width="80" height="70" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+  <text x="500" y="155" font-size="12" font-weight="bold" fill="#475569" text-anchor="middle">中央ブリッジ</text>
+
+  <!-- Title Watermark -->
+  <text x="100" y="100" font-size="28" font-weight="900" fill="#334155" opacity="0.4">2F FLOOR MAP / 2階VIP・メディア</text>
+</svg>

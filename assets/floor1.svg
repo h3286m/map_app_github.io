@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="100%" height="100%">
+  <defs>
+    <pattern id="grid-1f" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#cbd5e1" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="pool-water" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Floor Floor Plate -->
+  <rect width="1000" height="700" fill="#f8fafc"/>
+  <rect width="1000" height="700" fill="url(#grid-1f)" opacity="0.5"/>
+
+  <!-- Outer Building Walls -->
+  <rect x="60" y="50" width="880" height="600" fill="none" stroke="#1e293b" stroke-width="8" rx="15"/>
+
+  <!-- Main Swimming Pool Arena Structure -->
+  <g id="main-arena">
+    <rect x="220" y="120" width="560" height="340" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="4"/>
+    <!-- Pool Water -->
+    <rect x="320" y="180" width="360" height="220" rx="6" fill="url(#pool-water)" stroke="#0369a1" stroke-width="3"/>
+    <!-- Lane Lines -->
+    <line x1="320" y1="205" x2="680" y2="205" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 4"/>
+    <line x1="320" y1="230" x2="680" y2="230" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 4"/>
+    <line x1="320" y1="255" x2="680" y2="255" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 4"/>
+    <line x1="320" y1="280" x2="680" y2="280" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 4"/>
+    <line x1="320" y1="305" x2="680" y2="305" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 4"/>
+    <line x1="320" y1="330" x2="680" y2="330" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 4"/>
+    <line x1="320" y1="355" x2="680" y2="355" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 4"/>
+    <line x1="320" y1="380" x2="680" y2="380" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 4"/>
+
+    <text x="500" y="160" font-size="20" font-weight="bold" fill="#0369a1" text-anchor="middle">メイン水泳アリーナ (MAIN POOL ARENA)</text>
+  </g>
+
+  <!-- North Corridor Rooms (Volunteers, Athletes, Judges) -->
+  <g id="north-rooms">
+    <rect x="80" y="70" width="130" height="150" fill="#f1f5f9" stroke="#64748b" stroke-width="2" rx="6"/>
+    <text x="145" y="140" font-size="14" font-weight="bold" fill="#475569" text-anchor="middle">選手控室 A</text>
+
+    <rect x="790" y="70" width="130" height="150" fill="#f1f5f9" stroke="#64748b" stroke-width="2" rx="6"/>
+    <text x="855" y="140" font-size="14" font-weight="bold" fill="#475569" text-anchor="middle">選手控室 B</text>
+  </g>
+
+  <!-- South Operations & Medical Block -->
+  <g id="south-ops">
+    <rect x="80" y="490" width="840" height="140" fill="#e2e8f0" stroke="#475569" stroke-width="3" rx="10"/>
+    
+    <!-- Division Walls -->
+    <line x1="280" y1="490" x2="280" y2="630" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="480" y1="490" x2="480" y2="630" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="680" y1="490" x2="680" y2="630" stroke="#94a3b8" stroke-width="2"/>
+
+    <text x="180" y="565" font-size="16" font-weight="bold" fill="#334155" text-anchor="middle">医療・救護ブロック</text>
+    <text x="380" y="565" font-size="16" font-weight="bold" fill="#334155" text-anchor="middle">防災・警備センター</text>
+    <text x="580" y="565" font-size="16" font-weight="bold" fill="#334155" text-anchor="middle">競技進行本部</text>
+    <text x="780" y="565" font-size="16" font-weight="bold" fill="#334155" text-anchor="middle">搬入ドック管理</text>
+  </g>
+
+  <!-- Main Entrances -->
+  <g id="entrances">
+    <path d="M 500 650 L 480 630 L 520 630 Z" fill="#0284c7"/>
+    <text x="500" y="675" font-size="16" font-weight="bold" fill="#0369a1" text-anchor="middle">▲ 1階メインコンコース入口 (MAIN ENTRANCE)</text>
+  </g>
+
+  <!-- Title Watermark -->
+  <text x="80" y="90" font-size="28" font-weight="900" fill="#334155" opacity="0.4">1F FLOOR MAP / 1階アリーナ</text>
+</svg>

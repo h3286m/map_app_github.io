@@ -24,9 +24,9 @@
   <input type="radio" id="tab-1f" name="floor">
   <input type="radio" id="tab-2f" name="floor">
 
-  <input type="checkbox" id="layer-room" checked>
+  <input type="checkbox" id="layer-room">
   <input type="checkbox" id="layer-acp" checked>
-  <input type="checkbox" id="layer-zone" checked>
+  <input type="checkbox" id="layer-zone">
 
   <!-- ヘッダー・操作コントロールパネル -->
   <div class="control-panel">
@@ -106,17 +106,17 @@
         <span class="badge badge-dept">OFFLINE ACTIVE</span>
       </div>
       <div style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-top:4px;">
-        マップ上の <b>📍 諸室ピン</b> または <b>🛡️ ACP (アクセス管理関所)</b> をタップすると、詳細情報（諸室名・英語表記・担当部署・ACP要件）がここに即座に表示されます。<br>
-        ヘッダーの「階層タブ」や「レイヤー切替」、または検索バーで目的の場所を探索できます。
+        マップ上の <b>📍 諸室ピン</b> または <b>🛡️ ACP (アクセスポイント)</b> をタップ/ホバーすると、詳細情報がポップアップおよび画面下に表示されます。<br>
+        ヘッダーのレイヤーメニュー（📍 諸室 / 🛡️ ACP / 📐 ゾーン）で表示切り替えができます。
       </div>
     </div>
   </div>
 
-  <!-- モーダル1: 諸室・関所の追加・編集モーダル -->
+  <!-- モーダル1: 諸室・ACPの追加・編集モーダル -->
   <div id="spot-editor-modal" class="modal-backdrop">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 id="modal-title" style="margin:0; font-size:16px;">📍 諸室・関所の追加・編集</h3>
+        <h3 id="modal-title" style="margin:0; font-size:16px;">📍 諸室・ACPの追加・編集</h3>
         <button id="modal-close-btn" class="modal-close">✕</button>
       </div>
       <form id="spot-form" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
@@ -126,19 +126,19 @@
           <label>種別:</label>
           <div style="display:flex; gap:12px;">
             <label style="cursor:pointer;"><input type="radio" name="spot-type" value="room" checked style="display:inline;"> 📍 諸室</label>
-            <label style="cursor:pointer;"><input type="radio" name="spot-type" value="acp" style="display:inline;"> 🛡️ ACP (関所)</label>
+            <label style="cursor:pointer;"><input type="radio" name="spot-type" value="acp" style="display:inline;"> 🛡️ ACP</label>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="form-name">名称 (諸室名 / 関所名): *</label>
+          <label for="form-name">名称 (諸室名 / ACP名): *</label>
           <input type="text" id="form-name" required placeholder="例: 大会本部室, 北側メインゲート">
         </div>
 
         <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
           <div class="form-group">
-            <label for="form-code">部屋コード:</label>
-            <input type="text" id="form-code" placeholder="例: ADM-01">
+            <label for="form-code">部屋コード / ACPコード:</label>
+            <input type="text" id="form-code" placeholder="例: ADM-01 または ACP-1F-01">
           </div>
           <div class="form-group">
             <label for="form-dept">担当部署:</label>
@@ -173,8 +173,23 @@
         </div>
 
         <div class="form-group">
-          <label for="form-acp">関所パス要件 / 最寄関所:</label>
-          <input type="text" id="form-acp" placeholder="例: Level A (選手・役員), または ACP-1F-01">
+          <label for="form-acp-select">ACP通行許可レベル / アクセス権限 (プルダウン選択):</label>
+          <select id="form-acp-select" style="padding:8px 10px; border-radius:6px; border:1px solid var(--panel-border); background:var(--card-bg); color:var(--text-primary); font-size:13px;">
+            <option value="Level 1 (競技エリア / FOP・選手・役員)">Level 1 (競技エリア / FOP・選手・役員)</option>
+            <option value="Level 2 (選手・チーム役員エリア)">Level 2 (選手・チーム役員エリア / Athletes & Team Leaders)</option>
+            <option value="Level 3 (IF/AF 役員・VIPエリア)">Level 3 (IF/AF 役員・VIPエリア / IF & AF Family)</option>
+            <option value="Level 4 (報道・プレスエリア)">Level 4 (報道・プレスエリア / Press & Photographers)</option>
+            <option value="Level 5 (放送・HB/RHBエリア)">Level 5 (放送・HB/RHBエリア / Broadcasters & HB)</option>
+            <option value="Level 6 (大会運営・スタッフエリア)">Level 6 (大会運営・スタッフエリア / Workforce & Staff)</option>
+            <option value="Level RED (レッドゾーン / 競技専用)">Level RED (レッドゾーン / Secure Operations)</option>
+            <option value="Level BLUE (ブルーゾーン / 選手動線)">Level BLUE (ブルーゾーン / Athlete Warm-up)</option>
+            <option value="Level WHITE (ホワイトゾーン / 運営・車両)">Level WHITE (ホワイトゾーン / Compound & Logistics)</option>
+            <option value="Level FOH (観客・一般エリア)">Level FOH (観客・一般エリア / Front of House)</option>
+            <option value="Level SACD (特別通行証・SACDs)">Level SACD (特別通行証 / Special Access)</option>
+            <option value="ALL (全エリア無制限)">ALL (全エリアアクセス可 / All Access)</option>
+            <option value="custom">✏️ カスタム入力（手動指定）</option>
+          </select>
+          <input type="text" id="form-acp" placeholder="例: Level A (選手・役員), または ACP-1F-01" style="margin-top:6px; display:none;">
         </div>
 
         <div class="form-group">

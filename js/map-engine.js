@@ -130,6 +130,7 @@ const MapEngine = {
 
         // ゾーンタップ時の情報表示
         polygon.addEventListener('click', (e) => {
+          if (this.isZoneDrawingMode) return; // ゾーン描画モード時はクリックを通させて頂点追加を許可
           e.stopPropagation();
           this.selectZone(zone);
         });
@@ -369,19 +370,37 @@ const MapEngine = {
         <div class="detail-header">
           <div>
             <div class="detail-title">📐 ゾーン: ${zone.name}</div>
-            <div class="detail-code">Zone ID: ${zone.id} | ${zone.nameEn || ''}</div>
+            <div class="detail-code">Zone ID: ${zone.id} | フロア: ${zone.floor.toUpperCase()}</div>
           </div>
           <div style="display:flex; gap:6px; align-items:center;">
+            <button onclick="MapEngine.openZoneEditor('${zone.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">✏️ 編集</button>
             <button onclick="MapEngine.deleteZone('${zone.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#ef4444; color:#fff; font-weight:bold; cursor:pointer;">🗑️ ゾーン削除</button>
             <span class="badge" style="background:${zone.borderColor || '#007aff'}">${zone.floor.toUpperCase()} ゾーン</span>
           </div>
         </div>
         <div style="margin-top:6px; font-size:12px; color:var(--text-secondary);">
           頂点数: ${zone.points ? zone.points.length : 0} 点の多角形区画。<br>
-          本エリア内の諸室・ACPはレイヤーメニューで表示切替が可能です。
+          表示カラー: <span style="display:inline-block; width:12px; height:12px; background:${zone.color}; border:1px solid #fff; vertical-align:middle; border-radius:2px;"></span>
         </div>
       </div>
     `;
+  },
+
+  openZoneEditor(zoneId) {
+    const zone = VENUE_DATA.zones.find(z => z.id === zoneId);
+    if (!zone) return;
+
+    const newName = prompt('ゾーン名称を変更:', zone.name);
+    if (newName === null) return;
+
+    if (newName.trim()) {
+      zone.name = newName.trim();
+      zone.nameEn = newName.trim();
+
+      if (window.DataStorage) window.DataStorage.save();
+      this.renderAllFloors();
+      this.selectZone(zone);
+    }
   },
 
   // ゾーン描画モードの起動・終了
@@ -461,6 +480,7 @@ const MapEngine = {
         polygon.setAttribute('stroke-width', '1.2');
         polygon.setAttribute('stroke-dasharray', '2 2');
         polygon.setAttribute('class', 'temp-zone-preview-polygon');
+        polygon.style.pointerEvents = 'none'; // クリックイベント干渉を防止
 
         zoneSvg.appendChild(polygon);
       }

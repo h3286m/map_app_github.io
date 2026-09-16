@@ -36,10 +36,19 @@ function setupZoneDrawerControls() {
   const clearBtn = document.getElementById('zone-clear-btn');
   const saveBtn = document.getElementById('zone-save-btn');
   const cancelBtn = document.getElementById('zone-cancel-btn');
+  const zoneLayerChk = document.getElementById('layer-zone');
 
   if (toggleZoneBtn) {
     toggleZoneBtn.addEventListener('click', () => {
       MapEngine.toggleZoneDrawingMode();
+    });
+  }
+
+  if (zoneLayerChk) {
+    zoneLayerChk.addEventListener('change', (e) => {
+      if (!e.target.checked && MapEngine.isZoneDrawingMode) {
+        MapEngine.toggleZoneDrawingMode(false);
+      }
     });
   }
 

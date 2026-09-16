@@ -717,6 +717,20 @@ body.editor-active .acp-pin::before {
   display: block;
 }
 
+body.zone-drawing-active .map-viewport .zone-layer-svg {
+  display: block !important;
+}
+
+body.zone-drawing-active .control-panel label[for="layer-zone"] {
+  background: var(--accent-zone) !important;
+  color: #fff !important;
+  border-color: var(--accent-zone) !important;
+}
+
+.temp-zone-preview-polygon {
+  pointer-events: none !important;
+}
+
 /* 描画中の頂点マーカー */
 .zone-vertex-dot {
   position: absolute;

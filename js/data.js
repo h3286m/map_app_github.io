@@ -140,86 +140,7 @@ const VENUE_DATA = {
     "color": "#ff2d55"
   }
 ],
-  zones: [
-  {
-    "id": "ZONE_1F_MAIN",
-    "floor": "1f",
-    "name": "1階アリーナ・競技運営エリア",
-    "nameEn": "1F Field & Operations Area",
-    "color": "rgba(0, 122, 255, 0.2)",
-    "borderColor": "#007aff",
-    "points": [
-      [
-        20,
-        20
-      ],
-      [
-        85,
-        20
-      ],
-      [
-        85,
-        85
-      ],
-      [
-        20,
-        85
-      ]
-    ]
-  },
-  {
-    "id": "ZONE_2F_MAIN",
-    "floor": "2f",
-    "name": "2階メディア・プロトコル観覧エリア",
-    "nameEn": "2F Media & Protocol Level",
-    "color": "rgba(175, 82, 222, 0.2)",
-    "borderColor": "#af52de",
-    "points": [
-      [
-        15,
-        15
-      ],
-      [
-        88,
-        15
-      ],
-      [
-        88,
-        80
-      ],
-      [
-        15,
-        80
-      ]
-    ]
-  },
-  {
-    "id": "ZONE_OUTDOOR_MAIN",
-    "floor": "outdoor",
-    "name": "屋外配置・駐車場・スクリーニングエリア",
-    "nameEn": "Outdoor Site & Screening Area",
-    "color": "rgba(52, 199, 89, 0.2)",
-    "borderColor": "#34c759",
-    "points": [
-      [
-        10,
-        10
-      ],
-      [
-        90,
-        10
-      ],
-      [
-        90,
-        90
-      ],
-      [
-        10,
-        90
-      ]
-    ]
-  }
-],
+  zones: [],
   rooms: [
   {
     "id": "RM-SPT-001",
@@ -2661,7 +2582,9 @@ const DataStorage = {
         if (parsed.rooms && parsed.acps) {
           VENUE_DATA.rooms = parsed.rooms;
           VENUE_DATA.acps = parsed.acps;
-          if (parsed.zones) VENUE_DATA.zones = parsed.zones;
+          if (parsed.zones) {
+            VENUE_DATA.zones = parsed.zones.filter(z => !['ZONE_1F_MAIN', 'ZONE_2F_MAIN', 'ZONE_OUTDOOR_MAIN'].includes(z.id));
+          }
         }
       } catch (e) {
         console.warn('Failed to parse saved venue data:', e);

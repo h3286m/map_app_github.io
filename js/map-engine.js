@@ -41,9 +41,9 @@ const MapEngine = {
 
         // 部署カラーを取得
         const dept = VENUE_DATA.departments.find(d => d.code === room.dept) || { color: '#007aff' };
-        if (dept.color) pin.style.backgroundColor = dept.color;
         
         pin.innerHTML = `
+          📍
           <div class="pin-tooltip">
             <div class="pin-tooltip-title">
               <span class="dept-badge" style="background:${dept.color}">${room.dept}</span>

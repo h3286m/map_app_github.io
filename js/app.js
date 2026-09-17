@@ -146,12 +146,13 @@ function setupEditorModal() {
     toggleEditorBtn.style.color = '#fff';
     toggleEditorBtn.textContent = MapEngine.isEditorMode ? '✕ 編集を終了' : '✏️ ピン追加・編集';
 
-    // 編集モード起動時は諸室・ACPレイヤーを全点灯し、すべてのピンをドラッグ操作可能にする
+    // 編集モード起動時：既存のレイヤー状態を維持（どちらも非表示の場合のみデフォルト設定）
     if (MapEngine.isEditorMode) {
       const roomChk = document.getElementById('layer-room');
       const acpChk = document.getElementById('layer-acp');
-      if (roomChk) roomChk.checked = true;
-      if (acpChk) acpChk.checked = true;
+      if (!roomChk?.checked && !acpChk?.checked) {
+        if (acpChk) acpChk.checked = true;
+      }
     }
 
     const panel = document.getElementById('info-panel');
@@ -189,8 +190,13 @@ function setupEditorModal() {
     const type = document.querySelector('input[name="spot-type"]:checked').value;
     const name = document.getElementById('form-name').value.trim();
     const code = document.getElementById('form-code').value.trim() || name;
-    const nameEn = document.getElementById('form-name-en').value.trim() || code;
-    const dept = document.getElementById('form-dept').value;
+    
+    const nameEnEl = document.getElementById('form-name-en');
+    const nameEn = nameEnEl ? nameEnEl.value.trim() : (code || name);
+    
+    const deptEl = document.getElementById('form-dept');
+    const dept = deptEl ? deptEl.value : 'ALL';
+    
     const floor = document.getElementById('form-floor').value;
     const x = parseFloat(document.getElementById('form-x').value);
     const y = parseFloat(document.getElementById('form-y').value);
@@ -293,8 +299,12 @@ window.openSpotEditor = function({ spotItem, x, y, floor }) {
 
     document.getElementById('form-name').value = spotItem.name || '';
     document.getElementById('form-code').value = spotItem.code || '';
-    document.getElementById('form-name-en').value = spotItem.nameEn || '';
-    document.getElementById('form-dept').value = spotItem.dept || 'ADM';
+    
+    const nameEnEl = document.getElementById('form-name-en');
+    if (nameEnEl) nameEnEl.value = spotItem.nameEn || '';
+    
+    const deptEl = document.getElementById('form-dept');
+    if (deptEl) deptEl.value = spotItem.dept || 'ALL';
     document.getElementById('form-floor').value = spotItem.floor || '1f';
     document.getElementById('form-x').value = spotItem.x;
     document.getElementById('form-y').value = spotItem.y;

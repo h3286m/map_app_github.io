@@ -2616,10 +2616,60 @@ const DataStorage = {
   exportDataJs() {
     const jsContent = `/**
  * オフライン会場マップ - データ管理モジュール (VENUE_DATA)
- * 最新編集データ
+ * 最新編集データ (全諸室・ACP・ゾーン統合保存版)
  */
 
 const VENUE_DATA = ${JSON.stringify(VENUE_DATA, null, 2)};
+
+// データ永続化 (LocalStorage) & 自動保存ヘルパー
+const DataStorage = {
+  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V2',
+
+  init() {
+    const saved = localStorage.getItem(this.STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed.rooms) && parsed.rooms.length > 0) {
+          VENUE_DATA.rooms = parsed.rooms;
+        }
+        if (Array.isArray(parsed.acps) && parsed.acps.length > 0) {
+          VENUE_DATA.acps = parsed.acps;
+        }
+        if (Array.isArray(parsed.zones)) {
+          VENUE_DATA.zones = parsed.zones;
+        }
+        console.log(\`✅ Loaded venue data from LocalStorage: \${VENUE_DATA.rooms.length} rooms, \${VENUE_DATA.acps.length} ACPs, \${VENUE_DATA.zones.length} zones\`);
+      } catch (e) {
+        console.warn('Failed to parse saved venue data:', e);
+      }
+    }
+  },
+
+  save() {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
+        rooms: VENUE_DATA.rooms,
+        acps: VENUE_DATA.acps,
+        zones: VENUE_DATA.zones
+      }));
+      console.log(\`💾 Saved venue data to LocalStorage: \${VENUE_DATA.zones.length} zones\`);
+    } catch (e) {
+      console.error('Failed to save venue data to LocalStorage:', e);
+    }
+  },
+
+  reset() {
+    localStorage.removeItem(this.STORAGE_KEY);
+    location.reload();
+  },
+
+  exportDataJs() {
+    DataStorage.exportDataJs();
+  }
+};
+
+DataStorage.init();
 `;
     const blob = new Blob([jsContent], { type: 'text/javascript' });
     const url = URL.createObjectURL(blob);

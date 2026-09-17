@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>オフライン多機能会場マップ (ACP・諸室・ゾーン連動)</title>
-  <link rel="stylesheet" href="css/styles.css?v=3.0">
+  <title>オフライン多機能会場マップ (ACP・部屋・ゾーン連動)</title>
+  <link rel="stylesheet" href="css/styles.css?v=12.0">
   <style>
     /* インライン完全CSS埋め込み (GitHub Pages上でのCSS読み込み失敗防止) */
     :root {
@@ -81,20 +81,21 @@
     .map-viewport { position: relative; flex: 1; background: #0b1120; overflow: hidden; touch-action: none; cursor: grab; }
     .map-viewport:active { cursor: grabbing; }
 
-    .map-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform-origin: 0 0; transition: transform 0.05s linear; }
-    .floor-map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; background-size: contain; background-repeat: no-repeat; background-position: center; }
-    .floor-map img.bg-svg { width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
+    .map-container { position: absolute; top: 0; left: 0; transform-origin: 0 0; transition: transform 0.05s linear; }
+    .floor-map { position: absolute; top: 0; left: 0; display: none; }
+    #map-outdoor { width: 1024px; height: 585px; }
+    #map-1f { width: 1024px; height: 718px; }
+    #map-2f { width: 1024px; height: 678px; }
+    .floor-map img.bg-svg { width: 100%; height: 100%; object-fit: fill; pointer-events: none; user-select: none; display: block; }
 
     .zoom-controls { position: absolute; right: 14px; top: 14px; z-index: 35; display: flex; flex-direction: column; gap: 6px; }
     .zoom-btn { width: 38px; height: 38px; background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--text-primary); border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); backdrop-filter: blur(8px); }
 
     .room-pin-container, .acp-pin-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 
-    .room-pin { position: absolute; pointer-events: auto; width: 18px; height: 18px; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center; transform: translate(-50%, -85%); cursor: pointer; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.8)); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, z-index 0.2s; z-index: 10; user-select: none; }
-    .room-pin:hover { transform: translate(-50%, -85%) scale(1.4); filter: drop-shadow(0 0 10px rgba(56, 189, 248, 1)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.9)); z-index: 900; }
+    
 
-    .acp-pin { position: absolute; pointer-events: auto; width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle, #ff4d4d 0%, #dc2626 100%); border: 1.5px solid #ffffff; transform: translate(-50%, -50%); box-shadow: 0 0 6px rgba(239, 68, 68, 0.9), 0 1px 4px rgba(0, 0, 0, 0.6); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0px; color: transparent; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, z-index 0.2s; z-index: 12; }
-    .acp-pin:hover { transform: translate(-50%, -50%) scale(1.6); z-index: 950; box-shadow: 0 0 14px rgba(239, 68, 68, 1), 0 0 0 2px rgba(255, 255, 255, 0.9); }
+    
 
     body.editor-active .room-pin { font-size: 18px; cursor: grab !important; filter: drop-shadow(0 0 6px #f59e0b) drop-shadow(0 0 12px rgba(245, 158, 11, 0.9)) !important; animation: pulse-ring 1.5s infinite ease-in-out; }
     body.editor-active .acp-pin { width: 18px; height: 18px; cursor: grab !important; box-shadow: 0 0 0 3px #f59e0b, 0 0 12px rgba(245, 158, 11, 0.9) !important; animation: pulse-ring 1.5s infinite ease-in-out; }
@@ -102,6 +103,145 @@
 
     @keyframes pulse-ring { 0% { box-shadow: 0 0 0 2px #f59e0b, 0 0 6px rgba(245, 158, 11, 0.6); } 50% { box-shadow: 0 0 0 4px #f59e0b, 0 0 16px rgba(245, 158, 11, 0.9); } 100% { box-shadow: 0 0 0 2px #f59e0b, 0 0 6px rgba(245, 158, 11, 0.6); } }
     .room-pin.is-dragging, .acp-pin.is-dragging { cursor: grabbing !important; transform: translate(-50%, -50%) scale(1.8) !important; z-index: 9999 !important; box-shadow: 0 0 0 4px #ef4444, 0 0 25px rgba(239, 68, 68, 1) !important; transition: none !important; }
+
+    
+    
+
+    /* 🛡️ ACPピン: 鮮明なセキュリティ・シールドバッジ (微弱パルス発光付き) */
+    .acp-pin {
+      position: absolute;
+      pointer-events: auto;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 20;
+      user-select: none;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0.2s;
+    }
+    .acp-pin:hover {
+      transform: translate(-50%, -50%) scale(1.35);
+      z-index: 950;
+    }
+    
+    @keyframes acp-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7), 0 3px 8px rgba(0, 0, 0, 0.6); }
+      70% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0), 0 3px 8px rgba(0, 0, 0, 0.6); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), 0 3px 8px rgba(0, 0, 0, 0.6); }
+    }
+
+    
+    
+
+    
+    /* 🛡️ ACP (Access Control Point) ピン: 鮮明な赤色ターゲットドット (直径16px) */
+    .acp-pin {
+      position: absolute !important;
+      pointer-events: auto !important;
+      width: 16px !important;
+      height: 16px !important;
+      border-radius: 50% !important;
+      background: radial-gradient(circle, #ff4d4d 0%, #dc2626 100%) !important;
+      border: 2px solid #ffffff !important;
+      transform: translate(-50%, -50%) !important;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.95), 0 2px 6px rgba(0, 0, 0, 0.8) !important;
+      cursor: pointer !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 0 !important;
+      z-index: 50 !important;
+      user-select: none !important;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
+    }
+    .acp-pin::after {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: block;
+    }
+    .acp-pin:hover {
+      transform: translate(-50%, -50%) scale(1.6) !important;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 1), 0 0 0 3px rgba(255, 255, 255, 0.95) !important;
+      z-index: 999 !important;
+    }
+
+    /* 📍 部屋（ルーム）: 任意のサイズに広がる四角形の枠 + 枠の中央に立つ📍ピン */
+    .room-pin {
+      position: absolute !important;
+      pointer-events: auto !important;
+      transform: translate(-50%, -50%) !important;
+      cursor: pointer !important;
+      z-index: 20 !important;
+      user-select: none !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-sizing: border-box !important;
+      border-style: solid !important;
+      border-width: 1.5px !important;
+      border-radius: 4px !important;
+      transition: box-shadow 0.2s, background 0.2s !important;
+    }
+    .room-pin:hover {
+      z-index: 920 !important;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.8), inset 0 0 10px rgba(56, 189, 248, 0.25) !important;
+    }
+    .room-pin-center-mark {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 14px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+      pointer-events: none;
+    }
+    .room-pin-code-text {
+      font-size: 10px;
+      font-weight: 800;
+      color: #ffffff;
+      background: rgba(15, 23, 42, 0.88);
+      padding: 1px 5px;
+      border-radius: 3px;
+      white-space: nowrap;
+      margin-top: 2px;
+      pointer-events: none;
+      letter-spacing: -0.2px;
+      max-width: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 部屋の枠拡大用リサイズハンドル (編集モード時のみ表示) */
+    .room-resize-handle {
+      display: none;
+      position: absolute;
+      right: -5px;
+      bottom: -5px;
+      width: 10px;
+      height: 10px;
+      background: #f59e0b;
+      border: 1.5px solid #ffffff;
+      border-radius: 2px;
+      cursor: se-resize !important;
+      z-index: 30;
+      pointer-events: auto !important;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+    }
+    body.editor-active .room-resize-handle {
+      display: block;
+    }
+    body.editor-active .room-pin {
+      cursor: move !important;
+    }
+    body.editor-active .acp-pin {
+      cursor: move !important;
+    }
+    .route-layer-svg {
+      pointer-events: none !important;
+    }
 
     .pin-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-6px); background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 8px 12px; white-space: nowrap; pointer-events: none !important; opacity: 0; visibility: hidden; transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s; box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 1000; color: #ffffff; text-align: left; }
     .pin-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 5px; border-style: solid; border-color: rgba(15, 23, 42, 0.96) transparent transparent transparent; pointer-events: none !important; }
@@ -218,7 +358,7 @@
 
       <!-- レイヤー表示/非表示トグルメニュー -->
       <div class="layer-menu">
-        <label for="layer-room">📍 諸室</label>
+        <label for="layer-room">📍 部屋</label>
         <label for="layer-acp">🛡️ ACP</label>
         <label for="layer-zone">📐 ゾーン</label>
       </div>
@@ -228,6 +368,7 @@
         <button id="toggle-editor-btn" class="btn-primary" style="background:#f59e0b; color:#000;">✏️ ピン追加・編集</button>
         <button id="toggle-zone-drawer-btn" class="btn-primary" style="background:#af52de; color:#fff;">📐 ゾーン描画</button>
         <button id="export-data-btn" class="btn-secondary" title="編集データを保存・ダウンロード">📥 保存/書き出し</button>
+        <button onclick="if(confirm('ブラウザの保存キャッシュを消去し、2Fの12件ACPを含む初期データ状態に復元しますか？')) DataStorage.reset();" class="btn-secondary" style="color:#ef4444; border-color:rgba(239,68,68,0.5);" title="ブラウザの古いキャッシュを消去して最新マスターデータに復元">🔄 初期状態に復元</button>
         <button id="toggle-theme-btn" class="btn-secondary">🌙 テーマ</button>
       </div>
     </div>
@@ -236,7 +377,7 @@
     <div class="search-filter-row">
       <div class="search-box-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" class="search-input" placeholder="諸室名・ACPコード・英語名で即座に検索..." list="search-suggestions">
+        <input type="text" id="search-input" class="search-input" placeholder="部屋名・コード・ACP・英語名で即座に検索..." list="search-suggestions">
         <datalist id="search-suggestions"></datalist>
       </div>
       <select id="dept-select" class="dept-select">
@@ -263,7 +404,7 @@
           <option value="rgba(52,199,89,0.25)" data-border="#34c759" data-name="GREEN">🟢 Zone GREEN / Zone 4 (チーム役員)</option>
           <option value="rgba(245,158,11,0.25)" data-border="#f59e0b" data-name="YELLOW">🟡 Zone YELLOW / Zone FOH (観客・一般)</option>
           <option value="rgba(255,255,255,0.20)" data-border="#ffffff" data-name="WHITE">⚪ Zone WHITE (駐車場・物流)</option>
-          <option value="rgba(0,199,190,0.25)" data-border="#00c7be" data-name="CYAN">🩵 Zone CYAN / Zone 2 (諸室・運営)</option>
+          <option value="rgba(0,199,190,0.25)" data-border="#00c7be" data-name="CYAN">🩵 Zone CYAN / Zone 2 (部屋・運営)</option>
         </select>
 
         <span id="zone-point-count" style="font-size:11px; color:#94a3b8; font-weight:bold;">点数: 0</span>
@@ -335,17 +476,17 @@
         <span class="badge badge-dept">OFFLINE ACTIVE</span>
       </div>
       <div style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-top:4px;">
-        マップ上の <b>📍 諸室ピン</b> または <b>🛡️ ACP (アクセスポイント)</b> をタップ/ホバーすると、詳細情報がポップアップおよび画面下に表示されます。<br>
-        ヘッダーのレイヤーメニュー（📍 諸室 / 🛡️ ACP / 📐 ゾーン）で表示切り替えができます。
+        マップ上の <b>📍 部屋ピン</b> または <b>🛡️ ACP (アクセスポイント)</b> をタップ/ホバーすると、詳細情報がポップアップおよび画面下に表示されます。<br>
+        ヘッダーのレイヤーメニュー（📍 部屋 / 🛡️ ACP / 📐 ゾーン）で表示切り替えができます。
       </div>
     </div>
   </div>
 
-  <!-- モーダル1: 諸室・ACPの追加・編集モーダル -->
+  <!-- モーダル1: 部屋・ACPの追加・編集モーダル -->
   <div id="spot-editor-modal" class="modal-backdrop">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 id="modal-title" style="margin:0; font-size:16px;">📍 諸室・ACPの追加・編集</h3>
+        <h3 id="modal-title" style="margin:0; font-size:16px;">📍 部屋・ACPの追加・編集</h3>
         <button id="modal-close-btn" class="modal-close">✕</button>
       </div>
       <form id="spot-form" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
@@ -354,19 +495,29 @@
         <div class="form-row">
           <label>種別:</label>
           <div style="display:flex; gap:12px;">
-            <label style="cursor:pointer;"><input type="radio" name="spot-type" value="room" checked style="display:inline;"> 📍 諸室</label>
+            <label style="cursor:pointer;"><input type="radio" name="spot-type" value="room" checked style="display:inline;"> 📍 部屋</label>
             <label style="cursor:pointer;"><input type="radio" name="spot-type" value="acp" style="display:inline;"> 🛡️ ACP</label>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="form-name">名称 (諸室名 / ACP名): *</label>
+          <label for="form-name">名称 (部屋名 / ACP名): *</label>
           <input type="text" id="form-name" required placeholder="例: 大会本部室, 北側メインゲート">
         </div>
 
         <div class="form-group">
           <label for="form-code">部屋コード / ACPコード:</label>
           <input type="text" id="form-code" placeholder="例: ADM-01 または ACP-1F-01">
+        </div>
+
+        <div class="form-group">
+          <label for="form-name-en">英語名称 (任意):</label>
+          <input type="text" id="form-name-en" placeholder="例: Protocol Office">
+        </div>
+
+        <div class="form-group room-dept-group">
+          <label for="form-dept">担当部署:</label>
+          <select id="form-dept" style="padding:8px; border-radius:6px; border:1px solid var(--panel-border); background:var(--card-bg); color:var(--text-primary); font-size:13px;"></select>
         </div>
 
         <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
@@ -379,12 +530,23 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="form-x">X座標 (%):</label>
+            <label for="form-x">中心X座標 (%):</label>
             <input type="number" id="form-x" step="0.1" min="0" max="100" required>
           </div>
           <div class="form-group">
-            <label for="form-y">Y座標 (%):</label>
+            <label for="form-y">中心Y座標 (%):</label>
             <input type="number" id="form-y" step="0.1" min="0" max="100" required>
+          </div>
+        </div>
+
+        <div class="form-row room-size-row" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div class="form-group">
+            <label for="form-w">枠の横幅 (W %):</label>
+            <input type="number" id="form-w" step="0.1" min="1" max="50" value="5.0">
+          </div>
+          <div class="form-group">
+            <label for="form-h">枠の縦幅 (H %):</label>
+            <input type="number" id="form-h" step="0.1" min="1" max="50" value="3.5">
           </div>
         </div>
 
@@ -433,28 +595,29 @@
   <div id="export-modal" class="modal-backdrop">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 style="margin:0; font-size:16px;">📥 データ保存・書き出し</h3>
+        <h3 style="margin:0; font-size:16px;">📥 データ保存・初期化</h3>
         <button id="export-close-btn" class="modal-close">✕</button>
       </div>
       <div style="display:flex; flex-direction:column; gap:12px; margin-top:12px; font-size:13px; color:var(--text-secondary);">
         <div>
-          ブラウザ上で編集した最新データは自動的にブラウザ（LocalStorage）に保存されています。
+          編集した最新データは自動的にブラウザ内に保存されています。<br>
+          別の端末へ反映したい場合は、最新の <code style="color:var(--text-primary);">data.js</code> をダウンロードして上書き配置できます。
         </div>
 
         <button id="download-datajs-btn" class="btn-primary" style="padding:10px; font-size:13px;">
-          📄 js/data.js ファイルとして保存（ダウンロード）
+          📄 最新マスターデータを js/data.js としてダウンロード
         </button>
 
-        <button id="reset-default-data-btn" class="btn-secondary" style="color:#ef4444; border-color:#ef4444;">
-          🔄 初期データ状態にリセット
+        <button id="reset-default-data-btn" class="btn-secondary" style="color:#ef4444; border-color:#ef4444; padding:10px; font-size:13px;">
+          🔄 初期データ状態にリセット（保存キャッシュ消去）
         </button>
       </div>
     </div>
   </div>
 
   <!-- スクリプト読み込み (順序重要: data.js -> map-engine.js -> app.js) -->
-  <script src="js/data.js"></script>
-  <script src="js/map-engine.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/data.js?v=12.0"></script>
+  <script src="js/map-engine.js?v=12.0"></script>
+  <script src="js/app.js?v=12.0"></script>
 </body>
 </html>

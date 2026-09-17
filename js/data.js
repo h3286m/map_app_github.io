@@ -2144,26 +2144,6 @@ const VENUE_DATA = {
       "desc": "Zone RED へのアクセス管理検問ポータル。"
     },
     {
-      "id": "ACP-PRS-6",
-      "code": "ACP-PRS-6",
-      "name": "関所: Press Tribune-With Table (PRS-6)",
-      "floor": "2f",
-      "x": 53.3,
-      "y": 12.1,
-      "passLevel": "Level PRS (認証関係者パス)",
-      "desc": "Zone 4 へのアクセス管理検問ポータル。"
-    },
-    {
-      "id": "ACP-BRS-9",
-      "code": "ACP-BRS-9",
-      "name": "関所: HB CER (Centralized Equipment Room) (BRS-9)",
-      "floor": "2f",
-      "x": 64.9,
-      "y": 13.6,
-      "passLevel": "Level BRS (認証関係者パス)",
-      "desc": "Zone 5 へのアクセス管理検問ポータル。"
-    },
-    {
       "id": "ACP-USER-1789627921156",
       "code": "TEC04 TER",
       "name": "TEC04 TER",
@@ -2659,138 +2639,6 @@ const VENUE_DATA = {
       "desc": "サブプールと会場外との導線"
     },
     {
-      "id": "ACP-OFS-4",
-      "code": "ACP-OFS-4",
-      "name": "関所: OCA Family Seating (OFS-4)",
-      "floor": "2f",
-      "x": 57,
-      "y": 16.1,
-      "passLevel": "Level OFS (認証関係者パス)",
-      "pdfUrl": "",
-      "desc": "Zone 6 へのアクセス管理検問ポータル。"
-    },
-    {
-      "id": "ACP-BRS-17",
-      "code": "ACP-BRS-17",
-      "name": "RHB Commentary Position (BRS-17)",
-      "floor": "2f",
-      "x": 60.3,
-      "y": 12.9,
-      "passLevel": "Level BRS (認証関係者パス)",
-      "pdfUrl": "",
-      "desc": "Zone 5 へのアクセス管理検問ポータル。"
-    },
-    {
-      "id": "ACP-USER-1789631193610",
-      "code": "BRS",
-      "name": "BRS",
-      "floor": "2f",
-      "x": 49,
-      "y": 12.1,
-      "passLevel": "Level 1 (競技エリア / FOP・選手・役員)",
-      "pdfUrl": "",
-      "desc": ""
-    },
-    {
-      "id": "ACP-USER-1789631238290",
-      "code": "BRS",
-      "name": "BRS24　Presentationstudio",
-      "floor": "2f",
-      "x": 47.6,
-      "y": 7.3,
-      "passLevel": "Level 4 (報道・プレスエリア)",
-      "pdfUrl": "",
-      "desc": ""
-    },
-    {
-      "id": "ACP-USER-1789631300513",
-      "code": "EVS",
-      "name": "EVS 観客席（南）",
-      "floor": "2f",
-      "x": 39.1,
-      "y": 63.8,
-      "passLevel": "Level 6 (大会運営・スタッフエリア)",
-      "pdfUrl": "",
-      "desc": ""
-    },
-    {
-      "id": "ACP-USER-1789631359010",
-      "code": "PRS",
-      "name": "PRS PhotographerPosition",
-      "floor": "2f",
-      "x": 57.4,
-      "y": 55.4,
-      "passLevel": "Level 1 (競技エリア / FOP・選手・役員)",
-      "pdfUrl": "",
-      "desc": ""
-    },
-    {
-      "id": "ACP-USER-1789631392754",
-      "code": "PRS",
-      "name": "PhotographerPosition",
-      "floor": "2f",
-      "x": 56.7,
-      "y": 59.5,
-      "passLevel": "Level 4 (報道・プレスエリア)",
-      "pdfUrl": "",
-      "desc": ""
-    },
-    {
-      "id": "ACP-USER-1789631410379",
-      "code": "PhotographerPosition",
-      "name": "PhotographerPosition",
-      "floor": "2f",
-      "x": 59,
-      "y": 64.7,
-      "passLevel": "Level 4 (報道・プレスエリア)",
-      "pdfUrl": "",
-      "desc": ""
-    },
-    {
-      "id": "ACP-USER-1789631447623",
-      "code": "SPT",
-      "name": "SPT AthleteSeating",
-      "floor": "2f",
-      "x": 64,
-      "y": 58.5,
-      "passLevel": "Level 1 (競技エリア / FOP・選手・役員)",
-      "pdfUrl": "",
-      "desc": ""
-    },
-    {
-      "id": "ACP-USER-1789631464726",
-      "code": "SPT",
-      "name": "SPT AthleteSeating（DDA）",
-      "floor": "2f",
-      "x": 61.7,
-      "y": 60.2,
-      "passLevel": "Level 2 (選手・チーム役員エリア)",
-      "pdfUrl": "",
-      "desc": ""
-    },
-    {
-      "id": "ACP-USER-1789631554753",
-      "code": "PRS",
-      "name": "SubPressCenter入口",
-      "floor": "2f",
-      "x": 36.3,
-      "y": 67.8,
-      "passLevel": "Level 1 (競技エリア / FOP・選手・役員)",
-      "pdfUrl": "",
-      "desc": ""
-    },
-    {
-      "id": "ACP-USER-1789631588274",
-      "code": "PRS",
-      "name": "SubPressCenter入口",
-      "floor": "2f",
-      "x": 38.1,
-      "y": 68.1,
-      "passLevel": "Level 4 (報道・プレスエリア)",
-      "pdfUrl": "",
-      "desc": ""
-    },
-    {
       "id": "ACP-USER-1789631762434",
       "code": "Tec",
       "name": "Tec Storage",
@@ -2890,26 +2738,6 @@ const VENUE_DATA = {
       "desc": ""
     },
     {
-      "id": "ACP-BRS-24",
-      "code": "ACP-BRS-24",
-      "name": "関所: Presentation Studio (BRS-24)",
-      "floor": "2f",
-      "x": 61,
-      "y": 40,
-      "passLevel": "Level BRS (認証関係者パス)",
-      "desc": "Zone 5 へのアクセス管理検問ポータル。"
-    },
-    {
-      "id": "ACP-PRS-3",
-      "code": "PRS",
-      "name": "Mixed Zone (PRS-3)",
-      "floor": "2f",
-      "x": 67,
-      "y": 47.6,
-      "passLevel": "Level PRS (認証関係者パス)",
-      "desc": "Zone 4,5+SACDS へのアクセス管理検問ポータル。"
-    },
-    {
       "id": "ACP-BRS-19",
       "code": "BRS",
       "name": "Broadcast Mixed Zone (BRS-19)",
@@ -2918,46 +2746,6 @@ const VENUE_DATA = {
       "y": 44,
       "passLevel": "Level BRS (認証関係者パス)",
       "desc": "Zone 4,5+SACDS へのアクセス管理検問ポータル。"
-    },
-    {
-      "id": "ACP-PRS-4",
-      "code": "PRS",
-      "name": "Photographer Position (PRS-4)",
-      "floor": "2f",
-      "x": 58.5,
-      "y": 59.8,
-      "passLevel": "Level PRS (認証関係者パス)",
-      "desc": "Zone 4 へのアクセス管理検問ポータル。"
-    },
-    {
-      "id": "ACP-PRS-1",
-      "code": "PRS",
-      "name": "Sub Press Center (PRS-1)",
-      "floor": "2f",
-      "x": 39.9,
-      "y": 67.8,
-      "passLevel": "Level PRS (認証関係者パス)",
-      "desc": "Zone 4 へのアクセス管理検問ポータル。"
-    },
-    {
-      "id": "ACP-BRS-1",
-      "code": "BRS",
-      "name": "HB Office BRS",
-      "floor": "2f",
-      "x": 37.8,
-      "y": 67.8,
-      "passLevel": "Level BRS (認証関係者パス)",
-      "desc": "Zone 5 へのアクセス管理検問ポータル。"
-    },
-    {
-      "id": "ACP-BRS-13",
-      "code": "BRS",
-      "name": "HB Equipment Storage (BRS-13)",
-      "floor": "2f",
-      "x": 84,
-      "y": 32,
-      "passLevel": "Level BRS (認証関係者パス)",
-      "desc": "Zone 5 へのアクセス管理検問ポータル。"
     },
     {
       "id": "ACP-BRS-14",
@@ -2998,26 +2786,147 @@ const VENUE_DATA = {
       "y": 18,
       "passLevel": "Level 4 (報道・プレスエリア)",
       "desc": "Zone 5 へのアクセス管理検問ポータル。"
+    },
+    {
+      "id": "ACP-2F-01",
+      "code": "2F-01",
+      "name": "北側諸室 最奥入口 (仮)",
+      "floor": "2f",
+      "x": 47.2,
+      "y": 7.7,
+      "passLevel": "Level 1 (現場確認用)",
+      "desc": "北側最奥の部屋扉。現場照合後に正式名称へ更新可能。"
+    },
+    {
+      "id": "ACP-2F-02",
+      "code": "2F-02",
+      "name": "北側通路 通路側扉 (仮)",
+      "floor": "2f",
+      "x": 47.9,
+      "y": 11.4,
+      "passLevel": "Level 1 (現場確認用)",
+      "desc": "北側通路・部屋扉。現場照合後に正式名称へ更新可能。"
+    },
+    {
+      "id": "ACP-2F-03",
+      "code": "2F-03",
+      "name": "北側中央 諸室扉 (仮)",
+      "floor": "2f",
+      "x": 54.9,
+      "y": 11.3,
+      "passLevel": "Level 1 (現場確認用)",
+      "desc": "北側中央部屋扉。現場照合後に正式名称へ更新可能。"
+    },
+    {
+      "id": "ACP-2F-04",
+      "code": "2F-04",
+      "name": "北側東寄り 諸室扉 (仮)",
+      "floor": "2f",
+      "x": 59.9,
+      "y": 11,
+      "passLevel": "Level 5 (放送・HB)",
+      "desc": "北側東寄り部屋扉。現場照合後に正式名称へ更新可能。"
+    },
+    {
+      "id": "ACP-2F-05",
+      "code": "2F-05",
+      "name": "北側スタンド階段・記者席入口 (仮)",
+      "floor": "2f",
+      "x": 61.2,
+      "y": 15.6,
+      "passLevel": "Level 4 (報道・プレス)",
+      "desc": "北側スタンド階段・客席入口。現場照合後に正式名称へ更新可能。"
+    },
+    {
+      "id": "ACP-2F-06",
+      "code": "2F-06",
+      "name": "南側スタンド西側 階段入口 (仮)",
+      "floor": "2f",
+      "x": 59.6,
+      "y": 54.6,
+      "passLevel": "Level 2 (選手・役員)",
+      "desc": "南側スタンド西側階段。現場照合後に正式名称へ更新可能。"
+    },
+    {
+      "id": "ACP-2F-07",
+      "code": "2F-07",
+      "name": "南側スタンド東側 階段入口 (仮)",
+      "floor": "2f",
+      "x": 68.6,
+      "y": 54.8,
+      "passLevel": "Level 4 (フォト・撮影)",
+      "desc": "南側スタンド東側階段。現場照合後に正式名称へ更新可能。"
+    },
+    {
+      "id": "ACP-2F-08",
+      "code": "2F-08",
+      "name": "南側外側通路 西側扉 (仮)",
+      "floor": "2f",
+      "x": 59.5,
+      "y": 59.8,
+      "passLevel": "Level 6 (大会運営・スタッフ)",
+      "desc": "南側外側通路西側扉。現場照合後に正式名称へ更新可能。"
+    },
+    {
+      "id": "ACP-2F-09",
+      "code": "2F-09",
+      "name": "南側外側通路 東側扉 (仮)",
+      "floor": "2f",
+      "x": 71.7,
+      "y": 60.1,
+      "passLevel": "Level 6 (大会運営・スタッフ)",
+      "desc": "南側外側通路東側扉。現場照合後に正式名称へ更新可能。"
+    },
+    {
+      "id": "ACP-2F-10",
+      "code": "2F-10",
+      "name": "西側 コンコース連絡口 (仮)",
+      "floor": "2f",
+      "x": 32.3,
+      "y": 63.8,
+      "passLevel": "Level FOH (観客・一般)",
+      "desc": "西側メインコンコース連絡口。現場照合後に正式名称へ更新可能。"
+    },
+    {
+      "id": "ACP-2F-11",
+      "code": "2F-11",
+      "name": "南西 通路中間扉 (仮)",
+      "floor": "2f",
+      "x": 27.4,
+      "y": 66.9,
+      "passLevel": "Level 6 (大会運営・スタッフ)",
+      "desc": "南西通路中間セキュリティ扉。現場照合後に正式名称へ更新可能。"
+    },
+    {
+      "id": "ACP-2F-12",
+      "code": "2F-12",
+      "name": "南西 階段・EV出口前 (仮)",
+      "floor": "2f",
+      "x": 26,
+      "y": 67,
+      "passLevel": "Level 6 (大会運営・スタッフ)",
+      "desc": "南西EV・階段出口正面ゲート。現場照合後に正式名称へ更新可能。"
     }
   ]
 };
 
 // データ永続化 (LocalStorage) & 自動保存ヘルパー
+
+// データ永続化 (LocalStorage) & 自動保存ヘルパー (V10)
 const DataStorage = {
-  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V4',
+  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V10',
 
   init() {
-    // 過去の古いキャッシュキー(V1, V2, V3)を自動クリーンアップ
-    ['OFFLINE_VENUE_MAP_DATA', 'OFFLINE_VENUE_MAP_DATA_V1', 'OFFLINE_VENUE_MAP_DATA_V2', 'OFFLINE_VENUE_MAP_DATA_V3'].forEach(k => {
-      try { localStorage.removeItem(k); } catch(e) {}
-    });
+    // 過去の古いキャッシュキーを一括消去
+    for (let i = 1; i <= 9; i++) {
+      try { localStorage.removeItem('OFFLINE_VENUE_MAP_DATA_V' + i); } catch(e) {}
+    }
+    try { localStorage.removeItem('OFFLINE_VENUE_MAP_DATA'); } catch(e) {}
 
     const saved = localStorage.getItem(this.STORAGE_KEY);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-
-        // 1. 諸室 (rooms) のスマートマージ
         if (Array.isArray(parsed.rooms)) {
           parsed.rooms.forEach(savedRoom => {
             const existingIdx = VENUE_DATA.rooms.findIndex(r => r.id === savedRoom.id);
@@ -3028,9 +2937,9 @@ const DataStorage = {
             }
           });
         }
-
-        // 2. ACP (acps) のスマートマージ
         if (Array.isArray(parsed.acps)) {
+          // 2F ACPが確実に保持されるよう検証
+          const saved2FAcps = parsed.acps.filter(a => a.floor === '2f');
           parsed.acps.forEach(savedAcp => {
             const existingIdx = VENUE_DATA.acps.findIndex(a => a.id === savedAcp.id);
             if (existingIdx !== -1) {
@@ -3039,9 +2948,13 @@ const DataStorage = {
               VENUE_DATA.acps.push(savedAcp);
             }
           });
+          // もし保存データ内で2FのACPが0件になっていた場合はデフォルト12件を再確保
+          const current2fCount = VENUE_DATA.acps.filter(a => a.floor === '2f').length;
+          if (current2fCount === 0) {
+            console.warn('2F ACPs were missing in saved data, restoring default 12 ACPs');
+            this.reset();
+          }
         }
-
-        // 3. ゾーン (zones) のスマートマージ
         if (Array.isArray(parsed.zones)) {
           parsed.zones.forEach(savedZone => {
             const existingIdx = VENUE_DATA.zones.findIndex(z => z.id === savedZone.id);
@@ -3052,65 +2965,8 @@ const DataStorage = {
             }
           });
         }
-
-        console.log(`✅ Loaded & merged venue data: ${VENUE_DATA.rooms.length} rooms, ${VENUE_DATA.acps.length} ACPs, ${VENUE_DATA.zones.length} zones`);
       } catch (e) {
-        console.warn('Failed to parse saved venue data:', e);
-      }
-    }
-  },
-
-  save() {
-    try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
-        rooms: VENUE_DATA.rooms,
-        acps: VENUE_DATA.acps,
-        zones: VENUE_DATA.zones
-      }));
-      console.log(`💾 Saved venue data to LocalStorage (V4): ${VENUE_DATA.acps.length} ACPs, ${VENUE_DATA.zones.length} zones`);
-    } catch (e) {
-      console.error('Failed to save venue data to LocalStorage:', e);
-    }
-  },
-
-  reset() {
-    localStorage.removeItem(this.STORAGE_KEY);
-    location.reload();
-  },
-
-  exportDataJs() {
-    const dataStorageString = `const DataStorage = {
-  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V4',
-
-  init() {
-    ['OFFLINE_VENUE_MAP_DATA', 'OFFLINE_VENUE_MAP_DATA_V1', 'OFFLINE_VENUE_MAP_DATA_V2', 'OFFLINE_VENUE_MAP_DATA_V3'].forEach(k => {
-      try { localStorage.removeItem(k); } catch(e) {}
-    });
-
-    const saved = localStorage.getItem(this.STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed.rooms)) {
-          parsed.rooms.forEach(savedRoom => {
-            const existingIdx = VENUE_DATA.rooms.findIndex(r => r.id === savedRoom.id);
-            if (existingIdx !== -1) { VENUE_DATA.rooms[existingIdx] = savedRoom; } else { VENUE_DATA.rooms.push(savedRoom); }
-          });
-        }
-        if (Array.isArray(parsed.acps)) {
-          parsed.acps.forEach(savedAcp => {
-            const existingIdx = VENUE_DATA.acps.findIndex(a => a.id === savedAcp.id);
-            if (existingIdx !== -1) { VENUE_DATA.acps[existingIdx] = savedAcp; } else { VENUE_DATA.acps.push(savedAcp); }
-          });
-        }
-        if (Array.isArray(parsed.zones)) {
-          parsed.zones.forEach(savedZone => {
-            const existingIdx = VENUE_DATA.zones.findIndex(z => z.id === savedZone.id);
-            if (existingIdx !== -1) { VENUE_DATA.zones[existingIdx] = savedZone; } else { VENUE_DATA.zones.push(savedZone); }
-          });
-        }
-      } catch (e) {
-        console.warn(e);
+        console.warn('LocalStorage parse error:', e);
       }
     }
   },
@@ -3123,43 +2979,44 @@ const DataStorage = {
         zones: VENUE_DATA.zones
       }));
     } catch (e) {
-      console.error(e);
+      console.error('LocalStorage save error:', e);
     }
   },
 
   reset() {
-    localStorage.removeItem(this.STORAGE_KEY);
+    try {
+      for (let i = 1; i <= 10; i++) {
+        localStorage.removeItem('OFFLINE_VENUE_MAP_DATA_V' + i);
+      }
+      localStorage.removeItem('OFFLINE_VENUE_MAP_DATA');
+      localStorage.removeItem('OFFLINE_VENUE_MAP_LAST_FLOOR');
+    } catch(e) {}
     location.reload();
   },
 
   exportDataJs() {
-    DataStorage.exportDataJs();
-  }
-};
+    const jsText = '/**\n * オフライン会場マップ - データ管理モジュール (VENUE_DATA)\n * 最新編集データ (全諸室・ACP・ゾーン統合保存版)\n */\n\n' +
+      'const VENUE_DATA = ' + JSON.stringify(VENUE_DATA, null, 2) + ';\n\n' +
+      'if (typeof window !== "undefined") { window.VENUE_DATA = VENUE_DATA; }\n\n' +
+      newStorageBlock;
 
-DataStorage.init();`;
-
-    const jsContent = `/**
- * オフライン会場マップ - データ管理モジュール (VENUE_DATA)
- * 最新編集データ (全諸室・ACP・ゾーン統合保存版)
- */
-
-const VENUE_DATA = ${JSON.stringify(VENUE_DATA, null, 2)};
-
-// データ永続化 (LocalStorage) & 自動保存ヘルパー
-${dataStorageString}
-`;
-    const blob = new Blob([jsContent], { type: 'text/javascript' });
+    const blob = new Blob([jsText], { type: 'application/javascript;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'data.js';
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 200);
   }
 };
 
-DataStorage.init();
+if (typeof window !== 'undefined') {
+  window.VENUE_DATA = VENUE_DATA;
+  window.DataStorage = DataStorage;
+}
 
+DataStorage.init();

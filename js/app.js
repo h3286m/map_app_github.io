@@ -129,6 +129,16 @@ function setupSearchAndFilters() {
 
 // ブラウザ内ピン編集モーダルの制御
 function setupEditorModal() {
+  // spot-type change listener
+  document.querySelectorAll('input[name="spot-type"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const isRoom = e.target.value === 'room';
+      const roomSizeRow = document.querySelector('.room-size-row');
+      const roomDeptGroup = document.querySelector('.room-dept-group');
+      if (roomSizeRow) roomSizeRow.style.display = isRoom ? 'grid' : 'none';
+      if (roomDeptGroup) roomDeptGroup.style.display = isRoom ? 'block' : 'none';
+    });
+  });
   const editorModal = document.getElementById('spot-editor-modal');
   const toggleEditorBtn = document.getElementById('toggle-editor-btn');
   const closeBtn = document.getElementById('modal-close-btn');
@@ -201,45 +211,69 @@ function setupEditorModal() {
     const x = parseFloat(document.getElementById('form-x').value);
     const y = parseFloat(document.getElementById('form-y').value);
 
-    const acpSelVal = acpSelect ? acpSelect.value : '';
-    const acpInpVal = acpInput ? acpInput.value.trim() : '';
-    const acp = (acpSelVal === 'custom' ? acpInpVal : acpSelVal) || 'Level 6 (大会運営・スタッフエリア)';
+    const wEl = document.getElementById('form-w');
+    const hEl = document.getElementById('form-h');
+    const w = wEl ? parseFloat(wEl.value) || 5.0 : 5.0;
+    const h = hEl ? parseFloat(hEl.value) || 3.5 : 3.5;
+
+    const acpSelect = document.getElementById('form-acp-select');
+    const acpInput = document.getElementById('form-acp');
+    const acp = (acpSelect && acpSelect.value === 'custom') ? acpInput.value.trim() : (acpSelect ? acpSelect.value : '');
 
     const pdfUrl = document.getElementById('form-pdf').value.trim();
     const desc = document.getElementById('form-desc').value.trim();
 
-    // 既存IDがある場合は一度両リストから除外（カテゴリ変更・更新のクリーン化）
     if (spotId) {
-      VENUE_DATA.rooms = VENUE_DATA.rooms.filter(r => r.id !== spotId);
-      VENUE_DATA.acps = VENUE_DATA.acps.filter(a => a.id !== spotId);
-    }
-
-    if (type === 'room') {
-      VENUE_DATA.rooms.push({
-        id: spotId || `RM-USER-${Date.now()}`,
-        code: code,
-        name: name,
-        nameEn: nameEn,
-        dept: dept,
-        floor: floor,
-        x: x,
-        y: y,
-        acp: acp,
-        pdfUrl: pdfUrl,
-        desc: desc
-      });
+      // 既存データの更新
+      let found = false;
+      const roomIdx = VENUE_DATA.rooms.findIndex(r => r.id === spotId);
+      if (roomIdx !== -1) {
+        VENUE_DATA.rooms[roomIdx] = {
+          ...VENUE_DATA.rooms[roomIdx],
+          name, code, nameEn, dept, floor, x, y, w, h, acp, pdfUrl, desc
+        };
+        found = true;
+      }
+      const acpIdx = VENUE_DATA.acps.findIndex(a => a.id === spotId);
+      if (acpIdx !== -1) {
+        VENUE_DATA.acps[acpIdx] = {
+          ...VENUE_DATA.acps[acpIdx],
+          name, code, floor, x, y, passLevel: acp, pdfUrl, desc
+        };
+        found = true;
+      }
     } else {
-      VENUE_DATA.acps.push({
-        id: spotId || `ACP-USER-${Date.now()}`,
-        code: code,
-        name: name,
-        floor: floor,
-        x: x,
-        y: y,
-        passLevel: acp || 'Level A (標準パス)',
-        pdfUrl: pdfUrl,
-        desc: desc
-      });
+      // 新規作成
+      const newId = type === 'room' ? ('RM-USER-' + Date.now().toString().slice(-4)) : ('ACP-USER-' + Date.now().toString().slice(-4));
+      if (type === 'room') {
+        VENUE_DATA.rooms.push({
+          id: newId,
+          name: name,
+          code: code,
+          nameEn: nameEn,
+          dept: dept,
+          floor: floor,
+          x: x,
+          y: y,
+          w: w,
+          h: h,
+          acp: acp,
+          pdfUrl: pdfUrl,
+          desc: desc
+        });
+      } else {
+        VENUE_DATA.acps.push({
+          id: newId,
+          code: code,
+          name: name,
+          floor: floor,
+          x: x,
+          y: y,
+          passLevel: acp,
+          pdfUrl: pdfUrl,
+          desc: desc
+        });
+      }
     }
 
     // 自動保存＆マップ更新
@@ -284,13 +318,15 @@ window.openSpotEditor = function({ spotItem, x, y, floor }) {
   const title = document.getElementById('modal-title');
   const idInput = document.getElementById('edit-spot-id');
   const deleteBtn = document.getElementById('form-delete-btn');
+  const roomSizeRow = document.querySelector('.room-size-row');
+  const roomDeptGroup = document.querySelector('.room-dept-group');
 
   if (!modal) return;
 
   if (spotItem) {
     // 既存データの編集
     const isAcp = VENUE_DATA.acps.some(a => a.id === spotItem.id);
-    title.textContent = `✏️ 「${spotItem.name}」の編集`;
+    title.textContent = isAcp ? `🛡️ ACP「${spotItem.name || spotItem.code}」の編集` : `📍 部屋「${spotItem.name}」の編集`;
     idInput.value = spotItem.id;
     
     // 種別ラジオの自動設定
@@ -308,6 +344,15 @@ window.openSpotEditor = function({ spotItem, x, y, floor }) {
     document.getElementById('form-floor').value = spotItem.floor || '1f';
     document.getElementById('form-x').value = spotItem.x;
     document.getElementById('form-y').value = spotItem.y;
+
+    const wEl = document.getElementById('form-w');
+    if (wEl) wEl.value = spotItem.w !== undefined ? spotItem.w : 5.0;
+    const hEl = document.getElementById('form-h');
+    if (hEl) hEl.value = spotItem.h !== undefined ? spotItem.h : 3.5;
+
+    // 表示切替
+    if (roomSizeRow) roomSizeRow.style.display = isAcp ? 'none' : 'grid';
+    if (roomDeptGroup) roomDeptGroup.style.display = isAcp ? 'none' : 'block';
 
     const acpVal = spotItem.acp || spotItem.passLevel || '';
     const acpSelect = document.getElementById('form-acp-select');
@@ -332,13 +377,21 @@ window.openSpotEditor = function({ spotItem, x, y, floor }) {
     if (deleteBtn) deleteBtn.style.display = 'block';
   } else {
     // 新規追加
-    title.textContent = `📍 新しい諸室・ACPの追加`;
+    title.textContent = `📍 新しい部屋・ACPの追加`;
     idInput.value = '';
     document.getElementById('spot-form').reset();
     if (floor) document.getElementById('form-floor').value = floor;
-    if (x !== undefined) document.getElementById('form-x').value = x.toFixed(1);
-    if (y !== undefined) document.getElementById('form-y').value = y.toFixed(1);
+    if (x !== undefined) document.getElementById('form-x').value = typeof x === 'number' ? x.toFixed(1) : x;
+    if (y !== undefined) document.getElementById('form-y').value = typeof y === 'number' ? y.toFixed(1) : y;
+    
+    const wEl = document.getElementById('form-w');
+    if (wEl) wEl.value = '5.0';
+    const hEl = document.getElementById('form-h');
+    if (hEl) hEl.value = '3.5';
+
     if (deleteBtn) deleteBtn.style.display = 'none';
+    if (roomSizeRow) roomSizeRow.style.display = 'grid';
+    if (roomDeptGroup) roomDeptGroup.style.display = 'block';
   }
 
   modal.classList.add('open');

@@ -4,6 +4,15 @@
  */
 
 const MapEngine = {
+
+  getFloorDimensions() {
+    const dims = {
+      outdoor: { width: 1024, height: 585 },
+      '1f': { width: 1024, height: 718 },
+      '2f': { width: 1024, height: 678 }
+    };
+    return dims[this.activeFloor] || { width: 1024, height: 678 };
+  },
   activeFloor: 'outdoor',
   activePinId: null,
   scale: 1,
@@ -13,6 +22,26 @@ const MapEngine = {
   startX: 0,
   startY: 0,
   isEditorMode: false,
+
+    resetView() {
+    const viewport = document.querySelector('.map-viewport');
+    if (!viewport) return;
+    const rect = viewport.getBoundingClientRect();
+    const dim = this.getFloorDimensions();
+    
+    // Fit within viewport with margin
+    const scaleX = (rect.width * 0.92) / dim.width;
+    const scaleY = (rect.height * 0.92) / dim.height;
+    this.scale = Math.min(Math.max(Math.min(scaleX, scaleY), 0.5), 2.5);
+
+    this.panX = (rect.width - dim.width * this.scale) / 2;
+    this.panY = (rect.height - dim.height * this.scale) / 2;
+
+    const container = document.querySelector('.map-container');
+    if (container) {
+      container.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.scale})`;
+    }
+  },
 
   init() {
     this.bindEvents();
@@ -37,7 +66,7 @@ const MapEngine = {
       // 既存動的コンテンツのクリア（背景画像は残す）
       mapEl.querySelectorAll('.room-pin-container, .acp-pin-container, .zone-layer-svg, .zone-badge-container, .route-layer-svg').forEach(el => el.remove());
 
-      // 諸室ピンコンテナの生成
+      // 📍 部屋（ルーム）四角形枠コンテナの生成
       const roomContainer = document.createElement('div');
       roomContainer.className = 'room-pin-container';
 
@@ -46,21 +75,36 @@ const MapEngine = {
         const pin = document.createElement('div');
         pin.className = 'room-pin';
         pin.dataset.id = room.id;
-        pin.style.left = `${room.x}%`;
-        pin.style.top = `${room.y}%`;
 
-        // 部署カラーを取得
-        const dept = VENUE_DATA.departments.find(d => d.code === room.dept) || { color: '#007aff' };
-        
+        // 部屋の四角形枠の幅・高さ (room.w, room.h があれば使用、デフォルト 5.0% x 3.5%)
+        const rw = room.w !== undefined ? parseFloat(room.w) : 5.0;
+        const rh = room.h !== undefined ? parseFloat(room.h) : 3.5;
+
+        // 中心座標 (room.x%, room.y%) を基準に配置 (CSS: transform: translate(-50%, -50%))
+        pin.style.left = `${parseFloat(room.x)}%`;
+        pin.style.top = `${parseFloat(room.y)}%`;
+        pin.style.width = `${rw}%`;
+        pin.style.height = `${rh}%`;
+
+        // 部署カラー
+        const dept = VENUE_DATA.departments.find(d => d.code === room.dept) || { name: room.dept, color: '#007aff' };
+        pin.style.borderColor = dept.color;
+        pin.style.backgroundColor = dept.color.startsWith('#') ? (dept.color + '22') : 'rgba(0, 122, 255, 0.15)';
+
+        // 枠の中央に 📍 ピンと部屋コード、右下にサイズ調整用リサイズハンドル
         pin.innerHTML = `
-          📍
+          <div class="room-pin-center-mark">
+            <span>📍</span>
+          </div>
+          <div class="room-pin-code-text">${room.code || room.name}</div>
+          <div class="room-resize-handle" title="ドラッグして四角形枠のサイズを変更"></div>
           <div class="pin-tooltip">
             <div class="pin-tooltip-title">
               <span class="dept-badge" style="background:${dept.color}">${room.dept}</span>
               ${room.name}
             </div>
             <div class="pin-tooltip-sub">${room.code} ${room.nameEn ? '| ' + room.nameEn : ''}</div>
-            ${room.acp && room.acp !== 'なし' ? `<div class="pin-tooltip-acp-badge">🛡️ ACP: ${room.acp}</div>` : ''}
+            ${room.acp && room.acp !== 'なし' ? `<div class="pin-tooltip-acp-badge">🛡️ 最寄ACP: ${room.acp}</div>` : ''}
           </div>
         `;
 
@@ -72,13 +116,18 @@ const MapEngine = {
           this.clearSpotPreview();
         });
 
+        // クリック時: 編集モードなら即座に編集ダイアログを開く、通常モードなら情報表示
         pin.addEventListener('click', (e) => {
           e.stopPropagation();
-          if (this.isEditorMode) return;
+          if (this.isEditorMode) {
+            if (window.openSpotEditorById) window.openSpotEditorById(room.id);
+            return;
+          }
           this.selectSpot('room', room);
         });
 
         this.bindPinDragEvents(pin, 'room', room);
+        this.bindRoomResizeEvents(pin, room);
         roomContainer.appendChild(pin);
       });
       mapEl.appendChild(roomContainer);
@@ -96,7 +145,6 @@ const MapEngine = {
         pin.style.top = `${acp.y}%`;
 
         pin.innerHTML = `
-          🛡
           <div class="pin-tooltip">
             <div class="pin-tooltip-title">🛡️ ${acp.code} ${acp.name && acp.name !== acp.code ? '- ' + acp.name : ''}</div>
             <div class="pin-tooltip-sub">Access Pass: ${acp.passLevel}</div>
@@ -111,9 +159,13 @@ const MapEngine = {
           this.clearSpotPreview();
         });
 
+        // クリック時: 編集モードなら即座に編集ダイアログを開く、通常モードなら情報表示
         pin.addEventListener('click', (e) => {
           e.stopPropagation();
-          if (this.isEditorMode) return;
+          if (this.isEditorMode) {
+            if (window.openSpotEditorById) window.openSpotEditorById(acp.id);
+            return;
+          }
           this.selectSpot('acp', acp);
         });
 
@@ -160,7 +212,7 @@ const MapEngine = {
 
         zoneSvg.appendChild(polygon);
 
-        // ゾーンの中央位置に歪まないHTMLバッジ（諸室/ACPと同等のフォントサイズ）を生成
+        // ゾーンの中央位置に歪まないHTMLバッジ（部屋/ACPと同等のフォントサイズ）を生成
         if (zone.points && zone.points.length > 0) {
           const cx = Math.round((zone.points.reduce((sum, p) => sum + p[0], 0) / zone.points.length) * 10) / 10;
           const cy = Math.round((zone.points.reduce((sum, p) => sum + p[1], 0) / zone.points.length) * 10) / 10;
@@ -181,6 +233,7 @@ const MapEngine = {
       // 〰️ ルート描画用 SVG レイヤー
       const routeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       routeSvg.setAttribute('class', 'route-layer-svg');
+      routeSvg.style.pointerEvents = 'none';
       routeSvg.setAttribute('id', `route-svg-${floor.id}`);
       routeSvg.setAttribute('viewBox', '0 0 100 100');
       routeSvg.setAttribute('preserveAspectRatio', 'none');
@@ -195,6 +248,7 @@ const MapEngine = {
 
     const onStart = (e) => {
       if (!this.isEditorMode) return;
+      if (e.target.classList.contains('room-resize-handle')) return; // リサイズハンドルは除外
       e.stopPropagation();
 
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -214,7 +268,7 @@ const MapEngine = {
         const curX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
         const curY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
 
-        if (Math.hypot(curX - startX, curY - startY) > 3) {
+        if (Math.hypot(curX - startX, curY - startY) > 4) {
           hasDragged = true;
         }
 
@@ -222,8 +276,9 @@ const MapEngine = {
         if (!viewport) return;
         const rect = viewport.getBoundingClientRect();
 
-        const newX = Math.min(Math.max((((curX - rect.left - this.panX) / this.scale) / rect.width) * 100, 0), 100);
-        const newY = Math.min(Math.max((((curY - rect.top - this.panY) / this.scale) / rect.height) * 100, 0), 100);
+        const dim = this.getFloorDimensions();
+        const newX = Math.min(Math.max((((curX - rect.left - this.panX) / this.scale) / dim.width) * 100, 0), 100);
+        const newY = Math.min(Math.max((((curY - rect.top - this.panY) / this.scale) / dim.height) * 100, 0), 100);
 
         pinEl.style.left = `${newX.toFixed(1)}%`;
         pinEl.style.top = `${newY.toFixed(1)}%`;
@@ -254,7 +309,7 @@ const MapEngine = {
             `;
           }
         } else {
-          // ドラッグ移動しなかった場合（通常のクリック） ➔ 編集ダイアログを開く
+          // ドラッグしなかった場合（通常のクリック） ➔ 即座に編集ダイアログを開く
           if (this.isEditorMode && window.openSpotEditorById) {
             window.openSpotEditorById(item.id);
           }
@@ -275,6 +330,63 @@ const MapEngine = {
     pinEl.addEventListener('touchstart', onStart, { passive: false });
   },
 
+  // 部屋四角形枠のインタラクティブリサイズ処理 (編集モード時のみ動作)
+  bindRoomResizeEvents(pinEl, room) {
+    const handle = pinEl.querySelector('.room-resize-handle');
+    if (!handle) return;
+
+    const onStart = (e) => {
+      if (!this.isEditorMode) return;
+      e.stopPropagation();
+      e.preventDefault();
+
+      const startClientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const startClientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const startW = room.w !== undefined ? parseFloat(room.w) : 5.0;
+      const startH = room.h !== undefined ? parseFloat(room.h) : 3.5;
+
+      const dim = this.getFloorDimensions();
+
+      const onMove = (moveEvent) => {
+        const curX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
+        const curY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
+
+        // 中心からの両端拡縮
+        const deltaXPercent = (((curX - startClientX) / this.scale) / dim.width) * 100 * 2;
+        const deltaYPercent = (((curY - startClientY) / this.scale) / dim.height) * 100 * 2;
+
+        const newW = Math.max(Math.round((startW + deltaXPercent) * 10) / 10, 1.5);
+        const newH = Math.max(Math.round((startH + deltaYPercent) * 10) / 10, 1.5);
+
+        pinEl.style.width = `${newW}%`;
+        pinEl.style.height = `${newH}%`;
+        room.w = newW;
+        room.h = newH;
+      };
+
+      const onEnd = () => {
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onEnd);
+        window.removeEventListener('touchmove', onMove);
+        window.removeEventListener('touchend', onEnd);
+
+        if (window.DataStorage) window.DataStorage.save();
+        const panel = document.getElementById('info-panel');
+        if (panel) {
+          panel.innerHTML = `<div style="color:#34c759; font-weight:bold; font-size:13px; padding:6px 0;">✅ 「${room.name}」の枠サイズを保存しました！ (幅: ${room.w}%, 高さ: ${room.h}%)</div>`;
+        }
+      };
+
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onEnd);
+      window.addEventListener('touchmove', onMove, { passive: false });
+      window.addEventListener('touchend', onEnd);
+    };
+
+    handle.addEventListener('mousedown', onStart);
+    handle.addEventListener('touchstart', onStart, { passive: false });
+  },
+
   // 2. ピン/スポットタップ時の詳細情報パネル更新
   previewSpot(type, item) {
     this.renderSpotInfo(type, item, true);
@@ -292,7 +404,7 @@ const MapEngine = {
           <span class="badge badge-dept">OFFLINE ACTIVE</span>
         </div>
         <div style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-top:4px;">
-          マップ上の <b>📍 諸室ピン</b> や <b>🛡️ ACP (アクセスポイント)</b> にカーソルを重ねると詳細情報が表示されます。
+          マップ上の <b>📍 部屋ピン</b> や <b>🛡️ ACP (アクセスポイント)</b> にカーソルを重ねると詳細情報が表示されます。
         </div>
       </div>
     `;
@@ -566,8 +678,9 @@ const MapEngine = {
         if (!viewport) return;
         const rect = viewport.getBoundingClientRect();
 
-        const newX = Math.min(Math.max((((curX - rect.left - this.panX) / this.scale) / rect.width) * 100, 0), 100);
-        const newY = Math.min(Math.max((((curY - rect.top - this.panY) / this.scale) / rect.height) * 100, 0), 100);
+        const dim = this.getFloorDimensions();
+        const newX = Math.min(Math.max((((curX - rect.left - this.panX) / this.scale) / dim.width) * 100, 0), 100);
+        const newY = Math.min(Math.max((((curY - rect.top - this.panY) / this.scale) / dim.height) * 100, 0), 100);
 
         const roundX = Math.round(newX * 10) / 10;
         const roundY = Math.round(newY * 10) / 10;
@@ -902,8 +1015,9 @@ const MapEngine = {
     viewport.addEventListener('click', (e) => {
       if (e.target.closest('.zoom-controls, .zone-drawer-bar, .modal-backdrop')) return;
       const rect = viewport.getBoundingClientRect();
-      const x = (((e.clientX - rect.left - this.panX) / this.scale) / rect.width) * 100;
-      const y = (((e.clientY - rect.top - this.panY) / this.scale) / rect.height) * 100;
+      const dim = this.getFloorDimensions();
+      const x = (((e.clientX - rect.left - this.panX) / this.scale) / dim.width) * 100;
+      const y = (((e.clientY - rect.top - this.panY) / this.scale) / dim.height) * 100;
 
       if (this.isZoneDrawingMode) {
         this.addZonePoint(x, y);
@@ -929,16 +1043,14 @@ const MapEngine = {
     });
 
     document.getElementById('zoom-reset')?.addEventListener('click', () => {
-      this.scale = 1;
-      this.panX = 0;
-      this.panY = 0;
-      updateTransform();
+      this.resetView();
     });
   },
 
   // 4. フロア切り替え
   switchFloor(floorId) {
     this.activeFloor = floorId;
+    setTimeout(() => this.resetView(), 10); // auto-center floor
     const tabRadio = document.getElementById(`tab-${floorId}`);
     if (tabRadio) tabRadio.checked = true;
 
@@ -976,8 +1088,9 @@ const MapEngine = {
     if (viewport) {
       const rect = viewport.getBoundingClientRect();
       this.scale = 1.6;
-      this.panX = (rect.width / 2) - (rect.width * (target.x / 100) * this.scale);
-      this.panY = (rect.height / 2) - (rect.height * (target.y / 100) * this.scale);
+      const dim = this.getFloorDimensions();
+      this.panX = (rect.width / 2) - (dim.width * (target.x / 100) * this.scale);
+      this.panY = (rect.height / 2) - (dim.height * (target.y / 100) * this.scale);
       
       const container = document.querySelector('.map-container');
       if (container) container.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.scale})`;
@@ -1042,8 +1155,10 @@ const MapEngine = {
     // フロアタブ選択時のイベント
     ['outdoor', '1f', '2f'].forEach(fl => {
       document.getElementById(`tab-${fl}`)?.addEventListener('change', (e) => {
-        if (e.target.checked) this.activeFloor = fl;
+        if (e.target.checked) this.switchFloor(fl);
       });
     });
   }
 };
+
+if (typeof window !== "undefined") { window.MapEngine = MapEngine; }

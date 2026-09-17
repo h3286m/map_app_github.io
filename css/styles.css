@@ -233,25 +233,12 @@ body > input[type="radio"], body > input[type="checkbox"] {
   transition: transform 0.05s linear;
 }
 
-.floor-map {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: none;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-}
+.floor-map { position: absolute; top: 0; left: 0; display: none; }
+#map-outdoor { width: 1024px; height: 585px; }
+#map-1f { width: 1024px; height: 718px; }
+#map-2f { width: 1024px; height: 678px; }
 
-.floor-map img.bg-svg {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  pointer-events: none;
-  user-select: none;
-}
+.floor-map img.bg-svg { width: 100%; height: 100%; object-fit: fill; pointer-events: none; user-select: none; display: block; }
 
 /* ズーム/パン制御フローティングボタン */
 .zoom-controls {
@@ -293,56 +280,10 @@ body > input[type="radio"], body > input[type="checkbox"] {
 }
 
 /* 📍 諸室ピン (視認性抜群の 📍 ピンアイコン描画 & 通常カーソル) */
-.room-pin {
-  position: absolute;
-  pointer-events: auto;
-  width: 18px;
-  height: 18px;
-  font-size: 15px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: translate(-50%, -85%);
-  cursor: pointer;
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.8));
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, z-index 0.2s;
-  z-index: 10;
-  user-select: none;
-}
 
-.room-pin:hover {
-  transform: translate(-50%, -85%) scale(1.4);
-  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 1)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.9));
-  z-index: 900;
-}
 
 /* 🛡️ ACP (Access Control Point) ピン (極小8px鮮やか赤色ドットバッジ) */
-.acp-pin {
-  position: absolute;
-  pointer-events: auto;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #ff4d4d 0%, #dc2626 100%);
-  border: 1.5px solid #ffffff;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 6px rgba(239, 68, 68, 0.9), 0 1px 4px rgba(0, 0, 0, 0.6);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0px;
-  color: transparent;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, z-index 0.2s;
-  z-index: 12;
-}
 
-.acp-pin:hover {
-  transform: translate(-50%, -50%) scale(1.6);
-  z-index: 950;
-  box-shadow: 0 0 14px rgba(239, 68, 68, 1), 0 0 0 2px rgba(255, 255, 255, 0.9);
-}
 
 /* ✏️ 編集モード有効時のドラッグ用ピンハイライト (つかみ判定エリアを32pxに大幅拡大) */
 body.editor-active .room-pin {
@@ -389,6 +330,147 @@ body.editor-active .acp-pin::before {
 }
 
 /* ポップアップ ツールチップ (カーソルオーバー / タップ時) */
+
+    
+
+    /* 🛡️ ACPピン: 鮮明なセキュリティ・シールドバッジ (微弱パルス発光付き) */
+    
+    .acp-shield-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      border: 1.5px solid #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.8), 0 3px 8px rgba(0, 0, 0, 0.6);
+      color: #ffffff;
+      font-size: 12px;
+      position: relative;
+      animation: acp-pulse 2.5s infinite ease-in-out;
+    }
+    @keyframes acp-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7), 0 3px 8px rgba(0, 0, 0, 0.6); }
+      70% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0), 0 3px 8px rgba(0, 0, 0, 0.6); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), 0 3px 8px rgba(0, 0, 0, 0.6); }
+    }
+
+
+    
+
+
+    /* 🛡️ ACP (Access Control Point) ピン: 鮮明な赤色ターゲットドット (直径16px) */
+    .acp-pin {
+      position: absolute !important;
+      pointer-events: auto !important;
+      width: 16px !important;
+      height: 16px !important;
+      border-radius: 50% !important;
+      background: radial-gradient(circle, #ff4d4d 0%, #dc2626 100%) !important;
+      border: 2px solid #ffffff !important;
+      transform: translate(-50%, -50%) !important;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.95), 0 2px 6px rgba(0, 0, 0, 0.8) !important;
+      cursor: pointer !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 0 !important;
+      z-index: 50 !important;
+      user-select: none !important;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
+    }
+    .acp-pin::after {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: block;
+    }
+    .acp-pin:hover {
+      transform: translate(-50%, -50%) scale(1.6) !important;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 1), 0 0 0 3px rgba(255, 255, 255, 0.95) !important;
+      z-index: 999 !important;
+    }
+
+    /* 📍 部屋（ルーム）: 任意のサイズに広がる四角形の枠 + 枠の中央に立つ📍ピン */
+    .room-pin {
+      position: absolute !important;
+      pointer-events: auto !important;
+      transform: translate(-50%, -50%) !important;
+      cursor: pointer !important;
+      z-index: 20 !important;
+      user-select: none !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-sizing: border-box !important;
+      border-style: solid !important;
+      border-width: 1.5px !important;
+      border-radius: 4px !important;
+      transition: box-shadow 0.2s, background 0.2s !important;
+    }
+    .room-pin:hover {
+      z-index: 920 !important;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.8), inset 0 0 10px rgba(56, 189, 248, 0.25) !important;
+    }
+    .room-pin-center-mark {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 14px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+      pointer-events: none;
+    }
+    .room-pin-code-text {
+      font-size: 10px;
+      font-weight: 800;
+      color: #ffffff;
+      background: rgba(15, 23, 42, 0.88);
+      padding: 1px 5px;
+      border-radius: 3px;
+      white-space: nowrap;
+      margin-top: 2px;
+      pointer-events: none;
+      letter-spacing: -0.2px;
+      max-width: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 部屋の枠拡大用リサイズハンドル (編集モード時のみ表示) */
+    .room-resize-handle {
+      display: none;
+      position: absolute;
+      right: -5px;
+      bottom: -5px;
+      width: 10px;
+      height: 10px;
+      background: #f59e0b;
+      border: 1.5px solid #ffffff;
+      border-radius: 2px;
+      cursor: se-resize !important;
+      z-index: 30;
+      pointer-events: auto !important;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+    }
+    body.editor-active .room-resize-handle {
+      display: block;
+    }
+    body.editor-active .room-pin {
+      cursor: move !important;
+    }
+    body.editor-active .acp-pin {
+      cursor: move !important;
+    }
+    .route-layer-svg {
+      pointer-events: none !important;
+    }
+
 .pin-tooltip {
   position: absolute;
   bottom: 100%;
@@ -765,9 +847,10 @@ body.zone-drawing-active .map-container,
 body.zone-drawing-active .floor-map,
 body.vertex-editing-active .map-viewport,
 body.vertex-editing-active .map-container,
-body.vertex-editing-active .floor-map {
-  cursor: crosshair !important;
-}
+body.vertex-editing-active .floor-map { position: absolute; top: 0; left: 0; display: none; }
+#map-outdoor { width: 1024px; height: 585px; }
+#map-1f { width: 1024px; height: 718px; }
+#map-2f { width: 1024px; height: 678px; }
 
 /* ゾーン中心のアンチストレッチ HTMLバッジ（諸室/ACPに揃えた11px標準バッジ） */
 .zone-badge-container {

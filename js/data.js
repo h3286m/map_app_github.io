@@ -2572,23 +2572,51 @@ const VENUE_DATA = {
 
 // データ永続化 (LocalStorage) & 自動保存ヘルパー
 const DataStorage = {
-  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V2',
+  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V3',
 
   init() {
     const saved = localStorage.getItem(this.STORAGE_KEY);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed.rooms) && parsed.rooms.length > 0) {
-          VENUE_DATA.rooms = parsed.rooms;
+        
+        // 1. 諸室 (rooms) のスマートマージ: data.jsの基本データ + LocalStorageの変更/追加分
+        if (Array.isArray(parsed.rooms)) {
+          parsed.rooms.forEach(savedRoom => {
+            const existingIdx = VENUE_DATA.rooms.findIndex(r => r.id === savedRoom.id);
+            if (existingIdx !== -1) {
+              VENUE_DATA.rooms[existingIdx] = savedRoom;
+            } else {
+              VENUE_DATA.rooms.push(savedRoom);
+            }
+          });
         }
-        if (Array.isArray(parsed.acps) && parsed.acps.length > 0) {
-          VENUE_DATA.acps = parsed.acps;
+
+        // 2. ACP (acps) のスマートマージ
+        if (Array.isArray(parsed.acps)) {
+          parsed.acps.forEach(savedAcp => {
+            const existingIdx = VENUE_DATA.acps.findIndex(a => a.id === savedAcp.id);
+            if (existingIdx !== -1) {
+              VENUE_DATA.acps[existingIdx] = savedAcp;
+            } else {
+              VENUE_DATA.acps.push(savedAcp);
+            }
+          });
         }
+
+        // 3. ゾーン (zones) のスマートマージ: data.jsのゾーン + LocalStorageのゾーンを結合 (ID重複除去)
         if (Array.isArray(parsed.zones)) {
-          VENUE_DATA.zones = parsed.zones;
+          parsed.zones.forEach(savedZone => {
+            const existingIdx = VENUE_DATA.zones.findIndex(z => z.id === savedZone.id);
+            if (existingIdx !== -1) {
+              VENUE_DATA.zones[existingIdx] = savedZone;
+            } else {
+              VENUE_DATA.zones.push(savedZone);
+            }
+          });
         }
-        console.log(`✅ Loaded venue data from LocalStorage: ${VENUE_DATA.rooms.length} rooms, ${VENUE_DATA.acps.length} ACPs, ${VENUE_DATA.zones.length} zones`);
+
+        console.log(`✅ Loaded & merged venue data: ${VENUE_DATA.rooms.length} rooms, ${VENUE_DATA.acps.length} ACPs, ${VENUE_DATA.zones.length} zones`);
       } catch (e) {
         console.warn('Failed to parse saved venue data:', e);
       }
@@ -2610,39 +2638,38 @@ const DataStorage = {
 
   reset() {
     localStorage.removeItem(this.STORAGE_KEY);
+    localStorage.removeItem('OFFLINE_VENUE_MAP_DATA_V2');
     location.reload();
   },
 
   exportDataJs() {
-    const jsContent = `/**
- * オフライン会場マップ - データ管理モジュール (VENUE_DATA)
- * 最新編集データ (全諸室・ACP・ゾーン統合保存版)
- */
-
-const VENUE_DATA = ${JSON.stringify(VENUE_DATA, null, 2)};
-
-// データ永続化 (LocalStorage) & 自動保存ヘルパー
-const DataStorage = {
-  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V2',
+    const dataStorageString = `const DataStorage = {
+  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V3',
 
   init() {
     const saved = localStorage.getItem(this.STORAGE_KEY);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed.rooms) && parsed.rooms.length > 0) {
-          VENUE_DATA.rooms = parsed.rooms;
+        if (Array.isArray(parsed.rooms)) {
+          parsed.rooms.forEach(savedRoom => {
+            const existingIdx = VENUE_DATA.rooms.findIndex(r => r.id === savedRoom.id);
+            if (existingIdx !== -1) { VENUE_DATA.rooms[existingIdx] = savedRoom; } else { VENUE_DATA.rooms.push(savedRoom); }
+          });
         }
-        if (Array.isArray(parsed.acps) && parsed.acps.length > 0) {
-          VENUE_DATA.acps = parsed.acps;
+        if (Array.isArray(parsed.acps)) {
+          parsed.acps.forEach(savedAcp => {
+            const existingIdx = VENUE_DATA.acps.findIndex(a => a.id === savedAcp.id);
+            if (existingIdx !== -1) { VENUE_DATA.acps[existingIdx] = savedAcp; } else { VENUE_DATA.acps.push(savedAcp); }
+          });
         }
         if (Array.isArray(parsed.zones)) {
-          VENUE_DATA.zones = parsed.zones;
+          parsed.zones.forEach(savedZone => {
+            const existingIdx = VENUE_DATA.zones.findIndex(z => z.id === savedZone.id);
+            if (existingIdx !== -1) { VENUE_DATA.zones[existingIdx] = savedZone; } else { VENUE_DATA.zones.push(savedZone); }
+          });
         }
-        console.log(\`✅ Loaded venue data from LocalStorage: \${VENUE_DATA.rooms.length} rooms, \${VENUE_DATA.acps.length} ACPs, \${VENUE_DATA.zones.length} zones\`);
-      } catch (e) {
-        console.warn('Failed to parse saved venue data:', e);
-      }
+      } catch (e) { console.warn('Failed to parse saved venue data:', e); }
     }
   },
 
@@ -2653,10 +2680,7 @@ const DataStorage = {
         acps: VENUE_DATA.acps,
         zones: VENUE_DATA.zones
       }));
-      console.log(\`💾 Saved venue data to LocalStorage: \${VENUE_DATA.zones.length} zones\`);
-    } catch (e) {
-      console.error('Failed to save venue data to LocalStorage:', e);
-    }
+    } catch (e) { console.error('Failed to save venue data:', e); }
   },
 
   reset() {
@@ -2669,7 +2693,17 @@ const DataStorage = {
   }
 };
 
-DataStorage.init();
+DataStorage.init();`;
+
+    const jsContent = `/**
+ * オフライン会場マップ - データ管理モジュール (VENUE_DATA)
+ * 最新編集データ (全諸室・ACP・ゾーン統合保存版)
+ */
+
+const VENUE_DATA = ${JSON.stringify(VENUE_DATA, null, 2)};
+
+// データ永続化 (LocalStorage) & 自動保存ヘルパー
+${dataStorageString}
 `;
     const blob = new Blob([jsContent], { type: 'text/javascript' });
     const url = URL.createObjectURL(blob);

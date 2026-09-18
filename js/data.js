@@ -2910,20 +2910,32 @@ const VENUE_DATA = {
   ]
 };
 
-// データ永続化 (LocalStorage) & 自動保存ヘルパー
+// データ永続化 (LocalStorage) & 自動保存ヘルパー (V10 - 自動後方互換復元対応)
+const DATA_STORAGE_HELPER_CODE = "// データ永続化 (LocalStorage) & 自動保存ヘルパー (V10)\nconst DataStorage = {\n  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V10',\n\n  init() {\n    let saved = localStorage.getItem(this.STORAGE_KEY);\n    // V10に無い場合は、過去のすべてのキー (V9〜V1, デフォルトキー) からデータを自動探索して復元\n    if (!saved) {\n      for (let i = 9; i >= 1; i--) {\n        try {\n          const legacy = localStorage.getItem('OFFLINE_VENUE_MAP_DATA_V' + i);\n          if (legacy) {\n            saved = legacy;\n            console.log('Restored data from legacy key: OFFLINE_VENUE_MAP_DATA_V' + i);\n            break;\n          }\n        } catch(e) {}\n      }\n      if (!saved) {\n        try { saved = localStorage.getItem('OFFLINE_VENUE_MAP_DATA'); } catch(e) {}\n      }\n    }\n\n    if (saved) {\n      try {\n        const parsed = JSON.parse(saved);\n        if (Array.isArray(parsed.rooms)) {\n          parsed.rooms.forEach(savedRoom => {\n            const existingIdx = VENUE_DATA.rooms.findIndex(r => r.id === savedRoom.id);\n            if (existingIdx !== -1) {\n              VENUE_DATA.rooms[existingIdx] = savedRoom;\n            } else {\n              VENUE_DATA.rooms.push(savedRoom);\n            }\n          });\n        }\n        if (Array.isArray(parsed.acps)) {\n          parsed.acps.forEach(savedAcp => {\n            const existingIdx = VENUE_DATA.acps.findIndex(a => a.id === savedAcp.id);\n            if (existingIdx !== -1) {\n              VENUE_DATA.acps[existingIdx] = savedAcp;\n            } else {\n              VENUE_DATA.acps.push(savedAcp);\n            }\n          });\n        }\n        if (Array.isArray(parsed.zones)) {\n          parsed.zones.forEach(savedZone => {\n            const existingIdx = VENUE_DATA.zones.findIndex(z => z.id === savedZone.id);\n            if (existingIdx !== -1) {\n              VENUE_DATA.zones[existingIdx] = savedZone;\n            } else {\n              VENUE_DATA.zones.push(savedZone);\n            }\n          });\n        }\n        // V10形式で再保存\n        this.save();\n      } catch (e) {\n        console.warn('LocalStorage parse error:', e);\n      }\n    }\n  },\n\n  save() {\n    try {\n      localStorage.setItem(this.STORAGE_KEY, JSON.stringify({\n        rooms: VENUE_DATA.rooms,\n        acps: VENUE_DATA.acps,\n        zones: VENUE_DATA.zones\n      }));\n    } catch (e) {\n      console.error('LocalStorage save error:', e);\n    }\n  },\n\n  reset() {\n    try {\n      for (let i = 1; i <= 10; i++) {\n        localStorage.removeItem('OFFLINE_VENUE_MAP_DATA_V' + i);\n      }\n      localStorage.removeItem('OFFLINE_VENUE_MAP_DATA');\n      localStorage.removeItem('OFFLINE_VENUE_MAP_LAST_FLOOR');\n    } catch(e) {}\n    location.reload();\n  },\n\n  generateDataJs() {\n    return '/**\\\\n' +\n      ' * オフライン会場マップ - データ管理モジュール (VENUE_DATA)\\\\n' +\n      ' * 最新編集データ (全諸室・ACP・ゾーン統合保存版)\\\\n' +\n      ' */\\\\n\\\\n' +\n      'const VENUE_DATA = ' + JSON.stringify(VENUE_DATA, null, 2) + ';\\\\n\\\\n' +\n      'if (typeof window !== \\\"undefined\\\") { window.VENUE_DATA = VENUE_DATA; }\\\\n\\\\n' +\n      DATA_STORAGE_HELPER_CODE;\n  },\n\n  exportDataJs() {\n    const jsText = this.generateDataJs();\n    const blob = new Blob([jsText], { type: 'application/javascript;charset=utf-8' });\n    const url = URL.createObjectURL(blob);\n    const a = document.createElement('a');\n    a.href = url;\n    a.download = 'data.js';\n    document.body.appendChild(a);\n    a.click();\n    setTimeout(() => {\n      document.body.removeChild(a);\n      URL.revokeObjectURL(url);\n    }, 200);\n  }\n};\n\nif (typeof window !== 'undefined') {\n  window.VENUE_DATA = VENUE_DATA;\n  window.DataStorage = DataStorage;\n}\n\nDataStorage.init();\n";
 
 // データ永続化 (LocalStorage) & 自動保存ヘルパー (V10)
 const DataStorage = {
   STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V10',
 
   init() {
-    // 過去の古いキャッシュキーを一括消去
-    for (let i = 1; i <= 9; i++) {
-      try { localStorage.removeItem('OFFLINE_VENUE_MAP_DATA_V' + i); } catch(e) {}
+    let saved = localStorage.getItem(this.STORAGE_KEY);
+    // V10に無い場合は、過去のすべてのキー (V9〜V1, デフォルトキー) からデータを自動探索して復元
+    if (!saved) {
+      for (let i = 9; i >= 1; i--) {
+        try {
+          const legacy = localStorage.getItem('OFFLINE_VENUE_MAP_DATA_V' + i);
+          if (legacy) {
+            saved = legacy;
+            console.log('Restored data from legacy key: OFFLINE_VENUE_MAP_DATA_V' + i);
+            break;
+          }
+        } catch(e) {}
+      }
+      if (!saved) {
+        try { saved = localStorage.getItem('OFFLINE_VENUE_MAP_DATA'); } catch(e) {}
+      }
     }
-    try { localStorage.removeItem('OFFLINE_VENUE_MAP_DATA'); } catch(e) {}
 
-    const saved = localStorage.getItem(this.STORAGE_KEY);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -2938,8 +2950,6 @@ const DataStorage = {
           });
         }
         if (Array.isArray(parsed.acps)) {
-          // 2F ACPが確実に保持されるよう検証
-          const saved2FAcps = parsed.acps.filter(a => a.floor === '2f');
           parsed.acps.forEach(savedAcp => {
             const existingIdx = VENUE_DATA.acps.findIndex(a => a.id === savedAcp.id);
             if (existingIdx !== -1) {
@@ -2948,12 +2958,6 @@ const DataStorage = {
               VENUE_DATA.acps.push(savedAcp);
             }
           });
-          // もし保存データ内で2FのACPが0件になっていた場合はデフォルト12件を再確保
-          const current2fCount = VENUE_DATA.acps.filter(a => a.floor === '2f').length;
-          if (current2fCount === 0) {
-            console.warn('2F ACPs were missing in saved data, restoring default 12 ACPs');
-            this.reset();
-          }
         }
         if (Array.isArray(parsed.zones)) {
           parsed.zones.forEach(savedZone => {
@@ -2965,6 +2969,8 @@ const DataStorage = {
             }
           });
         }
+        // V10形式で再保存
+        this.save();
       } catch (e) {
         console.warn('LocalStorage parse error:', e);
       }
@@ -2994,12 +3000,18 @@ const DataStorage = {
     location.reload();
   },
 
-  exportDataJs() {
-    const jsText = '/**\n * オフライン会場マップ - データ管理モジュール (VENUE_DATA)\n * 最新編集データ (全諸室・ACP・ゾーン統合保存版)\n */\n\n' +
-      'const VENUE_DATA = ' + JSON.stringify(VENUE_DATA, null, 2) + ';\n\n' +
-      'if (typeof window !== "undefined") { window.VENUE_DATA = VENUE_DATA; }\n\n' +
-      newStorageBlock;
+  generateDataJs() {
+    return '/**\\n' +
+      ' * オフライン会場マップ - データ管理モジュール (VENUE_DATA)\\n' +
+      ' * 最新編集データ (全諸室・ACP・ゾーン統合保存版)\\n' +
+      ' */\\n\\n' +
+      'const VENUE_DATA = ' + JSON.stringify(VENUE_DATA, null, 2) + ';\\n\\n' +
+      'if (typeof window !== \"undefined\") { window.VENUE_DATA = VENUE_DATA; }\\n\\n' +
+      DATA_STORAGE_HELPER_CODE;
+  },
 
+  exportDataJs() {
+    const jsText = this.generateDataJs();
     const blob = new Blob([jsText], { type: 'application/javascript;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -3020,3 +3032,4 @@ if (typeof window !== 'undefined') {
 }
 
 DataStorage.init();
+

@@ -403,20 +403,111 @@ function setupExportModal() {
   const exportBtn = document.getElementById('export-data-btn');
   const closeBtn = document.getElementById('export-close-btn');
   const downloadBtn = document.getElementById('download-datajs-btn');
+  const copyBtn = document.getElementById('copy-datajs-btn');
   const resetBtn = document.getElementById('reset-default-data-btn');
+  const statsDiv = document.getElementById('export-stats');
+  const textarea = document.getElementById('export-textarea');
+  const selectAllBtn = document.getElementById('select-all-text-btn');
 
   if (!exportModal || !exportBtn) return;
 
-  exportBtn.addEventListener('click', () => exportModal.classList.add('open'));
+  const updateModalContent = () => {
+    if (!window.VENUE_DATA) return;
+    const roomCount = window.VENUE_DATA.rooms ? window.VENUE_DATA.rooms.length : 0;
+    const acpCount = window.VENUE_DATA.acps ? window.VENUE_DATA.acps.length : 0;
+    const acp2fCount = window.VENUE_DATA.acps ? window.VENUE_DATA.acps.filter(a => a.floor === '2f').length : 0;
+    const zoneCount = window.VENUE_DATA.zones ? window.VENUE_DATA.zones.length : 0;
+
+    if (statsDiv) {
+      statsDiv.innerHTML = '<strong>📊 現在の保持データ:</strong><br>' +
+        '・部屋/ルーム: ' + roomCount + '件<br>' +
+        '・ACP (Wi-Fi): ' + acpCount + '件 (2階: ' + acp2fCount + '件)<br>' +
+        '・ゾーン: ' + zoneCount + '件<br>' +
+        '<span style="color:#10b981; font-weight:bold;">※ すべてブラウザに自動保存されています</span>';
+    }
+
+    if (textarea) {
+      const jsText = (window.DataStorage && typeof window.DataStorage.generateDataJs === 'function')
+        ? window.DataStorage.generateDataJs()
+        : ('const VENUE_DATA = ' + JSON.stringify(window.VENUE_DATA, null, 2) + ';');
+      textarea.value = jsText;
+    }
+  };
+
+  exportBtn.addEventListener('click', () => {
+    updateModalContent();
+    exportModal.classList.add('open');
+  });
+
   closeBtn?.addEventListener('click', () => exportModal.classList.remove('open'));
 
   downloadBtn?.addEventListener('click', () => {
-    DataStorage.exportDataJs();
+    try {
+      if (window.DataStorage && typeof window.DataStorage.exportDataJs === 'function') {
+        window.DataStorage.exportDataJs();
+        const origText = downloadBtn.innerHTML;
+        downloadBtn.innerHTML = '✅ ダウンロードを開始しました！';
+        downloadBtn.style.background = '#10b981';
+        setTimeout(() => {
+          downloadBtn.innerHTML = origText;
+          downloadBtn.style.background = '';
+        }, 2500);
+      } else {
+        alert('DataStorageが見つかりません');
+      }
+    } catch(err) {
+      console.error(err);
+      alert('ダウンロードに失敗しました: ' + err.message);
+    }
+  });
+
+  copyBtn?.addEventListener('click', () => {
+    try {
+      const jsText = textarea ? textarea.value : (
+        (window.DataStorage && typeof window.DataStorage.generateDataJs === 'function')
+          ? window.DataStorage.generateDataJs()
+          : ('const VENUE_DATA = ' + JSON.stringify(window.VENUE_DATA, null, 2) + ';')
+      );
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(jsText).then(() => {
+          const origText = copyBtn.innerHTML;
+          copyBtn.innerHTML = '✅ クリップボードにコピー完了！';
+          copyBtn.style.color = '#10b981';
+          copyBtn.style.borderColor = '#10b981';
+          setTimeout(() => {
+            copyBtn.innerHTML = origText;
+            copyBtn.style.color = '';
+            copyBtn.style.borderColor = '';
+          }, 2500);
+        }).catch(() => {
+          if (textarea) {
+            textarea.select();
+            document.execCommand('copy');
+            alert('テキストを全選択してコピーしました！');
+          }
+        });
+      } else if (textarea) {
+        textarea.select();
+        document.execCommand('copy');
+        alert('テキストを全選択してコピーしました！');
+      }
+    } catch(e) {
+      if (textarea) textarea.select();
+    }
+  });
+
+  selectAllBtn?.addEventListener('click', () => {
+    if (textarea) {
+      textarea.select();
+      textarea.setSelectionRange(0, textarea.value.length);
+      try { document.execCommand('copy'); } catch(e){}
+    }
   });
 
   resetBtn?.addEventListener('click', () => {
     if (confirm('ブラウザに保存された編集データを消去し、初期状態に戻しますか？')) {
-      DataStorage.reset();
+      if (window.DataStorage) window.DataStorage.reset();
     }
   });
 }

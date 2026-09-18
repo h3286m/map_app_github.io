@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>オフライン多機能会場マップ (ACP・部屋・ゾーン連動)</title>
-  <link rel="stylesheet" href="css/styles.css?v=15.0">
+  <link rel="stylesheet" href="css/styles.css?v=16.0">
   <style>
-    /* インライン完全CSS埋め込み (GitHub Pages上でのCSS読み込み失敗防止) */
+    /* 多機能オフライン会場マップ - 完全統合レスポンシブスタイル */
     :root {
       --primary: #007aff;
       --primary-hover: #0056b3;
@@ -37,6 +37,7 @@
 
     html, body {
       margin: 0; padding: 0; width: 100%; height: 100%;
+      height: 100dvh; /* スマホブラウザのアドレスバー考慮 */
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background-color: var(--bg-color); color: var(--text-primary);
@@ -51,33 +52,45 @@
       display: inline-block !important; margin-right: 4px;
     }
 
+    /* --- ヘッダー操作パネル --- */
     .control-panel {
-      background: var(--panel-bg); backdrop-filter: blur(12px); padding: 10px 14px;
-      border-bottom: 1px solid var(--panel-border); z-index: 40; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      display: flex; flex-direction: column; gap: 8px;
+      background: var(--panel-bg); backdrop-filter: blur(12px);
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--panel-border);
+      z-index: 40; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      display: flex; flex-direction: column; gap: 6px;
+      flex-shrink: 0;
     }
 
-    .top-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .header-row-1 {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 8px; flex-wrap: wrap;
+    }
 
-    .floor-tabs { display: flex; gap: 6px; background: rgba(0, 0, 0, 0.2); padding: 4px; border-radius: 10px; }
-    .tab-btn { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--text-secondary); transition: all 0.2s ease; user-select: none; }
+    .floor-tabs { display: flex; gap: 4px; background: rgba(0, 0, 0, 0.25); padding: 3px; border-radius: 8px; flex-shrink: 0; }
+    .tab-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; color: var(--text-secondary); transition: all 0.2s ease; user-select: none; }
     .tab-btn:hover { color: var(--text-primary); }
 
-    .layer-menu { display: flex; gap: 6px; font-size: 12px; overflow-x: auto; padding-bottom: 2px; }
-    .layer-menu label { cursor: pointer; padding: 6px 10px; background: var(--card-bg); color: var(--text-secondary); border-radius: 8px; border: 1px solid var(--panel-border); white-space: nowrap; font-weight: 600; display: flex; align-items: center; gap: 4px; transition: all 0.2s ease; user-select: none; }
+    .layer-menu { display: flex; gap: 4px; font-size: 11px; align-items: center; }
+    .layer-menu label { cursor: pointer; padding: 5px 9px; background: var(--card-bg); color: var(--text-secondary); border-radius: 6px; border: 1px solid var(--panel-border); white-space: nowrap; font-weight: 600; display: flex; align-items: center; gap: 3px; transition: all 0.2s ease; user-select: none; }
     .layer-menu label:hover { background: var(--card-hover); }
 
-    .search-filter-row { display: flex; gap: 8px; align-items: center; }
-    .search-box-wrap { position: relative; flex: 1; }
-    .search-input { width: 100%; padding: 8px 12px 8px 32px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--card-bg); color: var(--text-primary); font-size: 13px; outline: none; }
-    .search-input:focus { border-color: var(--primary); }
-    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none; }
-    .dept-select { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--card-bg); color: var(--text-primary); font-size: 12px; font-weight: 600; outline: none; cursor: pointer; }
+    .header-row-2 {
+      display: flex; gap: 4px; align-items: center; flex-wrap: wrap;
+    }
 
-    .btn-primary { padding: 6px 14px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; transition: background 0.2s; }
+    .btn-primary { padding: 5px 11px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
     .btn-primary:hover { background: var(--primary-hover); }
-    .btn-secondary { padding: 6px 12px; background: var(--card-hover); color: var(--text-primary); border: 1px solid var(--panel-border); border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; }
+    .btn-secondary { padding: 5px 9px; background: var(--card-hover); color: var(--text-primary); border: 1px solid var(--panel-border); border-radius: 6px; font-weight: 600; font-size: 11px; cursor: pointer; white-space: nowrap; }
 
+    .search-filter-row { display: flex; gap: 6px; align-items: center; }
+    .search-box-wrap { position: relative; flex: 1; }
+    .search-input { width: 100%; padding: 6px 10px 6px 28px; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--card-bg); color: var(--text-primary); font-size: 12px; outline: none; }
+    .search-input:focus { border-color: var(--primary); }
+    .search-icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none; font-size: 12px; }
+    .dept-select { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--card-bg); color: var(--text-primary); font-size: 11px; font-weight: 600; outline: none; cursor: pointer; max-width: 150px; }
+
+    /* --- マップ表示エリア --- */
     .map-viewport { position: relative; flex: 1; background: #0b1120; overflow: hidden; touch-action: none; cursor: grab; }
     .map-viewport:active { cursor: grabbing; }
 
@@ -88,51 +101,90 @@
     #map-2f { width: 1024px; height: 678px; }
     .floor-map img.bg-svg { width: 100%; height: 100%; object-fit: fill; pointer-events: none; user-select: none; display: block; }
 
-    .zoom-controls { position: absolute; right: 14px; top: 14px; z-index: 35; display: flex; flex-direction: column; gap: 6px; }
-    .zoom-btn { width: 38px; height: 38px; background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--text-primary); border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); backdrop-filter: blur(8px); }
+    .zoom-controls { position: absolute; right: 12px; top: 12px; z-index: 35; display: flex; flex-direction: column; gap: 6px; }
+    .zoom-btn { width: 34px; height: 34px; background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--text-primary); border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); backdrop-filter: blur(8px); }
 
     .room-pin-container, .acp-pin-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 
-    
+    /* 📍 部屋（ルーム）枠 & ピン */
+    .room-pin {
+      position: absolute !important;
+      pointer-events: auto !important;
+      transform: translate(-50%, -50%) !important;
+      cursor: pointer !important;
+      z-index: 20 !important;
+      user-select: none !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-sizing: border-box !important;
+      border-style: solid !important;
+      border-width: 1.5px !important;
+      border-radius: 4px !important;
+      overflow: visible !important; /* 枠が小さくても中の文字やピンが切れないよう保証 */
+      transition: box-shadow 0.2s, background 0.2s !important;
+    }
+    .room-pin:hover {
+      z-index: 920 !important;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.8), inset 0 0 10px rgba(56, 189, 248, 0.25) !important;
+    }
+    .room-pin-center-mark {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.9));
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+    .room-pin-code-text {
+      font-size: 11px !important;
+      font-weight: 800 !important;
+      color: #ffffff !important;
+      background: rgba(15, 23, 42, 0.95) !important;
+      border: 1px solid rgba(255, 255, 255, 0.4) !important;
+      padding: 1px 6px !important;
+      border-radius: 4px !important;
+      white-space: nowrap !important;
+      line-height: 1.2 !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8) !important;
+      pointer-events: none !important;
+      margin-top: 1px !important;
+      letter-spacing: 0.2px !important;
+      text-align: center !important;
+      flex-shrink: 0 !important;
+    }
 
-    
-
-    body.editor-active .room-pin { font-size: 18px; cursor: grab !important; filter: drop-shadow(0 0 6px #f59e0b) drop-shadow(0 0 12px rgba(245, 158, 11, 0.9)) !important; animation: pulse-ring 1.5s infinite ease-in-out; }
-    body.editor-active .acp-pin { width: 18px; height: 18px; cursor: grab !important; box-shadow: 0 0 0 3px #f59e0b, 0 0 12px rgba(245, 158, 11, 0.9) !important; animation: pulse-ring 1.5s infinite ease-in-out; }
-    body.editor-active .room-pin::before, body.editor-active .acp-pin::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 32px; height: 32px; border-radius: 50%; pointer-events: auto; }
-
-    @keyframes pulse-ring { 0% { box-shadow: 0 0 0 2px #f59e0b, 0 0 6px rgba(245, 158, 11, 0.6); } 50% { box-shadow: 0 0 0 4px #f59e0b, 0 0 16px rgba(245, 158, 11, 0.9); } 100% { box-shadow: 0 0 0 2px #f59e0b, 0 0 6px rgba(245, 158, 11, 0.6); } }
-    .room-pin.is-dragging, .acp-pin.is-dragging { cursor: grabbing !important; transform: translate(-50%, -50%) scale(1.8) !important; z-index: 9999 !important; box-shadow: 0 0 0 4px #ef4444, 0 0 25px rgba(239, 68, 68, 1) !important; transition: none !important; }
-
-    
-    
-
-    /* 🛡️ ACPピン: 鮮明なセキュリティ・シールドバッジ (微弱パルス発光付き) */
-    .acp-pin {
+    .room-resize-handle {
+      display: none;
       position: absolute;
-      pointer-events: auto;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      z-index: 20;
-      user-select: none;
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0.2s;
+      right: -5px;
+      bottom: -5px;
+      width: 10px;
+      height: 10px;
+      background: #f59e0b;
+      border: 1.5px solid #ffffff;
+      border-radius: 50%;
+      cursor: nwse-resize !important;
+      z-index: 110;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
-    .acp-pin:hover {
-      transform: translate(-50%, -50%) scale(1.35);
-      z-index: 950;
-    }
-    
-    @keyframes acp-pulse {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7), 0 3px 8px rgba(0, 0, 0, 0.6); }
-      70% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0), 0 3px 8px rgba(0, 0, 0, 0.6); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), 0 3px 8px rgba(0, 0, 0, 0.6); }
+    body.editor-active .room-resize-handle { display: block; }
+    body.editor-active .room-pin { cursor: move !important; }
+
+    /* ドラッグ中の等倍保持（拡大 scale(1.8) の完全撤廃） */
+    .room-pin.is-dragging, .acp-pin.is-dragging {
+      cursor: grabbing !important;
+      transform: translate(-50%, -50%) !important;
+      z-index: 9999 !important;
+      opacity: 0.92;
+      box-shadow: 0 0 0 2px #f59e0b, 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+      transition: none !important;
     }
 
-    
-    
-
-    
-    /* 🛡️ ACP (Access Control Point) ピン: 鮮明な赤色ターゲットドット (直径16px) */
+    /* 🛡️ ACP (Access Control Point) ピン */
     .acp-pin {
       position: absolute !important;
       pointer-events: auto !important;
@@ -158,122 +210,69 @@
       height: 5px;
       border-radius: 50%;
       background: #ffffff;
-      display: block;
+      box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
     }
     .acp-pin:hover {
-      transform: translate(-50%, -50%) scale(1.6) !important;
-      box-shadow: 0 0 20px rgba(239, 68, 68, 1), 0 0 0 3px rgba(255, 255, 255, 0.95) !important;
-      z-index: 999 !important;
-    }
-
-    /* 📍 部屋（ルーム）: 任意のサイズに広がる四角形の枠 + 枠の中央に立つ📍ピン */
-    .room-pin {
-      position: absolute !important;
-      pointer-events: auto !important;
-      transform: translate(-50%, -50%) !important;
-      cursor: pointer !important;
-      z-index: 20 !important;
-      user-select: none !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-      box-sizing: border-box !important;
-      border-style: solid !important;
-      border-width: 1.5px !important;
-      border-radius: 4px !important;
-      transition: box-shadow 0.2s, background 0.2s !important;
-    }
-    .room-pin:hover {
+      transform: translate(-50%, -50%) scale(1.25) !important;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 1), 0 0 0 2px #ffffff !important;
       z-index: 920 !important;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.8), inset 0 0 10px rgba(56, 189, 248, 0.25) !important;
-    }
-    .room-pin-center-mark {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      font-size: 14px;
-      line-height: 1;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
-      pointer-events: none;
-    }
-    .room-pin-code-text {
-      font-size: 10px;
-      font-weight: 800;
-      color: #ffffff;
-      background: rgba(15, 23, 42, 0.88);
-      padding: 1px 5px;
-      border-radius: 3px;
-      white-space: nowrap;
-      margin-top: 2px;
-      pointer-events: none;
-      letter-spacing: -0.2px;
-      max-width: 90%;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
-    /* 部屋の枠拡大用リサイズハンドル (編集モード時のみ表示) */
-    .room-resize-handle {
-      display: none;
-      position: absolute;
-      right: -5px;
-      bottom: -5px;
-      width: 10px;
-      height: 10px;
-      background: #f59e0b;
-      border: 1.5px solid #ffffff;
-      border-radius: 2px;
-      cursor: se-resize !important;
-      z-index: 30;
-      pointer-events: auto !important;
-      box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
-    }
-    body.editor-active .room-resize-handle {
-      display: block;
-    }
-    body.editor-active .room-pin {
-      cursor: move !important;
-    }
     body.editor-active .acp-pin {
-      cursor: move !important;
-    }
-    .route-layer-svg {
-      pointer-events: none !important;
+      cursor: grab !important;
+      box-shadow: 0 0 0 2px #f59e0b, 0 0 10px rgba(245, 158, 11, 0.9) !important;
     }
 
-    .pin-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-6px); background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 8px 12px; white-space: nowrap; pointer-events: none !important; opacity: 0; visibility: hidden; transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s; box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 1000; color: #ffffff; text-align: left; }
-    .pin-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 5px; border-style: solid; border-color: rgba(15, 23, 42, 0.96) transparent transparent transparent; pointer-events: none !important; }
+    /* デスクトップ用ツールチップ（横長1行保持） */
+    .pin-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.96);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+      z-index: 1000;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      max-width: 320px;
+    }
+    .room-pin:hover .pin-tooltip, .acp-pin:hover .pin-tooltip {
+      opacity: 1; visibility: visible;
+      transform: translateX(-50%) translateY(-4px);
+    }
 
-    .room-pin:hover .pin-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-10px); }
-
-    .acp-pin .pin-tooltip { bottom: auto; top: 50%; left: 100%; transform: translateY(-50%) translateX(6px); background: rgba(15, 23, 42, 0.98); border: 1px solid rgba(239, 68, 68, 0.6); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8), 0 0 12px rgba(239, 68, 68, 0.4); padding: 8px 12px; }
-    .acp-pin .pin-tooltip::after { top: 50%; left: auto; right: 100%; transform: translateY(-50%); border-width: 5px; border-style: solid; border-color: transparent rgba(15, 23, 42, 0.98) transparent transparent; }
-    .acp-pin:hover .pin-tooltip { opacity: 1; visibility: visible; transform: translateY(-50%) translateX(10px); }
-
-    .pin-tooltip-title { font-size: 12px; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 6px; }
-    .pin-tooltip-sub { font-size: 10px; color: #94a3b8; margin-top: 2px; }
-    .pin-tooltip-acp-badge { font-size: 10px; color: #fca5a5; margin-top: 3px; font-weight: 800; }
-    .dept-badge { display: inline-block; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: 800; color: #ffffff; }
-
-    .zone-layer-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
-    .zone-polygon { pointer-events: auto; cursor: pointer; vector-effect: non-scaling-stroke !important; stroke-width: 1px !important; transition: fill-opacity 0.2s, stroke-width 0.2s; }
-    .zone-polygon:hover { fill-opacity: 0.45 !important; stroke-width: 2px !important; }
-
-    .info-panel { background: var(--panel-bg); backdrop-filter: blur(12px); padding: 12px 18px; border-top: 1px solid var(--panel-border); font-size: 13px; color: var(--text-primary); height: 140px; min-height: 140px; flex-shrink: 0; overflow-y: auto; z-index: 35; box-shadow: 0 -5px 20px rgba(0,0,0,0.3); }
-    .detail-card { display: flex; flex-direction: column; gap: 8px; }
-    .detail-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--panel-border); padding-bottom: 8px; }
-    .detail-title { font-size: 16px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
-    .detail-code { font-size: 12px; color: var(--text-secondary); font-family: monospace; }
+    /* --- 詳細情報パネル --- */
+    .info-panel {
+      background: var(--panel-bg); backdrop-filter: blur(12px);
+      padding: 10px 16px;
+      border-top: 1px solid var(--panel-border);
+      font-size: 13px; color: var(--text-primary);
+      flex-shrink: 0; z-index: 35;
+      box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+      overflow-y: auto;
+    }
+    .detail-card { display: flex; flex-direction: column; gap: 6px; }
+    .detail-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 6px; }
+    .detail-title { font-size: 15px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+    .detail-code { font-size: 11px; color: var(--text-secondary); font-family: monospace; }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
     .badge-acp { background: var(--accent-acp); color: #fff; }
     .badge-dept { background: var(--primary); color: #fff; }
-    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 4px; }
-    .detail-item { background: var(--card-bg); padding: 6px 10px; border-radius: 6px; border: 1px solid var(--panel-border); }
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; }
+    .detail-item { background: var(--card-bg); padding: 5px 8px; border-radius: 6px; border: 1px solid var(--panel-border); }
     .detail-item .label { font-size: 10px; color: var(--text-secondary); display: block; }
-    .detail-item .value { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+    .detail-item .value { font-size: 11px; font-weight: 700; color: var(--text-primary); }
+    .detail-desc-line { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
 
+    /* チェックボックス/ラジオボタンスイッチ連動 */
     #tab-outdoor:checked ~ .map-viewport #map-outdoor { display: block; }
     #tab-1f:checked ~ .map-viewport #map-1f { display: block; }
     #tab-2f:checked ~ .map-viewport #map-2f { display: block; }
@@ -301,37 +300,116 @@
     .form-group { display: flex; flex-direction: column; gap: 4px; }
     .form-group label { font-size: 11px; font-weight: 700; color: var(--text-secondary); }
     .form-group input, .form-group select, .form-group textarea { padding: 8px 10px; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--card-bg); color: var(--text-primary); font-size: 13px; outline: none; }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); }
-    .editor-badge { position: absolute; left: 14px; top: 14px; background: #f59e0b; color: #000; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; z-index: 35; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
-    .editor-active .editor-badge { display: block; }
 
-    .zone-drawer-bar { position: absolute; top: 10px; left: 14px; right: 60px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid #af52de; border-radius: 10px; padding: 8px 12px; z-index: 50; display: none; box-shadow: 0 8px 25px rgba(175, 82, 222, 0.4); }
-    .zone-drawing-active .zone-drawer-bar { display: block; }
-    body.zone-drawing-active .map-viewport .zone-layer-svg { display: block !important; }
-    body.zone-drawing-active .control-panel label[for="layer-zone"] { background: var(--accent-zone) !important; color: #fff !important; border-color: var(--accent-zone) !important; }
-    .temp-zone-preview-polygon { pointer-events: none !important; vector-effect: non-scaling-stroke !important; stroke-width: 2px !important; }
-    .zone-vertex-dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #af52de; border: 2px solid #ffffff; transform: translate(-50%, -50%); box-shadow: 0 0 8px rgba(175, 82, 222, 1); pointer-events: none; z-index: 100; }
-    body.zone-drawing-active .map-viewport, body.zone-drawing-active .map-container, body.zone-drawing-active .floor-map, body.vertex-editing-active .map-viewport, body.vertex-editing-active .map-container, body.vertex-editing-active .floor-map { cursor: crosshair !important; }
-    .zone-badge-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 6; display: none; }
-    #layer-zone:checked ~ .map-viewport .zone-badge-container, body.zone-drawing-active .map-viewport .zone-badge-container, body.vertex-editing-active .map-viewport .zone-badge-container { display: block !important; }
-    .zone-center-badge { position: absolute; transform: translate(-50%, -50%); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; color: #ffffff; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1.5px solid #007aff; box-shadow: 0 4px 12px rgba(0,0,0,0.6); pointer-events: none; white-space: nowrap; user-select: none; display: inline-flex; align-items: center; gap: 5px; }
-    .zone-badge-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
-
+    /* ==========================================================================
+       📱 スマホ画面（max-width: 768px）専用 最適化レイアウト
+       ========================================================================== */
     @media (max-width: 768px) {
-      .pin-tooltip { padding: 4px 8px !important; border-radius: 6px !important; max-width: 180px !important; white-space: normal !important; word-break: break-word !important; box-shadow: 0 4px 15px rgba(0,0,0,0.8) !important; }
-      .pin-tooltip-title { font-size: 10px !important; gap: 4px !important; line-height: 1.25 !important; }
-      .pin-tooltip-sub { font-size: 8px !important; margin-top: 1px !important; line-height: 1.2 !important; }
-      .pin-tooltip-acp-badge { font-size: 8px !important; margin-top: 2px !important; }
-      .dept-badge { padding: 1px 3px !important; font-size: 8px !important; border-radius: 3px !important; }
-      .info-panel { height: 110px !important; min-height: 110px !important; padding: 8px 12px !important; font-size: 11px !important; }
-      .detail-title { font-size: 13px !important; }
-      .detail-code { font-size: 10px !important; }
-      .detail-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 4px !important; }
-      .detail-item { padding: 3px 6px !important; }
-      .detail-item .label { font-size: 8px !important; }
-      .detail-item .value { font-size: 9px !important; }
-      .zone-center-badge { padding: 2px 6px !important; font-size: 9px !important; border-radius: 4px !important; }
-      .zone-badge-dot { width: 5px !important; height: 5px !important; }
+      /* ➀ カーソルオーバー時の縦長ポップアップ（ツールチップ）を完全カット */
+      .pin-tooltip {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+
+      /* ④ 画面上部コントロールパネルの余白圧縮＆スリム整列 */
+      .control-panel {
+        padding: 6px 8px !important;
+        gap: 5px !important;
+      }
+      .header-row-1 {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 4px !important;
+        flex-wrap: nowrap !important;
+      }
+      .floor-tabs {
+        padding: 2px !important;
+        gap: 2px !important;
+      }
+      .tab-btn {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+      }
+      .layer-menu {
+        gap: 3px !important;
+      }
+      .layer-menu label {
+        padding: 4px 7px !important;
+        font-size: 11px !important;
+        gap: 2px !important;
+      }
+
+      .header-row-2 {
+        display: flex !important;
+        gap: 4px !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        scrollbar-width: none !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+      .header-row-2::-webkit-scrollbar { display: none; }
+      .header-row-2 .btn-primary,
+      .header-row-2 .btn-secondary {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        flex-shrink: 0 !important;
+      }
+
+      .search-filter-row {
+        gap: 4px !important;
+      }
+      .search-input {
+        padding: 5px 8px 5px 26px !important;
+        font-size: 11px !important;
+      }
+      .dept-select {
+        padding: 5px 6px !important;
+        font-size: 11px !important;
+        max-width: 130px !important;
+      }
+
+      /* ③ 画面下レイアウト詳細情報を持ち上げ、スクロール不要で全表示 */
+      .info-panel {
+        height: auto !important;
+        min-height: 125px !important;
+        max-height: 38dvh !important;
+        padding: 8px 10px !important;
+        font-size: 11px !important;
+      }
+      .detail-header {
+        padding-bottom: 4px !important;
+      }
+      .detail-title {
+        font-size: 13px !important;
+        gap: 4px !important;
+      }
+      .detail-code {
+        font-size: 9px !important;
+      }
+      .detail-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 3px !important;
+      }
+      .detail-item {
+        padding: 3px 5px !important;
+      }
+      .detail-item .label {
+        font-size: 8px !important;
+        line-height: 1.1 !important;
+      }
+      .detail-item .value {
+        font-size: 10px !important;
+        line-height: 1.2 !important;
+      }
+      .detail-desc-line {
+        font-size: 10px !important;
+        margin-top: 2px !important;
+        line-height: 1.3 !important;
+      }
     }
   </style>
 </head>
@@ -348,36 +426,35 @@
 
   <!-- ヘッダー・操作コントロールパネル -->
   <div class="control-panel">
-    <div class="top-row">
-      <!-- フロア選択タブ -->
+    <!-- 行1: フロアタブ ＆ レイヤー切替 -->
+    <div class="header-row-1">
       <div class="floor-tabs">
         <label for="tab-outdoor" class="tab-btn" onclick="MapEngine.switchFloor('outdoor')">屋外</label>
         <label for="tab-1f" class="tab-btn" onclick="MapEngine.switchFloor('1f')">1階</label>
         <label for="tab-2f" class="tab-btn" onclick="MapEngine.switchFloor('2f')">2階</label>
       </div>
 
-      <!-- レイヤー表示/非表示トグルメニュー -->
       <div class="layer-menu">
         <label for="layer-room">📍 部屋</label>
         <label for="layer-acp">🛡️ ACP</label>
         <label for="layer-zone">📐 ゾーン</label>
       </div>
-
-      <!-- 便利ボタン (テーマ・データ編集・ゾーン描画) -->
-      <div style="display:flex; gap:4px; flex-wrap:wrap;">
-        <button id="toggle-editor-btn" class="btn-primary" style="background:#f59e0b; color:#000;">✏️ ピン追加・編集</button>
-        <button id="toggle-zone-drawer-btn" class="btn-primary" style="background:#af52de; color:#fff;">📐 ゾーン描画</button>
-        <button id="export-data-btn" class="btn-secondary" title="編集データを保存・ダウンロード">📥 保存/書き出し</button>
-        <button onclick="if(confirm('ブラウザの保存キャッシュを消去し、2Fの12件ACPを含む初期データ状態に復元しますか？')) DataStorage.reset();" class="btn-secondary" style="color:#ef4444; border-color:rgba(239,68,68,0.5);" title="ブラウザの古いキャッシュを消去して最新マスターデータに復元">🔄 初期状態に復元</button>
-        <button id="toggle-theme-btn" class="btn-secondary">🌙 テーマ</button>
-      </div>
     </div>
 
-    <!-- 検索＆部署フィルター行 -->
+    <!-- 行2: 操作ボタン群 (スリム整列) -->
+    <div class="header-row-2">
+      <button id="toggle-editor-btn" class="btn-primary" style="background:#f59e0b; color:#000;">✏️ ピン編集</button>
+      <button id="toggle-zone-drawer-btn" class="btn-primary" style="background:#af52de; color:#fff;">📐 ゾーン描画</button>
+      <button id="export-data-btn" class="btn-secondary" title="編集データを保存・ダウンロード">💾 保存/出力</button>
+      <button onclick="if(confirm('ブラウザの保存キャッシュを消去し、初期データ状態に復元しますか？')) DataStorage.reset();" class="btn-secondary" style="color:#ef4444; border-color:rgba(239,68,68,0.5);" title="ブラウザの保存データを初期状態に復元">🔄 復元</button>
+      <button id="toggle-theme-btn" class="btn-secondary" title="テーマ切り替え">🌙</button>
+    </div>
+
+    <!-- 行3: 検索＆部署フィルター -->
     <div class="search-filter-row">
       <div class="search-box-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" class="search-input" placeholder="部屋名・コード・ACP・英語名で即座に検索..." list="search-suggestions">
+        <input type="text" id="search-input" class="search-input" placeholder="部屋名・ACP・コードで即座に検索..." list="search-suggestions">
         <datalist id="search-suggestions"></datalist>
       </div>
       <select id="dept-select" class="dept-select">
@@ -636,8 +713,8 @@
   </div>
 
   <!-- スクリプト読み込み (重要: data.js -> map-engine.js -> app.js) -->
-  <script src="js/data.js?v=15.0"></script>
-  <script src="js/map-engine.js?v=15.0"></script>
-  <script src="js/app.js?v=15.0"></script>
+  <script src="js/data.js?v=16.0"></script>
+  <script src="js/map-engine.js?v=16.0"></script>
+  <script src="js/app.js?v=16.0"></script>
 </body>
 </html>

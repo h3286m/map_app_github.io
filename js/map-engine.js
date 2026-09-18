@@ -439,17 +439,17 @@ const MapEngine = {
         <div class="detail-card">
           <div class="detail-header">
             <div>
-              <div class="detail-title">📍 ${item.name} ${isPreview ? '<span style="font-size:11px; opacity:0.7;">(プレビュー)</span>' : ''}</div>
-              <div class="detail-code">ID: ${item.id} | 英語表記: ${item.nameEn}</div>
+              <div class="detail-title">📍 ${item.name} ${isPreview ? '<span style="font-size:10px; opacity:0.7;">(プレビュー)</span>' : ''}</div>
+              <div class="detail-code">ID: ${item.id} | 英語: ${item.nameEn || '-'}</div>
             </div>
-            <div style="display:flex; gap:6px; align-items:center;">
-              <button onclick="window.openSpotEditorById('${item.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">✏️ 編集</button>
+            <div style="display:flex; gap:5px; align-items:center;">
+              <button onclick="window.openSpotEditorById('${item.id}')" class="btn-secondary" style="padding:3px 8px; font-size:10px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">✏️ 編集</button>
               <span class="badge badge-dept" style="background:${dept.color}">${dept.name}</span>
             </div>
           </div>
           <div class="detail-grid">
             <div class="detail-item">
-              <span class="label">担当部署コード</span>
+              <span class="label">担当部署</span>
               <span class="value">${item.dept} (${dept.name})</span>
             </div>
             <div class="detail-item">
@@ -457,26 +457,24 @@ const MapEngine = {
               <span class="value">${zone.name}</span>
             </div>
             <div class="detail-item">
-              <span class="label">最寄ACP (パス要件)</span>
+              <span class="label">最寄ACP</span>
               <span class="value">${item.acp !== 'なし' ? '🛡️ ' + item.acp : '制限なし'}</span>
             </div>
             <div class="detail-item">
-              <span class="label">所在フロア / 座標</span>
+              <span class="label">フロア / 座標</span>
               <span class="value">${item.floor.toUpperCase()} (${item.x}%, ${item.y}%)</span>
             </div>
           </div>
-          <div style="margin-top:8px; display:flex; flex-direction:column; gap:6px;">
-            <div style="font-size:12px; color:var(--text-secondary);">
-              <b>概要・備考:</b> ${item.desc || '特記事項なし'}
-            </div>
-            ${item.pdfUrl ? `
-              <div style="margin-top:4px;">
-                <a href="${item.pdfUrl}" target="_blank" class="btn-primary" style="display:inline-flex; align-items:center; gap:6px; text-decoration:none; padding:6px 12px; font-size:12px; background:#ef4444;">
-                  📄 関連PDF資料・マニュアルを開く (${item.pdfUrl.split('/').pop()})
-                </a>
-              </div>
-            ` : ''}
+          <div class="detail-desc-line">
+            <b>概要・備考:</b> ${item.desc || '特記事項なし'}
           </div>
+          ${item.pdfUrl ? `
+            <div style="margin-top:2px;">
+              <a href="${item.pdfUrl}" target="_blank" class="btn-primary" style="display:inline-flex; align-items:center; gap:4px; text-decoration:none; padding:4px 8px; font-size:10px; background:#ef4444;">
+                📄 関連PDF (${item.pdfUrl.split('/').pop()})
+              </a>
+            </div>
+          ` : ''}
         </div>
       `;
     } else if (type === 'acp') {
@@ -484,39 +482,34 @@ const MapEngine = {
         <div class="detail-card">
           <div class="detail-header">
             <div>
-              <div class="detail-title">🛡️ ${item.name} (${item.code}) ${isPreview ? '<span style="font-size:11px; opacity:0.7;">(プレビュー)</span>' : ''}</div>
-              <div class="detail-code">アクセスポイント ID: ${item.id}</div>
+              <div class="detail-title">🛡️ ${item.name} (${item.code}) ${isPreview ? '<span style="font-size:10px; opacity:0.7;">(プレビュー)</span>' : ''}</div>
+              <div class="detail-code">ACP ID: ${item.id}</div>
             </div>
-            <div style="display:flex; gap:6px; align-items:center;">
-              <button onclick="window.openSpotEditorById('${item.id}')" class="btn-secondary" style="padding:4px 10px; font-size:11px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">✏️ 編集</button>
+            <div style="display:flex; gap:5px; align-items:center;">
+              <button onclick="window.openSpotEditorById('${item.id}')" class="btn-secondary" style="padding:3px 8px; font-size:10px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">✏️ 編集</button>
               <span class="badge badge-acp">${item.passLevel}</span>
             </div>
           </div>
           <div class="detail-grid">
             <div class="detail-item">
-              <span class="label">ACPコード</span>
+              <span class="label">管理番号 / コード</span>
               <span class="value">${item.code}</span>
             </div>
             <div class="detail-item">
-              <span class="label">通行許可レベル</span>
+              <span class="label">アクセス権限</span>
               <span class="value">${item.passLevel}</span>
             </div>
             <div class="detail-item">
-              <span class="label">設置階</span>
+              <span class="label">設置フロア</span>
               <span class="value">${item.floor.toUpperCase()}</span>
             </div>
-          </div>
-          <div style="margin-top:8px; display:flex; flex-direction:column; gap:6px;">
-            <div style="font-size:12px; color:var(--text-secondary);">
-              <b>保安運用仕様:</b> ${item.desc}
+            <div class="detail-item">
+              <span class="label">図面座標</span>
+              <span class="value">(${item.x}%, ${item.y}%)</span>
             </div>
-            ${item.pdfUrl ? `
-              <div style="margin-top:4px;">
-                <a href="${item.pdfUrl}" target="_blank" class="btn-primary" style="display:inline-flex; align-items:center; gap:6px; text-decoration:none; padding:6px 12px; font-size:12px; background:#ef4444;">
-                  📄 関連PDF資料・警備要領を開く (${item.pdfUrl.split('/').pop()})
-                </a>
-              </div>
-            ` : ''}
+          </div>
+          <div class="detail-desc-line">
+            <b>運用詳細・設置場所:</b> ${item.desc || '特記事項なし'}
           </div>
         </div>
       `;

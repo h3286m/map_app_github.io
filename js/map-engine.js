@@ -86,17 +86,21 @@ const MapEngine = {
         pin.style.width = `${rw}%`;
         pin.style.height = `${rh}%`;
 
-        // 部署カラー
+// 部署カラー
         const dept = VENUE_DATA.departments.find(d => d.code === room.dept) || { name: room.dept, color: '#007aff' };
-        pin.style.borderColor = dept.color;
-        pin.style.backgroundColor = dept.color.startsWith('#') ? (dept.color + '22') : 'rgba(0, 122, 255, 0.15)';
+        const pinColor = dept.color || '#007aff';
+        pin.style.borderColor = pinColor;
+        pin.style.backgroundColor = pinColor.startsWith('#') ? (pinColor + '22') : 'rgba(0, 122, 255, 0.15)';
 
-        // 枠の中央に 📍 ピンと部屋コード、右下にサイズ調整用リサイズハンドル
+        // 枠の中央に 担当部署カラーの📍ピンと部屋コード、右下にサイズ調整用リサイズハンドル
         pin.innerHTML = `
           <div class="room-pin-center-mark">
-            <span>📍</span>
+            <svg class="room-pin-marker" viewBox="0 0 24 24" width="18" height="18" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.85)); display: block;">
+              <path fill="${pinColor}" stroke="#ffffff" stroke-width="1.3" stroke-linejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+              <circle cx="12" cy="9" r="2.8" fill="#ffffff"/>
+            </svg>
           </div>
-          <div class="room-pin-code-text">${room.code || room.name}</div>
+          <div class="room-pin-code-text" style="border-left: 3px solid ${pinColor};">${room.code || room.name}</div>
           <div class="room-resize-handle" title="ドラッグして四角形枠のサイズを変更"></div>
           <div class="pin-tooltip">
             <div class="pin-tooltip-title">
@@ -448,7 +452,11 @@ const MapEngine = {
         <div class="detail-card">
           <div class="detail-header">
             <div>
-              <div class="detail-title">📍 ${item.name} ${isPreview ? '<span style="font-size:10px; opacity:0.7;">(プレビュー)</span>' : ''}</div>
+              <div class="detail-title">
+              <svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-2px; margin-right:4px; display:inline-block; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));">
+                <path fill="${dept.color}" stroke="#ffffff" stroke-width="1.3" stroke-linejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                <circle cx="12" cy="9" r="2.8" fill="#ffffff"/>
+              </svg>${item.name} ${isPreview ? '<span style="font-size:10px; opacity:0.7;">(プレビュー)</span>' : ''}</div>
               <div class="detail-code">ID: ${item.id} | 英語: ${item.nameEn || '-'}</div>
             </div>
             <div style="display:flex; gap:5px; align-items:center;">
@@ -491,7 +499,7 @@ const MapEngine = {
         <div class="detail-card">
           <div class="detail-header">
             <div>
-              <div class="detail-title">🛡️ ${item.name} (${item.code}) ${isPreview ? '<span style="font-size:10px; opacity:0.7;">(プレビュー)</span>' : ''}</div>
+              <div class="detail-title"><span style="display:inline-block; width:11px; height:11px; border-radius:50%; background:radial-gradient(circle, #22d3ee 0%, #0891b2 100%); border:1.5px solid #fff; box-shadow:0 0 6px #06b6d4; margin-right:4px; vertical-align:middle;"></span>${item.name} (${item.code}) ${isPreview ? '<span style="font-size:10px; opacity:0.7;">(プレビュー)</span>' : ''}</div>
               <div class="detail-code">ACP ID: ${item.id}</div>
             </div>
             <div style="display:flex; gap:5px; align-items:center;">

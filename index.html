@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>オフライン多機能会場マップ (ACP・部屋・ゾーン連動)</title>
+  <link rel="stylesheet" href="css/styles.css?v=12.0">
+  <style>
+    /* インライン完全CSS埋め込み (GitHub Pages上でのCSS読み込み失敗防止) */
+    :root {
+      --primary: #007aff;
+      --primary-hover: #0056b3;
+      --accent-acp: #ff3b30;
+      --accent-zone: #af52de;
+      --bg-color: #0f172a;
+      --panel-bg: rgba(30, 41, 59, 0.95);
+      --panel-border: rgba(255, 255, 255, 0.1);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --card-bg: #1e293b;
+      --card-hover: #334155;
+      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+      --radius: 12px;
+    }
+
+    body.light-theme {
+      --bg-color: #f4f6f8;
+      --panel-bg: rgba(255, 255, 255, 0.95);
+      --panel-border: rgba(0, 0, 0, 0.1);
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --card-bg: #ffffff;
+      --card-hover: #f1f5f9;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color); color: var(--text-primary);
+      display: flex; flex-direction: column;
+    }
+
+    body > input[type="radio"], body > input[type="checkbox"] {
+      display: none !important; position: absolute !important; opacity: 0 !important; pointer-events: none !important; width: 0 !important; height: 0 !important;
+    }
+
+    .modal-card input[type="radio"], .modal-card input[type="checkbox"] {
+      display: inline-block !important; margin-right: 4px;
+    }
+
+    .control-panel {
+      background: var(--panel-bg); backdrop-filter: blur(12px); padding: 10px 14px;
+      border-bottom: 1px solid var(--panel-border); z-index: 40; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      display: flex; flex-direction: column; gap: 8px;
+    }
+
+    .top-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+
+    .floor-tabs { display: flex; gap: 6px; background: rgba(0, 0, 0, 0.2); padding: 4px; border-radius: 10px; }
+    .tab-btn { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--text-secondary); transition: all 0.2s ease; user-select: none; }
+    .tab-btn:hover { color: var(--text-primary); }
+
+    .layer-menu { display: flex; gap: 6px; font-size: 12px; overflow-x: auto; padding-bottom: 2px; }
+    .layer-menu label { cursor: pointer; padding: 6px 10px; background: var(--card-bg); color: var(--text-secondary); border-radius: 8px; border: 1px solid var(--panel-border); white-space: nowrap; font-weight: 600; display: flex; align-items: center; gap: 4px; transition: all 0.2s ease; user-select: none; }
+    .layer-menu label:hover { background: var(--card-hover); }
+
+    .search-filter-row { display: flex; gap: 8px; align-items: center; }
+    .search-box-wrap { position: relative; flex: 1; }
+    .search-input { width: 100%; padding: 8px 12px 8px 32px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--card-bg); color: var(--text-primary); font-size: 13px; outline: none; }
+    .search-input:focus { border-color: var(--primary); }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none; }
+    .dept-select { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--card-bg); color: var(--text-primary); font-size: 12px; font-weight: 600; outline: none; cursor: pointer; }
+
+    .btn-primary { padding: 6px 14px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; transition: background 0.2s; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { padding: 6px 12px; background: var(--card-hover); color: var(--text-primary); border: 1px solid var(--panel-border); border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; }
+
+    .map-viewport { position: relative; flex: 1; background: #0b1120; overflow: hidden; touch-action: none; cursor: grab; }
+    .map-viewport:active { cursor: grabbing; }
+
+    .map-container { position: absolute; top: 0; left: 0; transform-origin: 0 0; transition: transform 0.05s linear; }
+    .floor-map { position: absolute; top: 0; left: 0; display: none; }
+    #map-outdoor { width: 1024px; height: 585px; }
+    #map-1f { width: 1024px; height: 718px; }
+    #map-2f { width: 1024px; height: 678px; }
+    .floor-map img.bg-svg { width: 100%; height: 100%; object-fit: fill; pointer-events: none; user-select: none; display: block; }
+
+    .zoom-controls { position: absolute; right: 14px; top: 14px; z-index: 35; display: flex; flex-direction: column; gap: 6px; }
+    .zoom-btn { width: 38px; height: 38px; background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--text-primary); border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); backdrop-filter: blur(8px); }
+
+    .room-pin-container, .acp-pin-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+
+    
+
+    
+
+    body.editor-active .room-pin { font-size: 18px; cursor: grab !important; filter: drop-shadow(0 0 6px #f59e0b) drop-shadow(0 0 12px rgba(245, 158, 11, 0.9)) !important; animation: pulse-ring 1.5s infinite ease-in-out; }
+    body.editor-active .acp-pin { width: 18px; height: 18px; cursor: grab !important; box-shadow: 0 0 0 3px #f59e0b, 0 0 12px rgba(245, 158, 11, 0.9) !important; animation: pulse-ring 1.5s infinite ease-in-out; }
+    body.editor-active .room-pin::before, body.editor-active .acp-pin::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 32px; height: 32px; border-radius: 50%; pointer-events: auto; }
+
+    @keyframes pulse-ring { 0% { box-shadow: 0 0 0 2px #f59e0b, 0 0 6px rgba(245, 158, 11, 0.6); } 50% { box-shadow: 0 0 0 4px #f59e0b, 0 0 16px rgba(245, 158, 11, 0.9); } 100% { box-shadow: 0 0 0 2px #f59e0b, 0 0 6px rgba(245, 158, 11, 0.6); } }
+    .room-pin.is-dragging, .acp-pin.is-dragging { cursor: grabbing !important; transform: translate(-50%, -50%) scale(1.8) !important; z-index: 9999 !important; box-shadow: 0 0 0 4px #ef4444, 0 0 25px rgba(239, 68, 68, 1) !important; transition: none !important; }
+
+    
+    
+
+    /* 🛡️ ACPピン: 鮮明なセキュリティ・シールドバッジ (微弱パルス発光付き) */
+    .acp-pin {
+      position: absolute;
+      pointer-events: auto;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 20;
+      user-select: none;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0.2s;
+    }
+    .acp-pin:hover {
+      transform: translate(-50%, -50%) scale(1.35);
+      z-index: 950;
+    }
+    
+    @keyframes acp-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7), 0 3px 8px rgba(0, 0, 0, 0.6); }
+      70% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0), 0 3px 8px rgba(0, 0, 0, 0.6); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), 0 3px 8px rgba(0, 0, 0, 0.6); }
+    }
+
+    
+    
+
+    
+    /* 🛡️ ACP (Access Control Point) ピン: 鮮明な赤色ターゲットドット (直径16px) */
+    .acp-pin {
+      position: absolute !important;
+      pointer-events: auto !important;
+      width: 16px !important;
+      height: 16px !important;
+      border-radius: 50% !important;
+      background: radial-gradient(circle, #ff4d4d 0%, #dc2626 100%) !important;
+      border: 2px solid #ffffff !important;
+      transform: translate(-50%, -50%) !important;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.95), 0 2px 6px rgba(0, 0, 0, 0.8) !important;
+      cursor: pointer !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 0 !important;
+      z-index: 50 !important;
+      user-select: none !important;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
+    }
+    .acp-pin::after {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: block;
+    }
+    .acp-pin:hover {
+      transform: translate(-50%, -50%) scale(1.6) !important;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 1), 0 0 0 3px rgba(255, 255, 255, 0.95) !important;
+      z-index: 999 !important;
+    }
+
+    /* 📍 部屋（ルーム）: 任意のサイズに広がる四角形の枠 + 枠の中央に立つ📍ピン */
+    .room-pin {
+      position: absolute !important;
+      pointer-events: auto !important;
+      transform: translate(-50%, -50%) !important;
+      cursor: pointer !important;
+      z-index: 20 !important;
+      user-select: none !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-sizing: border-box !important;
+      border-style: solid !important;
+      border-width: 1.5px !important;
+      border-radius: 4px !important;
+      transition: box-shadow 0.2s, background 0.2s !important;
+    }
+    .room-pin:hover {
+      z-index: 920 !important;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.8), inset 0 0 10px rgba(56, 189, 248, 0.25) !important;
+    }
+    .room-pin-center-mark {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 14px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+      pointer-events: none;
+    }
+    .room-pin-code-text {
+      font-size: 10px;
+      font-weight: 800;
+      color: #ffffff;
+      background: rgba(15, 23, 42, 0.88);
+      padding: 1px 5px;
+      border-radius: 3px;
+      white-space: nowrap;
+      margin-top: 2px;
+      pointer-events: none;
+      letter-spacing: -0.2px;
+      max-width: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 部屋の枠拡大用リサイズハンドル (編集モード時のみ表示) */
+    .room-resize-handle {
+      display: none;
+      position: absolute;
+      right: -5px;
+      bottom: -5px;
+      width: 10px;
+      height: 10px;
+      background: #f59e0b;
+      border: 1.5px solid #ffffff;
+      border-radius: 2px;
+      cursor: se-resize !important;
+      z-index: 30;
+      pointer-events: auto !important;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+    }
+    body.editor-active .room-resize-handle {
+      display: block;
+    }
+    body.editor-active .room-pin {
+      cursor: move !important;
+    }
+    body.editor-active .acp-pin {
+      cursor: move !important;
+    }
+    .route-layer-svg {
+      pointer-events: none !important;
+    }
+
+    .pin-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-6px); background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 8px 12px; white-space: nowrap; pointer-events: none !important; opacity: 0; visibility: hidden; transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s; box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 1000; color: #ffffff; text-align: left; }
+    .pin-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 5px; border-style: solid; border-color: rgba(15, 23, 42, 0.96) transparent transparent transparent; pointer-events: none !important; }
+
+    .room-pin:hover .pin-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-10px); }
+
+    .acp-pin .pin-tooltip { bottom: auto; top: 50%; left: 100%; transform: translateY(-50%) translateX(6px); background: rgba(15, 23, 42, 0.98); border: 1px solid rgba(239, 68, 68, 0.6); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8), 0 0 12px rgba(239, 68, 68, 0.4); padding: 8px 12px; }
+    .acp-pin .pin-tooltip::after { top: 50%; left: auto; right: 100%; transform: translateY(-50%); border-width: 5px; border-style: solid; border-color: transparent rgba(15, 23, 42, 0.98) transparent transparent; }
+    .acp-pin:hover .pin-tooltip { opacity: 1; visibility: visible; transform: translateY(-50%) translateX(10px); }
+
+    .pin-tooltip-title { font-size: 12px; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 6px; }
+    .pin-tooltip-sub { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+    .pin-tooltip-acp-badge { font-size: 10px; color: #fca5a5; margin-top: 3px; font-weight: 800; }
+    .dept-badge { display: inline-block; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: 800; color: #ffffff; }
+
+    .zone-layer-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+    .zone-polygon { pointer-events: auto; cursor: pointer; vector-effect: non-scaling-stroke !important; stroke-width: 1px !important; transition: fill-opacity 0.2s, stroke-width 0.2s; }
+    .zone-polygon:hover { fill-opacity: 0.45 !important; stroke-width: 2px !important; }
+
+    .info-panel { background: var(--panel-bg); backdrop-filter: blur(12px); padding: 12px 18px; border-top: 1px solid var(--panel-border); font-size: 13px; color: var(--text-primary); height: 140px; min-height: 140px; flex-shrink: 0; overflow-y: auto; z-index: 35; box-shadow: 0 -5px 20px rgba(0,0,0,0.3); }
+    .detail-card { display: flex; flex-direction: column; gap: 8px; }
+    .detail-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--panel-border); padding-bottom: 8px; }
+    .detail-title { font-size: 16px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .detail-code { font-size: 12px; color: var(--text-secondary); font-family: monospace; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .badge-acp { background: var(--accent-acp); color: #fff; }
+    .badge-dept { background: var(--primary); color: #fff; }
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 4px; }
+    .detail-item { background: var(--card-bg); padding: 6px 10px; border-radius: 6px; border: 1px solid var(--panel-border); }
+    .detail-item .label { font-size: 10px; color: var(--text-secondary); display: block; }
+    .detail-item .value { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+
+    #tab-outdoor:checked ~ .map-viewport #map-outdoor { display: block; }
+    #tab-1f:checked ~ .map-viewport #map-1f { display: block; }
+    #tab-2f:checked ~ .map-viewport #map-2f { display: block; }
+
+    #tab-outdoor:checked ~ .control-panel label[for="tab-outdoor"],
+    #tab-1f:checked ~ .control-panel label[for="tab-1f"],
+    #tab-2f:checked ~ .control-panel label[for="tab-2f"] { background: var(--primary); color: #fff; }
+
+    #layer-room:checked ~ .map-viewport .room-pin-container { display: block; }
+    .room-pin-container { display: none; }
+    #layer-acp:checked ~ .map-viewport .acp-pin-container { display: block; }
+    .acp-pin-container { display: none; }
+    #layer-zone:checked ~ .map-viewport .zone-layer-svg { display: block; }
+    .zone-layer-svg { display: none; }
+
+    #layer-room:checked ~ .control-panel label[for="layer-room"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+    #layer-acp:checked ~ .control-panel label[for="layer-acp"] { background: var(--accent-acp); color: #fff; border-color: var(--accent-acp); }
+    #layer-zone:checked ~ .control-panel label[for="layer-zone"] { background: var(--accent-zone); color: #fff; border-color: var(--accent-zone); }
+
+    .modal-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .modal-backdrop.open { display: flex; }
+    .modal-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 18px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); color: var(--text-primary); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; }
+    .modal-close { background: none; border: none; color: var(--text-secondary); font-size: 18px; font-weight: bold; cursor: pointer; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 11px; font-weight: 700; color: var(--text-secondary); }
+    .form-group input, .form-group select, .form-group textarea { padding: 8px 10px; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--card-bg); color: var(--text-primary); font-size: 13px; outline: none; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); }
+    .editor-badge { position: absolute; left: 14px; top: 14px; background: #f59e0b; color: #000; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; z-index: 35; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+    .editor-active .editor-badge { display: block; }
+
+    .zone-drawer-bar { position: absolute; top: 10px; left: 14px; right: 60px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid #af52de; border-radius: 10px; padding: 8px 12px; z-index: 50; display: none; box-shadow: 0 8px 25px rgba(175, 82, 222, 0.4); }
+    .zone-drawing-active .zone-drawer-bar { display: block; }
+    body.zone-drawing-active .map-viewport .zone-layer-svg { display: block !important; }
+    body.zone-drawing-active .control-panel label[for="layer-zone"] { background: var(--accent-zone) !important; color: #fff !important; border-color: var(--accent-zone) !important; }
+    .temp-zone-preview-polygon { pointer-events: none !important; vector-effect: non-scaling-stroke !important; stroke-width: 2px !important; }
+    .zone-vertex-dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #af52de; border: 2px solid #ffffff; transform: translate(-50%, -50%); box-shadow: 0 0 8px rgba(175, 82, 222, 1); pointer-events: none; z-index: 100; }
+    body.zone-drawing-active .map-viewport, body.zone-drawing-active .map-container, body.zone-drawing-active .floor-map, body.vertex-editing-active .map-viewport, body.vertex-editing-active .map-container, body.vertex-editing-active .floor-map { cursor: crosshair !important; }
+    .zone-badge-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 6; display: none; }
+    #layer-zone:checked ~ .map-viewport .zone-badge-container, body.zone-drawing-active .map-viewport .zone-badge-container, body.vertex-editing-active .map-viewport .zone-badge-container { display: block !important; }
+    .zone-center-badge { position: absolute; transform: translate(-50%, -50%); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; color: #ffffff; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1.5px solid #007aff; box-shadow: 0 4px 12px rgba(0,0,0,0.6); pointer-events: none; white-space: nowrap; user-select: none; display: inline-flex; align-items: center; gap: 5px; }
+    .zone-badge-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
+
+    @media (max-width: 768px) {
+      .pin-tooltip { padding: 4px 8px !important; border-radius: 6px !important; max-width: 180px !important; white-space: normal !important; word-break: break-word !important; box-shadow: 0 4px 15px rgba(0,0,0,0.8) !important; }
+      .pin-tooltip-title { font-size: 10px !important; gap: 4px !important; line-height: 1.25 !important; }
+      .pin-tooltip-sub { font-size: 8px !important; margin-top: 1px !important; line-height: 1.2 !important; }
+      .pin-tooltip-acp-badge { font-size: 8px !important; margin-top: 2px !important; }
+      .dept-badge { padding: 1px 3px !important; font-size: 8px !important; border-radius: 3px !important; }
+      .info-panel { height: 110px !important; min-height: 110px !important; padding: 8px 12px !important; font-size: 11px !important; }
+      .detail-title { font-size: 13px !important; }
+      .detail-code { font-size: 10px !important; }
+      .detail-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 4px !important; }
+      .detail-item { padding: 3px 6px !important; }
+      .detail-item .label { font-size: 8px !important; }
+      .detail-item .value { font-size: 9px !important; }
+      .zone-center-badge { padding: 2px 6px !important; font-size: 9px !important; border-radius: 4px !important; }
+      .zone-badge-dot { width: 5px !important; height: 5px !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 状態管理用ラジオ・チェックボックス (CSS Selector連動ロジック) -->
+  <input type="radio" id="tab-outdoor" name="floor" checked>
+  <input type="radio" id="tab-1f" name="floor">
+  <input type="radio" id="tab-2f" name="floor">
+
+  <input type="checkbox" id="layer-room">
+  <input type="checkbox" id="layer-acp" checked>
+  <input type="checkbox" id="layer-zone" checked>
+
+  <!-- ヘッダー・操作コントロールパネル -->
+  <div class="control-panel">
+    <div class="top-row">
+      <!-- フロア選択タブ -->
+      <div class="floor-tabs">
+        <label for="tab-outdoor" class="tab-btn" onclick="MapEngine.switchFloor('outdoor')">屋外</label>
+        <label for="tab-1f" class="tab-btn" onclick="MapEngine.switchFloor('1f')">1階</label>
+        <label for="tab-2f" class="tab-btn" onclick="MapEngine.switchFloor('2f')">2階</label>
+      </div>
+
+      <!-- レイヤー表示/非表示トグルメニュー -->
+      <div class="layer-menu">
+        <label for="layer-room">📍 部屋</label>
+        <label for="layer-acp">🛡️ ACP</label>
+        <label for="layer-zone">📐 ゾーン</label>
+      </div>
+
+      <!-- 便利ボタン (テーマ・データ編集・ゾーン描画) -->
+      <div style="display:flex; gap:4px; flex-wrap:wrap;">
+        <button id="toggle-editor-btn" class="btn-primary" style="background:#f59e0b; color:#000;">✏️ ピン追加・編集</button>
+        <button id="toggle-zone-drawer-btn" class="btn-primary" style="background:#af52de; color:#fff;">📐 ゾーン描画</button>
+        <button id="export-data-btn" class="btn-secondary" title="編集データを保存・ダウンロード">📥 保存/書き出し</button>
+        <button onclick="if(confirm('ブラウザの保存キャッシュを消去し、2Fの12件ACPを含む初期データ状態に復元しますか？')) DataStorage.reset();" class="btn-secondary" style="color:#ef4444; border-color:rgba(239,68,68,0.5);" title="ブラウザの古いキャッシュを消去して最新マスターデータに復元">🔄 初期状態に復元</button>
+        <button id="toggle-theme-btn" class="btn-secondary">🌙 テーマ</button>
+      </div>
+    </div>
+
+    <!-- 検索＆部署フィルター行 -->
+    <div class="search-filter-row">
+      <div class="search-box-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" class="search-input" placeholder="部屋名・コード・ACP・英語名で即座に検索..." list="search-suggestions">
+        <datalist id="search-suggestions"></datalist>
+      </div>
+      <select id="dept-select" class="dept-select">
+        <!-- JSで自動挿入 -->
+      </select>
+    </div>
+  </div>
+
+  <!-- マップ表示エリア (Map Viewport with Pan/Zoom) -->
+  <div class="map-viewport">
+    <div class="editor-badge">📍 ピン編集モード ON</div>
+
+    <!-- ゾーン多角形ビジュアル描画コントロールバー -->
+    <div id="zone-drawer-bar" class="zone-drawer-bar">
+      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <span style="font-weight:800; font-size:12px; color:#af52de;">📐 ゾーン描画中:</span>
+        <input type="text" id="zone-draw-name" placeholder="ゾーン名 (例: Zone 2, RED)" style="padding:4px 8px; border-radius:6px; border:1px solid var(--panel-border); font-size:12px; width:130px; background:var(--card-bg); color:#fff;">
+        
+        <select id="zone-draw-color" style="padding:4px 6px; border-radius:6px; border:1px solid var(--panel-border); font-size:12px; background:var(--card-bg); color:#fff;">
+          <option value="rgba(239,68,68,0.25)" data-border="#ef4444" data-name="FOP">🏆 Zone FOP (競技エリア / Field of Play)</option>
+          <option value="rgba(0,122,255,0.25)" data-border="#007aff" data-name="BLUE">🔵 Zone BLUE (選手動線・ウォームアップ)</option>
+          <option value="rgba(255,45,85,0.25)" data-border="#ff2d55" data-name="RED">🔴 Zone RED (競技専用・セキュリティ)</option>
+          <option value="rgba(175,82,222,0.25)" data-border="#af52de" data-name="PURPLE">🟣 Zone PURPLE / Zone 5,6 (役員・VIP)</option>
+          <option value="rgba(52,199,89,0.25)" data-border="#34c759" data-name="GREEN">🟢 Zone GREEN / Zone 4 (チーム役員)</option>
+          <option value="rgba(245,158,11,0.25)" data-border="#f59e0b" data-name="YELLOW">🟡 Zone YELLOW / Zone FOH (観客・一般)</option>
+          <option value="rgba(255,255,255,0.20)" data-border="#ffffff" data-name="WHITE">⚪ Zone WHITE (駐車場・物流)</option>
+          <option value="rgba(0,199,190,0.25)" data-border="#00c7be" data-name="CYAN">🩵 Zone CYAN / Zone 2 (部屋・運営)</option>
+        </select>
+
+        <span id="zone-point-count" style="font-size:11px; color:#94a3b8; font-weight:bold;">点数: 0</span>
+
+        <div style="display:flex; gap:4px; margin-left:auto;">
+          <button id="zone-undo-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px;">↩️ 1点戻す</button>
+          <button id="zone-clear-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px; color:#ef4444; border-color:#ef4444;">🗑️ 全消去</button>
+          <button id="zone-save-btn" class="btn-primary" style="padding:4px 10px; font-size:11px; background:#af52de;">💾 ゾーン保存</button>
+          <button id="zone-cancel-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px;">✕ 終了</button>
+        </div>
+      </div>
+      <div style="font-size:10px; color:#94a3b8; margin-top:4px;">
+        💡 図面上の角を順番にクリックして多角形を描き、「💾 ゾーン保存」を押してください。
+      </div>
+    </div>
+
+    <!-- 頂点編集コントロールバー (PowerPoint風 頂点の編集) -->
+    <div id="vertex-editor-bar" class="vertex-drawer-bar">
+      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <span style="font-weight:800; font-size:12px; color:#f59e0b;">📍 頂点の編集モード:</span>
+        <span id="vertex-edit-name" style="font-size:12px; font-weight:bold; color:#fff;">ゾーン名</span>
+        <span id="vertex-count-badge" style="font-size:11px; color:#94a3b8; font-weight:bold;">頂点数: 0</span>
+
+        <div style="display:flex; gap:4px; margin-left:auto; flex-wrap:wrap;">
+          <button id="vertex-add-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px;">➕ 頂点を追加</button>
+          <button id="vertex-del-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px; color:#ef4444; border-color:#ef4444;">🗑️ 頂点を削除</button>
+          <button id="vertex-save-btn" class="btn-primary" style="padding:4px 10px; font-size:11px; background:#f59e0b; color:#000; font-weight:bold;">💾 頂点調整を保存</button>
+          <button id="vertex-cancel-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px;">✕ キャンセル</button>
+        </div>
+      </div>
+      <div style="font-size:10px; color:#94a3b8; margin-top:4px;">
+        💡 黄色の頂点ドット（①, ②, ③...）をマウスや指でドラッグしてゾーンの形を自由に変形調整できます。
+      </div>
+    </div>
+
+    <!-- ズーム・パン物理コントロール -->
+    <div class="zoom-controls">
+      <button id="zoom-in" class="zoom-btn" title="拡大">+</button>
+      <button id="zoom-out" class="zoom-btn" title="縮小">−</button>
+      <button id="zoom-reset" class="zoom-btn" title="位置リセット" style="font-size:12px;">⟲</button>
+    </div>
+
+    <!-- Pan & Zoom Transform Container -->
+    <div class="map-container">
+
+      <!-- 屋外マップ -->
+      <div id="map-outdoor" class="floor-map">
+        <img src="assets/outdoor.png" alt="Outdoor Map" class="bg-svg">
+      </div>
+
+      <!-- 1階マップ -->
+      <div id="map-1f" class="floor-map">
+        <img src="assets/floor1.png" alt="1F Floor Map" class="bg-svg">
+      </div>
+
+      <!-- 2階マップ -->
+      <div id="map-2f" class="floor-map">
+        <img src="assets/floor2.png" alt="2F Floor Map" class="bg-svg">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 下部リアルタイム詳細情報パネル (Detail Drawer) -->
+  <div class="info-panel" id="info-panel">
+    <div class="detail-card">
+      <div class="detail-header">
+        <div class="detail-title">💡 オフライン会場マップ案内</div>
+        <span class="badge badge-dept">OFFLINE ACTIVE</span>
+      </div>
+      <div style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-top:4px;">
+        マップ上の <b>📍 部屋ピン</b> または <b>🛡️ ACP (アクセスポイント)</b> をタップ/ホバーすると、詳細情報がポップアップおよび画面下に表示されます。<br>
+        ヘッダーのレイヤーメニュー（📍 部屋 / 🛡️ ACP / 📐 ゾーン）で表示切り替えができます。
+      </div>
+    </div>
+  </div>
+
+  <!-- モーダル1: 部屋・ACPの追加・編集モーダル -->
+  <div id="spot-editor-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title" style="margin:0; font-size:16px;">📍 部屋・ACPの追加・編集</h3>
+        <button id="modal-close-btn" class="modal-close">✕</button>
+      </div>
+      <form id="spot-form" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+        <input type="hidden" id="edit-spot-id">
+        
+        <div class="form-row">
+          <label>種別:</label>
+          <div style="display:flex; gap:12px;">
+            <label style="cursor:pointer;"><input type="radio" name="spot-type" value="room" checked style="display:inline;"> 📍 部屋</label>
+            <label style="cursor:pointer;"><input type="radio" name="spot-type" value="acp" style="display:inline;"> 🛡️ ACP</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-name">名称 (部屋名 / ACP名): *</label>
+          <input type="text" id="form-name" required placeholder="例: 大会本部室, 北側メインゲート">
+        </div>
+
+        <div class="form-group">
+          <label for="form-code">部屋コード / ACPコード:</label>
+          <input type="text" id="form-code" placeholder="例: ADM-01 または ACP-1F-01">
+        </div>
+
+        <div class="form-group">
+          <label for="form-name-en">英語名称 (任意):</label>
+          <input type="text" id="form-name-en" placeholder="例: Protocol Office">
+        </div>
+
+        <div class="form-group room-dept-group">
+          <label for="form-dept">担当部署:</label>
+          <select id="form-dept" style="padding:8px; border-radius:6px; border:1px solid var(--panel-border); background:var(--card-bg); color:var(--text-primary); font-size:13px;"></select>
+        </div>
+
+        <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+          <div class="form-group">
+            <label for="form-floor">フロア:</label>
+            <select id="form-floor" style="padding:6px; border-radius:6px; border:1px solid var(--panel-border); background:var(--card-bg); color:var(--text-primary);">
+              <option value="outdoor">屋外</option>
+              <option value="1f">1階</option>
+              <option value="2f">2階</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="form-x">中心X座標 (%):</label>
+            <input type="number" id="form-x" step="0.1" min="0" max="100" required>
+          </div>
+          <div class="form-group">
+            <label for="form-y">中心Y座標 (%):</label>
+            <input type="number" id="form-y" step="0.1" min="0" max="100" required>
+          </div>
+        </div>
+
+        <div class="form-row room-size-row" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div class="form-group">
+            <label for="form-w">枠の横幅 (W %):</label>
+            <input type="number" id="form-w" step="0.1" min="1" max="50" value="5.0">
+          </div>
+          <div class="form-group">
+            <label for="form-h">枠の縦幅 (H %):</label>
+            <input type="number" id="form-h" step="0.1" min="1" max="50" value="3.5">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-acp-select">ACP通行許可レベル / アクセス権限 (プルダウン選択):</label>
+          <select id="form-acp-select" style="padding:8px 10px; border-radius:6px; border:1px solid var(--panel-border); background:var(--card-bg); color:var(--text-primary); font-size:13px;">
+            <option value="Level 1 (競技エリア / FOP・選手・役員)">Level 1 (競技エリア / FOP・選手・役員)</option>
+            <option value="Level 2 (選手・チーム役員エリア)">Level 2 (選手・チーム役員エリア / Athletes & Team Leaders)</option>
+            <option value="Level 3 (IF/AF 役員・VIPエリア)">Level 3 (IF/AF 役員・VIPエリア / IF & AF Family)</option>
+            <option value="Level 4 (報道・プレスエリア)">Level 4 (報道・プレスエリア / Press & Photographers)</option>
+            <option value="Level 5 (放送・HB/RHBエリア)">Level 5 (放送・HB/RHBエリア / Broadcasters & HB)</option>
+            <option value="Level 6 (大会運営・スタッフエリア)">Level 6 (大会運営・スタッフエリア / Workforce & Staff)</option>
+            <option value="Level RED (レッドゾーン / 競技専用)">Level RED (レッドゾーン / Secure Operations)</option>
+            <option value="Level BLUE (ブルーゾーン / 選手動線)">Level BLUE (ブルーゾーン / Athlete Warm-up)</option>
+            <option value="Level WHITE (ホワイトゾーン / 運営・車両)">Level WHITE (ホワイトゾーン / Compound & Logistics)</option>
+            <option value="Level FOH (観客・一般エリア)">Level FOH (観客・一般エリア / Front of House)</option>
+            <option value="Level SACD (特別通行証・SACDs)">Level SACD (特別通行証 / Special Access)</option>
+            <option value="ALL (全エリア無制限)">ALL (全エリアアクセス可 / All Access)</option>
+            <option value="custom">✏️ カスタム入力（手動指定）</option>
+          </select>
+          <input type="text" id="form-acp" placeholder="例: Level A (選手・役員), または ACP-1F-01" style="margin-top:6px; display:none;">
+        </div>
+
+        <div class="form-group">
+          <label for="form-pdf">📄 関連PDF資料・マニュアル (任意):</label>
+          <input type="text" id="form-pdf" placeholder="例: assets/docs/manual.pdf または PDFファイル名">
+        </div>
+
+        <div class="form-group">
+          <label for="form-desc">概要・説明:</label>
+          <textarea id="form-desc" rows="2" placeholder="特記事項・運用仕様を入力..."></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+          <button type="button" id="form-delete-btn" class="btn-secondary" style="background:#ef4444; color:#fff; display:none;">🗑️ 削除</button>
+          <div style="display:flex; gap:8px; margin-left:auto;">
+            <button type="button" id="form-cancel-btn" class="btn-secondary">キャンセル</button>
+            <button type="submit" class="btn-primary">💾 保存</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- モーダル2: データ保存・出力 -->
+  <div id="export-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="margin:0; font-size:16px;">💾 データ保存・出力</h3>
+        <button id="export-close-btn" class="modal-close">✕</button>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:12px; font-size:13px; color:var(--text-secondary);">
+        <div id="export-stats" style="font-size:12px; padding:8px 10px; background:rgba(255,255,255,0.05); border-radius:6px; border:1px solid rgba(255,255,255,0.1); color:var(--text-primary); line-height:1.6;">
+          編集した最新データはブラウザに自動保存されています。
+        </div>
+
+        <div>
+          別の端末やファイル本体へ反映する場合は、最新の <code style="color:var(--text-primary);">data.js</code> をダウンロードして上書き配置できます。
+        </div>
+
+        <button id="download-datajs-btn" class="btn-primary" style="padding:10px; font-size:13px; cursor:pointer;">
+          📄 最新マスターデータを js/data.js としてダウンロード
+        </button>
+
+        <button id="copy-datajs-btn" class="btn-secondary" style="padding:10px; font-size:13px; cursor:pointer;">
+          📋 クリップボードに最新データをコピー
+        </button>
+
+        <!-- セキュリティ制限環境向け：テキスト直接表示枠 -->
+        <div style="margin-top:4px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <span style="font-size:11px; color:#94a3b8;">📝 データ直接表示（コピー＆ペースト用）:</span>
+            <button id="select-all-text-btn" type="button" class="btn-secondary" style="padding:2px 8px; font-size:11px; cursor:pointer;">
+              全選択
+            </button>
+          </div>
+          <textarea id="export-textarea" readonly style="width:100%; height:90px; font-family:monospace; font-size:11px; padding:6px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#cbd5e1; resize:vertical; box-sizing:border-box;"></textarea>
+        </div>
+
+        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:4px 0;">
+
+        <button id="reset-default-data-btn" class="btn-secondary" style="color:#ef4444; border-color:#ef4444; padding:10px; font-size:13px; cursor:pointer;">
+          🔄 初期データ状態にリセット（保存キャッシュ消去）
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- スクリプト読み込み (重要: data.js -> map-engine.js -> app.js) -->
+  <script src="js/data.js?v=14.0"></script>
+  <script src="js/map-engine.js?v=14.0"></script>
+  <script src="js/app.js?v=14.0"></script>
+</body>
+</html>

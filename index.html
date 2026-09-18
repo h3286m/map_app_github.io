@@ -591,33 +591,53 @@
     </div>
   </div>
 
-  <!-- モーダル2: データ保存・書き出しモーダル -->
+  <!-- モーダル2: データ保存・出力 -->
   <div id="export-modal" class="modal-backdrop">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 style="margin:0; font-size:16px;">📥 データ保存・初期化</h3>
+        <h3 style="margin:0; font-size:16px;">💾 データ保存・出力</h3>
         <button id="export-close-btn" class="modal-close">✕</button>
       </div>
       <div style="display:flex; flex-direction:column; gap:12px; margin-top:12px; font-size:13px; color:var(--text-secondary);">
-        <div>
-          編集した最新データは自動的にブラウザ内に保存されています。<br>
-          別の端末へ反映したい場合は、最新の <code style="color:var(--text-primary);">data.js</code> をダウンロードして上書き配置できます。
+        <div id="export-stats" style="font-size:12px; padding:8px 10px; background:rgba(255,255,255,0.05); border-radius:6px; border:1px solid rgba(255,255,255,0.1); color:var(--text-primary); line-height:1.6;">
+          編集した最新データはブラウザに自動保存されています。
         </div>
 
-        <button id="download-datajs-btn" class="btn-primary" style="padding:10px; font-size:13px;">
+        <div>
+          別の端末やファイル本体へ反映する場合は、最新の <code style="color:var(--text-primary);">data.js</code> をダウンロードして上書き配置できます。
+        </div>
+
+        <button id="download-datajs-btn" class="btn-primary" style="padding:10px; font-size:13px; cursor:pointer;">
           📄 最新マスターデータを js/data.js としてダウンロード
         </button>
 
-        <button id="reset-default-data-btn" class="btn-secondary" style="color:#ef4444; border-color:#ef4444; padding:10px; font-size:13px;">
+        <button id="copy-datajs-btn" class="btn-secondary" style="padding:10px; font-size:13px; cursor:pointer;">
+          📋 クリップボードに最新データをコピー
+        </button>
+
+        <!-- セキュリティ制限環境向け：テキスト直接表示枠 -->
+        <div style="margin-top:4px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <span style="font-size:11px; color:#94a3b8;">📝 データ直接表示（コピー＆ペースト用）:</span>
+            <button id="select-all-text-btn" type="button" class="btn-secondary" style="padding:2px 8px; font-size:11px; cursor:pointer;">
+              全選択
+            </button>
+          </div>
+          <textarea id="export-textarea" readonly style="width:100%; height:90px; font-family:monospace; font-size:11px; padding:6px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#cbd5e1; resize:vertical; box-sizing:border-box;"></textarea>
+        </div>
+
+        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:4px 0;">
+
+        <button id="reset-default-data-btn" class="btn-secondary" style="color:#ef4444; border-color:#ef4444; padding:10px; font-size:13px; cursor:pointer;">
           🔄 初期データ状態にリセット（保存キャッシュ消去）
         </button>
       </div>
     </div>
   </div>
 
-  <!-- スクリプト読み込み (順序重要: data.js -> map-engine.js -> app.js) -->
-  <script src="js/data.js?v=12.0"></script>
-  <script src="js/map-engine.js?v=12.0"></script>
-  <script src="js/app.js?v=12.0"></script>
+  <!-- スクリプト読み込み (重要: data.js -> map-engine.js -> app.js) -->
+  <script src="js/data.js?v=14.0"></script>
+  <script src="js/map-engine.js?v=14.0"></script>
+  <script src="js/app.js?v=14.0"></script>
 </body>
 </html>

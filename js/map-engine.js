@@ -120,6 +120,8 @@ const MapEngine = {
         pin.addEventListener('click', (e) => {
           e.stopPropagation();
           if (this.isEditorMode) {
+            // ドラッグ移動直後の場合はモーダルを開かない
+            if (this.justDraggedPin) return;
             if (window.openSpotEditorById) window.openSpotEditorById(room.id);
             return;
           }
@@ -163,6 +165,8 @@ const MapEngine = {
         pin.addEventListener('click', (e) => {
           e.stopPropagation();
           if (this.isEditorMode) {
+            // ドラッグ移動直後の場合はモーダルを開かない
+            if (this.justDraggedPin) return;
             if (window.openSpotEditorById) window.openSpotEditorById(acp.id);
             return;
           }
@@ -268,8 +272,10 @@ const MapEngine = {
         const curX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
         const curY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
 
-        if (Math.hypot(curX - startX, curY - startY) > 4) {
+        // 誤判定を防ぐため移動判定しきい値を 6px に設定
+        if (Math.hypot(curX - startX, curY - startY) > 6) {
           hasDragged = true;
+          this.justDraggedPin = true;
         }
 
         const viewport = document.querySelector('.map-viewport');
@@ -300,16 +306,22 @@ const MapEngine = {
 
           if (window.DataStorage) window.DataStorage.save();
 
+          // 移動完了後はモーダルを開かず、350ms間クリックイベントを確実に抑止
+          this.justDraggedPin = true;
+          setTimeout(() => {
+            this.justDraggedPin = false;
+          }, 350);
+
           const panel = document.getElementById('info-panel');
           if (panel) {
             panel.innerHTML = `
-              <div style="color:#34c759; font-weight:bold; font-size:13px; padding:6px 0;">
-                ✅ 「${item.name}」の位置をドラッグ移動し、自動保存しました！ (X: ${item.x}%, Y: ${item.y}%)
+              <div style="color:#34c759; font-weight:bold; font-size:12px; padding:4px 0;">
+                ✅ 「${item.name || item.code}」を移動しました (X: ${item.x}%, Y: ${item.y}%)
               </div>
             `;
           }
         } else {
-          // ドラッグしなかった場合（通常のクリック） ➔ 即座に編集ダイアログを開く
+          // 移動しなかった（単なるクリック）場合のみ、編集ダイアログを開く
           if (this.isEditorMode && window.openSpotEditorById) {
             window.openSpotEditorById(item.id);
           }
@@ -953,16 +965,23 @@ const MapEngine = {
       container.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.scale})`;
     };
 
-    // マウスドラッグ
+    let mapDragDistance = 0;
+    let mouseStartClientX = 0, mouseStartClientY = 0;
+
+    // マウスドラッグによる画面パン
     viewport.addEventListener('mousedown', (e) => {
-      if (e.target.closest('.zoom-controls')) return;
+      if (e.target.closest('.zoom-controls, .zone-drawer-bar, .modal-backdrop')) return;
       this.isDragging = true;
+      mapDragDistance = 0;
+      mouseStartClientX = e.clientX;
+      mouseStartClientY = e.clientY;
       this.startX = e.clientX - this.panX;
       this.startY = e.clientY - this.panY;
     });
 
     window.addEventListener('mousemove', (e) => {
       if (!this.isDragging) return;
+      mapDragDistance = Math.hypot(e.clientX - mouseStartClientX, e.clientY - mouseStartClientY);
       this.panX = e.clientX - this.startX;
       this.panY = e.clientY - this.startY;
       updateTransform();
@@ -972,28 +991,15 @@ const MapEngine = {
       this.isDragging = false;
     });
 
-    // マウスホイールズーム
-    viewport.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
-      const newScale = Math.min(Math.max(this.scale * zoomFactor, 0.7), 4.0);
-      
-      // カーソル位置を中心にズーム調整
-      const rect = viewport.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-
-      this.panX = mouseX - (mouseX - this.panX) * (newScale / this.scale);
-      this.panY = mouseY - (mouseY - this.panY) * (newScale / this.scale);
-      this.scale = newScale;
-      updateTransform();
-    }, { passive: false });
-
-    // タッチによるドラッグ（モバイル対応）
+    // タッチによる画面ドラッグ（モバイル対応）
     let touchStartX = 0, touchStartY = 0;
+    let touchStartClientX = 0, touchStartClientY = 0;
     viewport.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) {
         this.isDragging = true;
+        mapDragDistance = 0;
+        touchStartClientX = e.touches[0].clientX;
+        touchStartClientY = e.touches[0].clientY;
         touchStartX = e.touches[0].clientX - this.panX;
         touchStartY = e.touches[0].clientY - this.panY;
       }
@@ -1001,6 +1007,7 @@ const MapEngine = {
 
     viewport.addEventListener('touchmove', (e) => {
       if (this.isDragging && e.touches.length === 1) {
+        mapDragDistance = Math.hypot(e.touches[0].clientX - touchStartClientX, e.touches[0].clientY - touchStartClientY);
         this.panX = e.touches[0].clientX - touchStartX;
         this.panY = e.touches[0].clientY - touchStartY;
         updateTransform();
@@ -1011,9 +1018,32 @@ const MapEngine = {
       this.isDragging = false;
     });
 
-    // ビジュアルマップクリック (ゾーン頂点追加 または ピン追加モーダル起動)
+    // マウスホイールズーム
+    viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
+      const newScale = Math.min(Math.max(this.scale * zoomFactor, 0.7), 4.0);
+      
+      const rect = viewport.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      this.panX = mouseX - (mouseX - this.panX) * (newScale / this.scale);
+      this.panY = mouseY - (mouseY - this.panY) * (newScale / this.scale);
+      this.scale = newScale;
+      updateTransform();
+    }, { passive: false });
+
+    // ビジュアルマップクリック (ゾーン頂点追加 または 新規ピン追加)
     viewport.addEventListener('click', (e) => {
-      if (e.target.closest('.zoom-controls, .zone-drawer-bar, .modal-backdrop')) return;
+      if (e.target.closest('.zoom-controls, .zone-drawer-bar, .modal-backdrop, .room-pin, .acp-pin')) return;
+
+      // 画面をドラッグ移動した直後、またはピン移動直後の誤タップは完全に無視（モーダルを開かない）
+      if (mapDragDistance > 6 || this.justDraggedPin) {
+        mapDragDistance = 0;
+        return;
+      }
+
       const rect = viewport.getBoundingClientRect();
       const dim = this.getFloorDimensions();
       const x = (((e.clientX - rect.left - this.panX) / this.scale) / dim.width) * 100;
@@ -1024,7 +1054,8 @@ const MapEngine = {
         return;
       }
 
-      if (this.isEditorMode && !e.target.closest('.room-pin, .acp-pin')) {
+      // 静止した状態で空白エリアをクリックした場合のみ、新規追加モーダルを開く
+      if (this.isEditorMode) {
         if (window.openSpotEditor) {
           window.openSpotEditor({ x, y, floor: this.activeFloor });
         }

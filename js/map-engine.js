@@ -424,6 +424,15 @@ const MapEngine = {
 
   selectSpot(type, item) {
     this.activePinId = item.id;
+    // 既存の選択ピンのハイライト＆番号表示を解除
+    document.querySelectorAll('.room-pin.is-selected, .acp-pin.is-selected').forEach(el => {
+      el.classList.remove('is-selected');
+    });
+    // 選択されたピンに .is-selected を付与（スマホでの番号表示＆強調枠）
+    const selectedEl = document.querySelector(`[data-id="${item.id}"]`);
+    if (selectedEl) {
+      selectedEl.classList.add('is-selected');
+    }
     this.renderSpotInfo(type, item, false);
   },
 
@@ -1047,7 +1056,12 @@ const MapEngine = {
         return;
       }
 
-      // 静止した状態で空白エリアをクリックした場合のみ、新規追加モーダルを開く
+      // 静止した状態で空白エリアをクリックした場合: 選択解除
+      document.querySelectorAll('.room-pin.is-selected, .acp-pin.is-selected').forEach(el => {
+        el.classList.remove('is-selected');
+      });
+
+      // 編集モードなら新規追加モーダルを開く
       if (this.isEditorMode) {
         if (window.openSpotEditor) {
           window.openSpotEditor({ x, y, floor: this.activeFloor });

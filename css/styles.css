@@ -294,12 +294,9 @@
     .room-pin-container { display: none; }
     #layer-acp:checked ~ .map-viewport .acp-pin-container { display: block; }
     .acp-pin-container { display: none; }
-    #layer-zone:checked ~ .map-viewport .zone-layer-svg { display: block; }
-    .zone-layer-svg { display: none; }
 
     #layer-room:checked ~ .control-panel label[for="layer-room"] { background: var(--primary); color: #fff; border-color: var(--primary); }
     #layer-acp:checked ~ .control-panel label[for="layer-acp"] { background: var(--accent-acp); color: #fff; border-color: var(--accent-acp); }
-    #layer-zone:checked ~ .control-panel label[for="layer-zone"] { background: var(--accent-zone); color: #fff; border-color: var(--accent-zone); }
 
     .modal-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; }
     .modal-backdrop.open { display: flex; }

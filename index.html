@@ -302,12 +302,9 @@
     .room-pin-container { display: none; }
     #layer-acp:checked ~ .map-viewport .acp-pin-container { display: block; }
     .acp-pin-container { display: none; }
-    #layer-zone:checked ~ .map-viewport .zone-layer-svg { display: block; }
-    .zone-layer-svg { display: none; }
 
     #layer-room:checked ~ .control-panel label[for="layer-room"] { background: var(--primary); color: #fff; border-color: var(--primary); }
     #layer-acp:checked ~ .control-panel label[for="layer-acp"] { background: var(--accent-acp); color: #fff; border-color: var(--accent-acp); }
-    #layer-zone:checked ~ .control-panel label[for="layer-zone"] { background: var(--accent-zone); color: #fff; border-color: var(--accent-zone); }
 
     .modal-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; }
     .modal-backdrop.open { display: flex; }
@@ -439,7 +436,6 @@
 
   <input type="checkbox" id="layer-room">
   <input type="checkbox" id="layer-acp" checked>
-  <input type="checkbox" id="layer-zone" checked>
 
   <!-- ヘッダー・操作コントロールパネル -->
   <div class="control-panel">
@@ -454,14 +450,12 @@
       <div class="layer-menu">
         <label for="layer-room">📍 部屋</label>
         <label for="layer-acp">🛡️ ACP</label>
-        <label for="layer-zone">📐 ゾーン</label>
       </div>
     </div>
 
     <!-- 行2: 操作ボタン群 (スリム整列) -->
     <div class="header-row-2">
       <button id="toggle-editor-btn" class="btn-primary" style="background:#f59e0b; color:#000;">✏️ ピン編集</button>
-      <button id="toggle-zone-drawer-btn" class="btn-primary" style="background:#af52de; color:#fff;">📐 ゾーン描画</button>
       <button id="export-data-btn" class="btn-secondary" title="編集データを保存・ダウンロード">💾 保存/出力</button>
       <button onclick="if(confirm('ブラウザの保存キャッシュを消去し、初期データ状態に復元しますか？')) DataStorage.reset();" class="btn-secondary" style="color:#ef4444; border-color:rgba(239,68,68,0.5);" title="ブラウザの保存データを初期状態に復元">🔄 復元</button>
       <button id="toggle-theme-btn" class="btn-secondary" title="テーマ切り替え">🌙</button>
@@ -483,56 +477,6 @@
   <!-- マップ表示エリア (Map Viewport with Pan/Zoom) -->
   <div class="map-viewport">
     <div class="editor-badge">📍 ピン編集モード ON</div>
-
-    <!-- ゾーン多角形ビジュアル描画コントロールバー -->
-    <div id="zone-drawer-bar" class="zone-drawer-bar">
-      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-        <span style="font-weight:800; font-size:12px; color:#af52de;">📐 ゾーン描画中:</span>
-        <input type="text" id="zone-draw-name" placeholder="ゾーン名 (例: Zone 2, RED)" style="padding:4px 8px; border-radius:6px; border:1px solid var(--panel-border); font-size:12px; width:130px; background:var(--card-bg); color:#fff;">
-        
-        <select id="zone-draw-color" style="padding:4px 6px; border-radius:6px; border:1px solid var(--panel-border); font-size:12px; background:var(--card-bg); color:#fff;">
-          <option value="rgba(239,68,68,0.25)" data-border="#ef4444" data-name="FOP">🏆 Zone FOP (競技エリア / Field of Play)</option>
-          <option value="rgba(0,122,255,0.25)" data-border="#007aff" data-name="BLUE">🔵 Zone BLUE (選手動線・ウォームアップ)</option>
-          <option value="rgba(255,45,85,0.25)" data-border="#ff2d55" data-name="RED">🔴 Zone RED (競技専用・セキュリティ)</option>
-          <option value="rgba(175,82,222,0.25)" data-border="#af52de" data-name="PURPLE">🟣 Zone PURPLE / Zone 5,6 (役員・VIP)</option>
-          <option value="rgba(52,199,89,0.25)" data-border="#34c759" data-name="GREEN">🟢 Zone GREEN / Zone 4 (チーム役員)</option>
-          <option value="rgba(245,158,11,0.25)" data-border="#f59e0b" data-name="YELLOW">🟡 Zone YELLOW / Zone FOH (観客・一般)</option>
-          <option value="rgba(255,255,255,0.20)" data-border="#ffffff" data-name="WHITE">⚪ Zone WHITE (駐車場・物流)</option>
-          <option value="rgba(0,199,190,0.25)" data-border="#00c7be" data-name="CYAN">🩵 Zone CYAN / Zone 2 (部屋・運営)</option>
-        </select>
-
-        <span id="zone-point-count" style="font-size:11px; color:#94a3b8; font-weight:bold;">点数: 0</span>
-
-        <div style="display:flex; gap:4px; margin-left:auto;">
-          <button id="zone-undo-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px;">↩️ 1点戻す</button>
-          <button id="zone-clear-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px; color:#ef4444; border-color:#ef4444;">🗑️ 全消去</button>
-          <button id="zone-save-btn" class="btn-primary" style="padding:4px 10px; font-size:11px; background:#af52de;">💾 ゾーン保存</button>
-          <button id="zone-cancel-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px;">✕ 終了</button>
-        </div>
-      </div>
-      <div style="font-size:10px; color:#94a3b8; margin-top:4px;">
-        💡 図面上の角を順番にクリックして多角形を描き、「💾 ゾーン保存」を押してください。
-      </div>
-    </div>
-
-    <!-- 頂点編集コントロールバー (PowerPoint風 頂点の編集) -->
-    <div id="vertex-editor-bar" class="vertex-drawer-bar">
-      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-        <span style="font-weight:800; font-size:12px; color:#f59e0b;">📍 頂点の編集モード:</span>
-        <span id="vertex-edit-name" style="font-size:12px; font-weight:bold; color:#fff;">ゾーン名</span>
-        <span id="vertex-count-badge" style="font-size:11px; color:#94a3b8; font-weight:bold;">頂点数: 0</span>
-
-        <div style="display:flex; gap:4px; margin-left:auto; flex-wrap:wrap;">
-          <button id="vertex-add-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px;">➕ 頂点を追加</button>
-          <button id="vertex-del-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px; color:#ef4444; border-color:#ef4444;">🗑️ 頂点を削除</button>
-          <button id="vertex-save-btn" class="btn-primary" style="padding:4px 10px; font-size:11px; background:#f59e0b; color:#000; font-weight:bold;">💾 頂点調整を保存</button>
-          <button id="vertex-cancel-btn" class="btn-secondary" style="padding:4px 8px; font-size:11px;">✕ キャンセル</button>
-        </div>
-      </div>
-      <div style="font-size:10px; color:#94a3b8; margin-top:4px;">
-        💡 黄色の頂点ドット（①, ②, ③...）をマウスや指でドラッグしてゾーンの形を自由に変形調整できます。
-      </div>
-    </div>
 
     <!-- ズーム・パン物理コントロール -->
     <div class="zoom-controls">
@@ -571,7 +515,7 @@
       </div>
       <div style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-top:4px;">
         マップ上の <b>📍 部屋ピン</b> または <b>🛡️ ACP (アクセスポイント)</b> をタップ/ホバーすると、詳細情報がポップアップおよび画面下に表示されます。<br>
-        ヘッダーのレイヤーメニュー（📍 部屋 / 🛡️ ACP / 📐 ゾーン）で表示切り替えができます。
+        ヘッダーのレイヤーメニュー（📍 部屋 / 🛡️ ACP）で表示切り替えができます。
       </div>
     </div>
   </div>
@@ -730,8 +674,8 @@
   </div>
 
   <!-- スクリプト読み込み (重要: data.js -> map-engine.js -> app.js) -->
-  <script src="js/data.js?v=18.0"></script>
-  <script src="js/map-engine.js?v=18.0"></script>
-  <script src="js/app.js?v=18.0"></script>
+  <script src="js/data.js?v=19.0"></script>
+  <script src="js/map-engine.js?v=19.0"></script>
+  <script src="js/app.js?v=19.0"></script>
 </body>
 </html>

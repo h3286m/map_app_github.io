@@ -22,65 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. ピン編集モーダルのセットアップ
   setupEditorModal();
 
-  // 5. ゾーン多角形描画コントロールのセットアップ
-  setupZoneDrawerControls();
 
   // 6. データ書き出しモーダルのセットアップ
   setupExportModal();
 });
 
-// ゾーン多角形ビジュアル描画ツールの動的制御
-function setupZoneDrawerControls() {
-  const toggleZoneBtn = document.getElementById('toggle-zone-drawer-btn');
-  const undoBtn = document.getElementById('zone-undo-btn');
-  const clearBtn = document.getElementById('zone-clear-btn');
-  const saveBtn = document.getElementById('zone-save-btn');
-  const cancelBtn = document.getElementById('zone-cancel-btn');
-  const zoneLayerChk = document.getElementById('layer-zone');
-
-  if (toggleZoneBtn) {
-    toggleZoneBtn.addEventListener('click', () => {
-      MapEngine.toggleZoneDrawingMode();
-    });
-  }
-
-  if (zoneLayerChk) {
-    zoneLayerChk.addEventListener('change', (e) => {
-      if (!e.target.checked && MapEngine.isZoneDrawingMode) {
-        MapEngine.toggleZoneDrawingMode(false);
-      }
-    });
-  }
-
-  // ゾーン選択切り替え時に名称フィールドを連動補完
-  const zoneColorSelect = document.getElementById('zone-draw-color');
-  const zoneNameInput = document.getElementById('zone-draw-name');
-
-  zoneColorSelect?.addEventListener('change', () => {
-    const opt = zoneColorSelect.options[zoneColorSelect.selectedIndex];
-    if (opt && opt.dataset.name) {
-      if (!zoneNameInput.value || zoneNameInput.dataset.auto === 'true') {
-        zoneNameInput.value = `Zone ${opt.dataset.name}`;
-        zoneNameInput.dataset.auto = 'true';
-      }
-    }
-  });
-
-  zoneNameInput?.addEventListener('input', () => {
-    delete zoneNameInput.dataset.auto;
-  });
-
-  undoBtn?.addEventListener('click', () => MapEngine.undoZonePoint());
-  clearBtn?.addEventListener('click', () => MapEngine.clearCurrentZoneDrawing());
-  saveBtn?.addEventListener('click', () => MapEngine.saveCurrentZone());
-  cancelBtn?.addEventListener('click', () => MapEngine.toggleZoneDrawingMode(false));
-
-  // PowerPoint風 頂点編集バーのイベント
-  document.getElementById('vertex-add-btn')?.addEventListener('click', () => MapEngine.addVertexToEditingZone());
-  document.getElementById('vertex-del-btn')?.addEventListener('click', () => MapEngine.deleteSelectedVertex());
-  document.getElementById('vertex-save-btn')?.addEventListener('click', () => MapEngine.saveEditingZoneVertices());
-  document.getElementById('vertex-cancel-btn')?.addEventListener('click', () => MapEngine.exitVertexEditingMode());
-}
 
 // 検索と部署フィルターの動的制御
 function setupSearchAndFilters() {
@@ -416,13 +362,10 @@ function setupExportModal() {
     const roomCount = window.VENUE_DATA.rooms ? window.VENUE_DATA.rooms.length : 0;
     const acpCount = window.VENUE_DATA.acps ? window.VENUE_DATA.acps.length : 0;
     const acp2fCount = window.VENUE_DATA.acps ? window.VENUE_DATA.acps.filter(a => a.floor === '2f').length : 0;
-    const zoneCount = window.VENUE_DATA.zones ? window.VENUE_DATA.zones.length : 0;
-
     if (statsDiv) {
       statsDiv.innerHTML = '<strong>📊 現在の保持データ:</strong><br>' +
-        '・部屋/ルーム: ' + roomCount + '件<br>' +
-        '・ACP (Wi-Fi): ' + acpCount + '件 (2階: ' + acp2fCount + '件)<br>' +
-        '・ゾーン: ' + zoneCount + '件<br>' +
+        '・部屋/諸室: ' + roomCount + '件<br>' +
+        '・ACP (アクセスポイント): ' + acpCount + '件 (2階: ' + acp2fCount + '件)<br>' +
         '<span style="color:#10b981; font-weight:bold;">※ すべてブラウザに自動保存されています</span>';
     }
 

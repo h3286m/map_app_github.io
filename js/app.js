@@ -81,8 +81,10 @@ function setupEditorModal() {
       const isRoom = e.target.value === 'room';
       const roomSizeRow = document.querySelector('.room-size-row');
       const roomDeptGroup = document.querySelector('.room-dept-group');
+      const acpOptionsGroup = document.querySelector('.acp-options-group');
       if (roomSizeRow) roomSizeRow.style.display = isRoom ? 'grid' : 'none';
       if (roomDeptGroup) roomDeptGroup.style.display = isRoom ? 'block' : 'none';
+      if (acpOptionsGroup) acpOptionsGroup.style.display = isRoom ? 'none' : 'block';
     });
   });
   const editorModal = document.getElementById('spot-editor-modal');
@@ -138,6 +140,40 @@ function setupEditorModal() {
     }
   });
 
+  // 有人/無人ラジオおよび重要度カラー選択の連動
+  const mannedRadios = document.querySelectorAll('input[name="form-acp-manned"]');
+  const acpColorInput = document.getElementById('form-acp-color');
+  const acpColorPreset = document.getElementById('form-acp-color-preset');
+
+  mannedRadios.forEach(r => {
+    r.addEventListener('change', (e) => {
+      if (e.target.value === 'manned') {
+        if (acpColorInput && acpColorInput.value === '#06b6d4') {
+          acpColorInput.value = '#f59e0b';
+          if (acpColorPreset) acpColorPreset.value = '#f59e0b';
+        }
+      } else {
+        if (acpColorInput && acpColorInput.value === '#f59e0b') {
+          acpColorInput.value = '#06b6d4';
+          if (acpColorPreset) acpColorPreset.value = '#06b6d4';
+        }
+      }
+    });
+  });
+
+  acpColorPreset?.addEventListener('change', (e) => {
+    if (e.target.value !== 'custom' && acpColorInput) {
+      acpColorInput.value = e.target.value;
+    }
+  });
+
+  acpColorInput?.addEventListener('input', (e) => {
+    if (acpColorPreset) {
+      const match = Array.from(acpColorPreset.options).find(opt => opt.value.toLowerCase() === e.target.value.toLowerCase());
+      acpColorPreset.value = match ? match.value : 'custom';
+    }
+  });
+
   // フォーム送信（新規追加・更新）
   spotForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -180,11 +216,18 @@ function setupEditorModal() {
         };
         found = true;
       }
+      const isManned = document.querySelector('input[name="form-acp-manned"]:checked')?.value === 'manned';
+      const acpColorInput = document.getElementById('form-acp-color');
+      const acpColor = (acpColorInput && acpColorInput.value) ? acpColorInput.value : (isManned ? '#f59e0b' : '#06b6d4');
+
       const acpIdx = VENUE_DATA.acps.findIndex(a => a.id === spotId);
       if (acpIdx !== -1) {
         VENUE_DATA.acps[acpIdx] = {
           ...VENUE_DATA.acps[acpIdx],
-          name, code, floor, x, y, passLevel: acp, pdfUrl, desc
+          name, code, floor, x, y, passLevel: acp, pdfUrl, desc,
+          isManned: isManned,
+          importance: isManned ? 'high' : 'normal',
+          color: acpColor
         };
         found = true;
       }
@@ -208,6 +251,10 @@ function setupEditorModal() {
           desc: desc
         });
       } else {
+        const isManned = document.querySelector('input[name="form-acp-manned"]:checked')?.value === 'manned';
+        const acpColorInput = document.getElementById('form-acp-color');
+        const acpColor = (acpColorInput && acpColorInput.value) ? acpColorInput.value : (isManned ? '#f59e0b' : '#06b6d4');
+
         VENUE_DATA.acps.push({
           id: newId,
           code: code,
@@ -217,7 +264,10 @@ function setupEditorModal() {
           y: y,
           passLevel: acp,
           pdfUrl: pdfUrl,
-          desc: desc
+          desc: desc,
+          isManned: isManned,
+          importance: isManned ? 'high' : 'normal',
+          color: acpColor
         });
       }
     }
@@ -297,8 +347,25 @@ window.openSpotEditor = function({ spotItem, x, y, floor }) {
     if (hEl) hEl.value = spotItem.h !== undefined ? spotItem.h : 3.5;
 
     // 表示切替
+    const acpOptionsGroup = document.querySelector('.acp-options-group');
     if (roomSizeRow) roomSizeRow.style.display = isAcp ? 'none' : 'grid';
     if (roomDeptGroup) roomDeptGroup.style.display = isAcp ? 'none' : 'block';
+    if (acpOptionsGroup) acpOptionsGroup.style.display = isAcp ? 'block' : 'none';
+
+    if (isAcp) {
+      const isManned = spotItem.isManned === true || spotItem.importance === 'high';
+      const mannedRadio = document.querySelector(`input[name="form-acp-manned"][value="${isManned ? 'manned' : 'unmanned'}"]`);
+      if (mannedRadio) mannedRadio.checked = true;
+
+      const acpColorInput = document.getElementById('form-acp-color');
+      const acpColorPreset = document.getElementById('form-acp-color-preset');
+      const color = spotItem.color || (isManned ? '#f59e0b' : '#06b6d4');
+      if (acpColorInput) acpColorInput.value = color;
+      if (acpColorPreset) {
+        const match = Array.from(acpColorPreset.options).find(opt => opt.value.toLowerCase() === color.toLowerCase());
+        acpColorPreset.value = match ? match.value : 'custom';
+      }
+    }
 
     const acpVal = spotItem.acp || spotItem.passLevel || '';
     const acpSelect = document.getElementById('form-acp-select');
@@ -326,6 +393,12 @@ window.openSpotEditor = function({ spotItem, x, y, floor }) {
     title.textContent = `📍 新しい部屋・ACPの追加`;
     idInput.value = '';
     document.getElementById('spot-form').reset();
+    const acpOptionsGroup = document.querySelector('.acp-options-group');
+    if (acpOptionsGroup) acpOptionsGroup.style.display = 'none';
+    const acpColorInput = document.getElementById('form-acp-color');
+    const acpColorPreset = document.getElementById('form-acp-color-preset');
+    if (acpColorInput) acpColorInput.value = '#06b6d4';
+    if (acpColorPreset) acpColorPreset.value = '#06b6d4';
     if (floor) document.getElementById('form-floor').value = floor;
     if (x !== undefined) document.getElementById('form-x').value = typeof x === 'number' ? x.toFixed(1) : x;
     if (y !== undefined) document.getElementById('form-y').value = typeof y === 'number' ? y.toFixed(1) : y;

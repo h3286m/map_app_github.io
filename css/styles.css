@@ -193,17 +193,17 @@
       transition: none !important;
     }
 
-    /* 🛡️ ACP (Access Control Point) ピン: 鮮やかなシアンターゲットドット (直径16px) */
+    /* 🛡️ ACP (Access Control Point) ピン: 重要度・有人無人スタイル */
     .acp-pin {
       position: absolute !important;
       pointer-events: auto !important;
       width: 16px !important;
       height: 16px !important;
       border-radius: 50% !important;
-      background: radial-gradient(circle, #22d3ee 0%, #0891b2 100%) !important;
+      background: var(--acp-bg, radial-gradient(circle, #22d3ee 0%, #0891b2 100%)) !important;
       border: 2px solid #ffffff !important;
       transform: translate(-50%, -50%) !important;
-      box-shadow: 0 0 10px rgba(6, 182, 212, 0.95), 0 2px 6px rgba(0, 0, 0, 0.8) !important;
+      box-shadow: 0 0 10px var(--acp-glow, rgba(6, 182, 212, 0.95)), 0 2px 6px rgba(0, 0, 0, 0.8) !important;
       cursor: pointer !important;
       display: flex !important;
       align-items: center !important;
@@ -223,8 +223,37 @@
     }
     .acp-pin:hover {
       transform: translate(-50%, -50%) scale(1.25) !important;
-      box-shadow: 0 0 15px rgba(6, 182, 212, 1), 0 0 0 2px #ffffff !important;
+      box-shadow: 0 0 16px var(--acp-glow, rgba(6, 182, 212, 1)), 0 0 0 2px #ffffff !important;
       z-index: 920 !important;
+    }
+
+    /* 👮 有人・高重要度ACP (人が立つACP): 拡大・二重発光警戒リング */
+    .acp-pin.is-manned {
+      width: 20px !important;
+      height: 20px !important;
+      border-width: 2.5px !important;
+      z-index: 60 !important;
+    }
+    .acp-pin.is-manned::after {
+      width: 6px;
+      height: 6px;
+    }
+    .acp-pin.is-manned::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+      border-radius: 50%;
+      border: 1.8px dashed rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 8px var(--acp-glow, rgba(245, 158, 11, 0.85));
+      animation: acp-manned-ring 5s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes acp-manned-ring {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     body.editor-active .acp-pin {

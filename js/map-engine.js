@@ -13,6 +13,19 @@ const MapEngine = {
     };
     return dims[this.activeFloor] || { width: 1024, height: 678 };
   },
+
+  darkenColor(hex, percent) {
+    try {
+      let num = parseInt(hex.replace('#', ''), 16);
+      if (isNaN(num)) return hex;
+      let r = Math.min(255, Math.max(0, (num >> 16) - Math.round(255 * (percent / 100))));
+      let g = Math.min(255, Math.max(0, ((num >> 8) & 0x00ff) - Math.round(255 * (percent / 100))));
+      let b = Math.min(255, Math.max(0, (num & 0x0000ff) - Math.round(255 * (percent / 100))));
+      return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    } catch(e) {
+      return hex;
+    }
+  },
   activeFloor: 'outdoor',
   activePinId: null,
   scale: 1,
@@ -143,15 +156,25 @@ const MapEngine = {
       const floorAcps = VENUE_DATA.acps.filter(a => a.floor === floor.id);
       floorAcps.forEach(acp => {
         const pin = document.createElement('div');
-        pin.className = 'acp-pin';
+        const isManned = acp.isManned === true || acp.importance === 'high';
+        const acpColor = acp.color || (isManned ? '#f59e0b' : '#06b6d4');
+
+        pin.className = 'acp-pin' + (isManned ? ' is-manned' : '');
         pin.dataset.id = acp.id;
         pin.style.left = `${acp.x}%`;
         pin.style.top = `${acp.y}%`;
+        pin.style.setProperty('--acp-bg', `radial-gradient(circle, ${acpColor} 0%, ${this.darkenColor(acpColor, 28)} 100%)`);
+        pin.style.setProperty('--acp-glow', acpColor);
 
         pin.innerHTML = `
           <div class="pin-tooltip">
-            <div class="pin-tooltip-title">🛡️ ${acp.code} ${acp.name && acp.name !== acp.code ? '- ' + acp.name : ''}</div>
-            <div class="pin-tooltip-sub">Access Pass: ${acp.passLevel}</div>
+            <div class="pin-tooltip-title">
+              <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${acpColor}; margin-right:4px; vertical-align:middle; border:1px solid #fff;"></span>
+              ${isManned ? '👮 [有人] ' : '🛡️ '}${acp.code} ${acp.name && acp.name !== acp.code ? '- ' + acp.name : ''}
+            </div>
+            <div class="pin-tooltip-sub">
+              ${isManned ? '<span style="color:#f59e0b; font-weight:800;">★有人立哨(高重要度)</span> | ' : ''}Access: ${acp.passLevel}
+            </div>
           </div>
         `;
 
@@ -438,19 +461,33 @@ const MapEngine = {
         </div>
       `;
     } else if (type === 'acp') {
+      const isManned = item.isManned === true || item.importance === 'high';
+      const acpColor = item.color || (isManned ? '#f59e0b' : '#06b6d4');
+      const darkColor = this.darkenColor(acpColor, 28);
+
       panel.innerHTML = `
         <div class="detail-card">
           <div class="detail-header">
             <div>
-              <div class="detail-title"><span style="display:inline-block; width:11px; height:11px; border-radius:50%; background:radial-gradient(circle, #22d3ee 0%, #0891b2 100%); border:1.5px solid #fff; box-shadow:0 0 6px #06b6d4; margin-right:4px; vertical-align:middle;"></span>${item.name} (${item.code}) ${isPreview ? '<span style="font-size:10px; opacity:0.7;">(プレビュー)</span>' : ''}</div>
+              <div class="detail-title">
+                <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:radial-gradient(circle, ${acpColor} 0%, ${darkColor} 100%); border:1.5px solid #fff; box-shadow:0 0 8px ${acpColor}; margin-right:5px; vertical-align:middle;"></span>
+                ${isManned ? '👮 ' : '🛡️ '}${item.name} (${item.code}) ${isPreview ? '<span style="font-size:10px; opacity:0.7;">(プレビュー)</span>' : ''}
+              </div>
               <div class="detail-code">ACP ID: ${item.id}</div>
             </div>
-            <div style="display:flex; gap:5px; align-items:center;">
+            <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap;">
               <button onclick="window.openSpotEditorById('${item.id}')" class="btn-secondary" style="padding:3px 8px; font-size:10px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">✏️ 編集</button>
-              <span class="badge badge-acp">${item.passLevel}</span>
+              <span class="badge" style="background:${acpColor}; color:#fff; font-weight:bold;">${isManned ? '👮 有人立哨 (重要)' : '🚪 無人 (扉)'}</span>
+              <span class="badge badge-acp" style="background:${acpColor}; color:#fff;">${item.passLevel}</span>
             </div>
           </div>
           <div class="detail-grid">
+            <div class="detail-item">
+              <span class="label">運用形態 (警備体制)</span>
+              <span class="value" style="color:${isManned ? '#f59e0b' : '#38bdf8'}; font-weight:bold;">
+                ${isManned ? '👮 有人（人が立つ / 警備員・スタッフ常駐）' : '🚪 無人（人が立たない / 通常扉・センサー）'}
+              </span>
+            </div>
             <div class="detail-item">
               <span class="label">管理番号 / コード</span>
               <span class="value">${item.code}</span>
@@ -475,8 +512,6 @@ const MapEngine = {
       `;
     }
   },
-
-
 
   // 3. パン＆ズーム物理エンジンのセットアップ
   setupPanZoom() {

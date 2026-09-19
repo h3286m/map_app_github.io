@@ -624,10 +624,10 @@
           </label>
           <div style="display:flex; gap:14px; margin-bottom:10px; flex-wrap:wrap;">
             <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-size:12px; font-weight:bold; color:#f59e0b;">
-              <input type="radio" name="form-acp-manned" value="manned" style="cursor:pointer;"> 👮 有人ACP (人が立つ / 高重要度)
+              <input type="radio" name="form-acp-manned" value="manned" style="cursor:pointer;"> 👤 有人ACP (人が立つ / スタッフ配置)
             </label>
             <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-size:12px; color:#38bdf8;">
-              <input type="radio" name="form-acp-manned" value="unmanned" checked style="cursor:pointer;"> 🚪 無人ACP (人が立たない / 通常)
+              <input type="radio" name="form-acp-manned" value="unmanned" checked style="cursor:pointer;"> 無人ACP (人が立たない)
             </label>
           </div>
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
@@ -635,8 +635,8 @@
             <div style="display:flex; align-items:center; gap:6px;">
               <input type="color" id="form-acp-color" value="#06b6d4" style="width:34px; height:28px; border:1px solid rgba(255,255,255,0.2); border-radius:4px; cursor:pointer; background:none; padding:1px;">
               <select id="form-acp-color-preset" style="padding:4px 8px; font-size:11px; border-radius:4px; background:var(--card-bg); color:var(--text-primary); border:1px solid var(--panel-border);">
-                <option value="#06b6d4">🩵 サイバーシアン (通常・無人)</option>
-                <option value="#f59e0b">🟡 アンバーゴールド (有人・高重要)</option>
+                <option value="#06b6d4">🩵 サイバーシアン (無人)</option>
+                <option value="#f59e0b">🟡 アンバーゴールド (有人・スタッフ配置)</option>
                 <option value="#ef4444">🔴 ビビッドレッド (最重要・厳戒)</option>
                 <option value="#a855f7">🟣 パープル (VIP・要人専用)</option>
                 <option value="#10b981">🟢 エメラルド (一般開放)</option>
@@ -732,8 +732,8 @@
   </div>
 
   <!-- スクリプト読み込み (重要: data.js -> map-engine.js -> app.js) -->
-  <script src="js/data.js?v=20.0"></script>
-  <script src="js/map-engine.js?v=20.0"></script>
-  <script src="js/app.js?v=20.0"></script>
+  <script src="js/data.js?v=21.0"></script>
+  <script src="js/map-engine.js?v=21.0"></script>
+  <script src="js/app.js?v=21.0"></script>
 </body>
 </html>

@@ -170,10 +170,10 @@ const MapEngine = {
           <div class="pin-tooltip">
             <div class="pin-tooltip-title">
               <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${acpColor}; margin-right:4px; vertical-align:middle; border:1px solid #fff;"></span>
-              ${isManned ? '👮 [有人] ' : '🛡️ '}${acp.code} ${acp.name && acp.name !== acp.code ? '- ' + acp.name : ''}
+              ${isManned ? '👤 [有人] ' : '🛡️ '}${acp.code} ${acp.name && acp.name !== acp.code ? '- ' + acp.name : ''}
             </div>
             <div class="pin-tooltip-sub">
-              ${isManned ? '<span style="color:#f59e0b; font-weight:800;">★有人立哨(高重要度)</span> | ' : ''}Access: ${acp.passLevel}
+              ${isManned ? '<span style="color:#f59e0b; font-weight:800;">★有人(スタッフ配置)</span> | ' : ''}Access: ${acp.passLevel}
             </div>
           </div>
         `;
@@ -471,21 +471,21 @@ const MapEngine = {
             <div>
               <div class="detail-title">
                 <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:radial-gradient(circle, ${acpColor} 0%, ${darkColor} 100%); border:1.5px solid #fff; box-shadow:0 0 8px ${acpColor}; margin-right:5px; vertical-align:middle;"></span>
-                ${isManned ? '👮 ' : '🛡️ '}${item.name} (${item.code}) ${isPreview ? '<span style="font-size:10px; opacity:0.7;">(プレビュー)</span>' : ''}
+                ${isManned ? '👤 ' : '🛡️ '}${item.name} (${item.code}) ${isPreview ? '<span style="font-size:10px; opacity:0.7;">(プレビュー)</span>' : ''}
               </div>
               <div class="detail-code">ACP ID: ${item.id}</div>
             </div>
             <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap;">
               <button onclick="window.openSpotEditorById('${item.id}')" class="btn-secondary" style="padding:3px 8px; font-size:10px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">✏️ 編集</button>
-              <span class="badge" style="background:${acpColor}; color:#fff; font-weight:bold;">${isManned ? '👮 有人立哨 (重要)' : '🚪 無人 (扉)'}</span>
+              <span class="badge" style="background:${acpColor}; color:#fff; font-weight:bold;">${isManned ? '👤 有人 (スタッフ)' : '無人'}</span>
               <span class="badge badge-acp" style="background:${acpColor}; color:#fff;">${item.passLevel}</span>
             </div>
           </div>
           <div class="detail-grid">
             <div class="detail-item">
-              <span class="label">運用形態 (警備体制)</span>
+              <span class="label">運用形態</span>
               <span class="value" style="color:${isManned ? '#f59e0b' : '#38bdf8'}; font-weight:bold;">
-                ${isManned ? '👮 有人（人が立つ / 警備員・スタッフ常駐）' : '🚪 無人（人が立たない / 通常扉・センサー）'}
+                ${isManned ? '👤 有人（人が立つ / スタッフ配置）' : '無人（人が立たない）'}
               </span>
             </div>
             <div class="detail-item">

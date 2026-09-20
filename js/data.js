@@ -294,8 +294,8 @@ const VENUE_DATA = {
       "nameEn": "SPT 64 - Video Judge Room",
       "dept": "SPT",
       "floor": "1f",
-      "x": 74.7,
-      "y": 15.2,
+      "x": 71,
+      "y": 17.4,
       "zoneId": "ZONE_1F_MAIN",
       "acp": "なし",
       "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))",
@@ -374,8 +374,8 @@ const VENUE_DATA = {
       "nameEn": "SPT 83 - Preparation Area",
       "dept": "SPT",
       "floor": "1f",
-      "x": 70.6,
-      "y": 14.7,
+      "x": 71,
+      "y": 15.3,
       "zoneId": "ZONE_1F_MAIN",
       "acp": "なし",
       "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))",
@@ -480,8 +480,8 @@ const VENUE_DATA = {
       "nameEn": "SPT 201 - IF Office",
       "dept": "SPT",
       "floor": "1f",
-      "x": 58.4,
-      "y": 20,
+      "x": 55,
+      "y": 15.7,
       "zoneId": "ZONE_1F_MAIN",
       "acp": "なし",
       "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))",
@@ -496,8 +496,8 @@ const VENUE_DATA = {
       "nameEn": "SPT 203+227 - IF/AF President Office",
       "dept": "SPT",
       "floor": "1f",
-      "x": 82.8,
-      "y": 21.6,
+      "x": 51.5,
+      "y": 7.2,
       "zoneId": "ZONE_1F_MAIN",
       "acp": "なし",
       "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))",
@@ -512,8 +512,8 @@ const VENUE_DATA = {
       "nameEn": "SPT 205 - TD Office",
       "dept": "SPT",
       "floor": "1f",
-      "x": 56.7,
-      "y": 15.6,
+      "x": 74.8,
+      "y": 14.1,
       "zoneId": "ZONE_1F_MAIN",
       "acp": "なし",
       "desc": "Zone: 2 | Department: SPT (競技・スポーツ (Sports))",
@@ -784,8 +784,8 @@ const VENUE_DATA = {
       "nameEn": "TEC 6 - Cross Connect Frame",
       "dept": "TEC",
       "floor": "1f",
-      "x": 51.7,
-      "y": 16,
+      "x": 49,
+      "y": 15.8,
       "zoneId": "ZONE_1F_MAIN",
       "acp": "ACP-TEC-6",
       "desc": "Zone: RED | Department: TEC (計測・テクノロジー (Technology & OVR))",
@@ -893,8 +893,8 @@ const VENUE_DATA = {
       "nameEn": "SPP 1 - SPP Control Area",
       "dept": "SPP",
       "floor": "1f",
-      "x": 54.4,
-      "y": 15.7,
+      "x": 60.1,
+      "y": 16,
       "zoneId": "ZONE_1F_MAIN",
       "acp": "ACP-SPP-1",
       "desc": "Zone: RED | Department: SPP (演出・プロダクション (Special Production))",
@@ -925,8 +925,8 @@ const VENUE_DATA = {
       "nameEn": "SPP 3 - SPP Storage",
       "dept": "SPP",
       "floor": "1f",
-      "x": 36.6,
-      "y": 14.2,
+      "x": 46.2,
+      "y": 15.7,
       "zoneId": "ZONE_1F_MAIN",
       "acp": "ACP-SPP-3",
       "desc": "Zone: RED | Department: SPP (演出・プロダクション (Special Production))",
@@ -941,8 +941,8 @@ const VENUE_DATA = {
       "nameEn": "SPP 4 - Performer Waiting Room",
       "dept": "SPP",
       "floor": "1f",
-      "x": 35,
-      "y": 14.1,
+      "x": 57.9,
+      "y": 16,
       "zoneId": "ZONE_1F_MAIN",
       "acp": "ACP-SPP-4",
       "desc": "Zone: RED | Department: SPP (演出・プロダクション (Special Production))",
@@ -957,8 +957,8 @@ const VENUE_DATA = {
       "nameEn": "CER 1 - Waiting Room",
       "dept": "CER",
       "floor": "1f",
-      "x": 67,
-      "y": 2,
+      "x": 29.6,
+      "y": 49.1,
       "zoneId": "ZONE_1F_MAIN",
       "acp": "ACP-CER-1",
       "desc": "Zone: 2 | Department: CER (表彰・セレモニー (Ceremonies))"
@@ -1383,8 +1383,8 @@ const VENUE_DATA = {
       "nameEn": "EVS 6 - Stroller Storage Area",
       "dept": "EVS",
       "floor": "1f",
-      "x": 32.2,
-      "y": 17.8,
+      "x": 31.8,
+      "y": 18.8,
       "zoneId": "ZONE_1F_MAIN",
       "acp": "なし",
       "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))",
@@ -1436,8 +1436,8 @@ const VENUE_DATA = {
       "zoneId": "ZONE_1F_MAIN",
       "acp": "なし",
       "desc": "Zone: FOH | Department: EVS (観客・案内サービス (Event Services))",
-      "w": 5.3,
-      "h": 5.9,
+      "w": 7.5,
+      "h": 8.6,
       "pdfUrl": ""
     },
     {
@@ -2507,7 +2507,7 @@ const VENUE_DATA = {
       "dept": "FNB",
       "floor": "1f",
       "x": 37.4,
-      "y": 14.8,
+      "y": 15.5,
       "w": 4.7,
       "h": 3,
       "acp": "Level 6 (大会運営・スタッフエリア)",
@@ -2821,7 +2821,10 @@ const VENUE_DATA = {
       "y": 51.3,
       "passLevel": "Level SACD (特別通行証・SACDs)",
       "pdfUrl": "",
-      "desc": ""
+      "desc": "",
+      "isManned": true,
+      "importance": "high",
+      "color": "#f59e0b"
     },
     {
       "id": "ACP-USER-1789629495723",
@@ -3267,6 +3270,20 @@ const VENUE_DATA = {
       "passLevel": "Level 4 (報道・プレスエリア)",
       "desc": "南西EV・階段出口正面ゲート。現場照合後に正式名称へ更新可能。",
       "pdfUrl": ""
+    },
+    {
+      "id": "ACP-USER-0343",
+      "code": "テスト",
+      "name": "テスト",
+      "floor": "2f",
+      "x": 31,
+      "y": 27,
+      "passLevel": "Level 1 (競技エリア / FOP・選手・役員)",
+      "pdfUrl": "",
+      "desc": "",
+      "isManned": true,
+      "importance": "high",
+      "color": "#f59e0b"
     }
   ]
 };
@@ -3276,11 +3293,11 @@ if (typeof window !== "undefined") {
 }
 
 // データ永続化 (LocalStorage) & 自動保存ヘルパーコード定義
-const DATA_STORAGE_HELPER_CODE = "// データ永続化 (LocalStorage) & 自動保存ヘルパー (V19)\nconst DataStorage = {\n  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V21',\n\n  init() {\n    let saved = null;\n    try {\n      saved = localStorage.getItem(this.STORAGE_KEY);\n    } catch (e) {}\n\n    if (saved) {\n      try {\n        const parsed = JSON.parse(saved);\n        if (Array.isArray(parsed.rooms)) {\n          parsed.rooms.forEach(savedRoom => {\n            const existingIdx = VENUE_DATA.rooms.findIndex(r => r.id === savedRoom.id);\n            if (existingIdx !== -1) {\n              VENUE_DATA.rooms[existingIdx] = savedRoom;\n            } else {\n              VENUE_DATA.rooms.push(savedRoom);\n            }\n          });\n        }\n        if (Array.isArray(parsed.acps)) {\n          parsed.acps.forEach(savedAcp => {\n            const existingIdx = VENUE_DATA.acps.findIndex(a => a.id === savedAcp.id);\n            if (existingIdx !== -1) {\n              VENUE_DATA.acps[existingIdx] = savedAcp;\n            } else {\n              VENUE_DATA.acps.push(savedAcp);\n            }\n          });\n        }\n        this.save();\n      } catch (e) {\n        console.warn('LocalStorage parse error:', e);\n      }\n    }\n  },\n\n  save() {\n    try {\n      localStorage.setItem(this.STORAGE_KEY, JSON.stringify({\n        rooms: VENUE_DATA.rooms,\n        acps: VENUE_DATA.acps\n      }));\n    } catch (e) {\n      console.error('LocalStorage save error:', e);\n    }\n  },\n\n  reset() {\n    try {\n      for (let i = 1; i <= 25; i++) {\n        localStorage.removeItem('OFFLINE_VENUE_MAP_DATA_V' + i);\n      }\n      localStorage.removeItem('OFFLINE_VENUE_MAP_DATA');\n      localStorage.removeItem('OFFLINE_VENUE_MAP_LAST_FLOOR');\n    } catch(e) {}\n    location.reload();\n  },\n\n  generateDataJs() {\n    return '/**\\n' +\n      ' * オフライン会場マップ - データ管理モジュール (VENUE_DATA)\\n' +\n      ' * 最新編集データ (全諸室・ACP統合保存版)\\n' +\n      ' */\\n\\n' +\n      'const VENUE_DATA = ' + JSON.stringify(VENUE_DATA, null, 2) + ';\\n\\n' +\n      'if (typeof window !== \"undefined\") { window.VENUE_DATA = VENUE_DATA; }\\n\\n' +\n      DATA_STORAGE_HELPER_CODE;\n  },\n\n  exportDataJs() {\n    const jsText = this.generateDataJs();\n    const blob = new Blob([jsText], { type: 'application/javascript;charset=utf-8' });\n    const url = URL.createObjectURL(blob);\n    const a = document.createElement('a');\n    a.href = url;\n    a.download = 'data.js';\n    document.body.appendChild(a);\n    a.click();\n    setTimeout(() => {\n      document.body.removeChild(a);\n      URL.revokeObjectURL(url);\n    }, 200);\n  }\n};\n\nif (typeof window !== 'undefined') {\n  window.VENUE_DATA = VENUE_DATA;\n  window.DataStorage = DataStorage;\n}\n\nif (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {\n  DataStorage.init();\n}";
+const DATA_STORAGE_HELPER_CODE = "// データ永続化 (LocalStorage) & 自動保存ヘルパー (V23)\nconst DataStorage = {\n  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V23',\n\n  init() {\n    let saved = null;\n    try {\n      saved = localStorage.getItem(this.STORAGE_KEY);\n    } catch (e) {}\n\n    if (saved) {\n      try {\n        const parsed = JSON.parse(saved);\n        if (Array.isArray(parsed.rooms)) {\n          parsed.rooms.forEach(savedRoom => {\n            const existingIdx = VENUE_DATA.rooms.findIndex(r => r.id === savedRoom.id);\n            if (existingIdx !== -1) {\n              VENUE_DATA.rooms[existingIdx] = savedRoom;\n            } else {\n              VENUE_DATA.rooms.push(savedRoom);\n            }\n          });\n        }\n        if (Array.isArray(parsed.acps)) {\n          parsed.acps.forEach(savedAcp => {\n            const existingIdx = VENUE_DATA.acps.findIndex(a => a.id === savedAcp.id);\n            if (existingIdx !== -1) {\n              VENUE_DATA.acps[existingIdx] = savedAcp;\n            } else {\n              VENUE_DATA.acps.push(savedAcp);\n            }\n          });\n        }\n        this.save();\n      } catch (e) {\n        console.warn('LocalStorage parse error:', e);\n      }\n    }\n  },\n\n  save() {\n    try {\n      localStorage.setItem(this.STORAGE_KEY, JSON.stringify({\n        rooms: VENUE_DATA.rooms,\n        acps: VENUE_DATA.acps\n      }));\n    } catch (e) {\n      console.error('LocalStorage save error:', e);\n    }\n  },\n\n  reset() {\n    try {\n      for (let i = 1; i <= 30; i++) {\n        localStorage.removeItem('OFFLINE_VENUE_MAP_DATA_V' + i);\n      }\n      localStorage.removeItem('OFFLINE_VENUE_MAP_DATA');\n      localStorage.removeItem('OFFLINE_VENUE_MAP_LAST_FLOOR');\n    } catch(e) {}\n    location.reload();\n  },\n\n  generateDataJs() {\n    return '/**\\n' +\n      ' * オフライン会場マップ - データ管理モジュール (VENUE_DATA)\\n' +\n      ' * 最新編集データ (全諸室・ACP統合保存版)\\n' +\n      ' */\\n\\n' +\n      'const VENUE_DATA = ' + JSON.stringify(VENUE_DATA, null, 2) + ';\\n\\n' +\n      'if (typeof window !== \"undefined\") { window.VENUE_DATA = VENUE_DATA; }\\n\\n' +\n      DATA_STORAGE_HELPER_CODE;\n  },\n\n  exportDataJs() {\n    const jsText = this.generateDataJs();\n    const blob = new Blob([jsText], { type: 'application/javascript;charset=utf-8' });\n    const url = URL.createObjectURL(blob);\n    const a = document.createElement('a');\n    a.href = url;\n    a.download = 'data.js';\n    document.body.appendChild(a);\n    a.click();\n    setTimeout(() => {\n      document.body.removeChild(a);\n      URL.revokeObjectURL(url);\n    }, 200);\n  }\n};\n\nif (typeof window !== 'undefined') {\n  window.VENUE_DATA = VENUE_DATA;\n  window.DataStorage = DataStorage;\n}\n\nif (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {\n  DataStorage.init();\n}";
 
-// データ永続化 (LocalStorage) & 自動保存ヘルパー (V19)
+// データ永続化 (LocalStorage) & 自動保存ヘルパー (V23)
 const DataStorage = {
-  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V21',
+  STORAGE_KEY: 'OFFLINE_VENUE_MAP_DATA_V23',
 
   init() {
     let saved = null;
@@ -3331,7 +3348,7 @@ const DataStorage = {
 
   reset() {
     try {
-      for (let i = 1; i <= 25; i++) {
+      for (let i = 1; i <= 30; i++) {
         localStorage.removeItem('OFFLINE_VENUE_MAP_DATA_V' + i);
       }
       localStorage.removeItem('OFFLINE_VENUE_MAP_DATA');

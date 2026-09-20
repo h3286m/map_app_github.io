@@ -25,6 +25,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 6. データ書き出しモーダルのセットアップ
   setupExportModal();
+
+  // ゾーン凡例（Legend）チップのタップ連動（諸室ハイライト＆解説表示）
+  document.querySelectorAll('.legend-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const zoneKey = chip.dataset.zone;
+      const wasActive = chip.classList.contains('active');
+
+      document.querySelectorAll('.legend-chip').forEach(c => c.classList.remove('active'));
+
+      if (!wasActive) {
+        chip.classList.add('active');
+        let count = 0;
+        document.querySelectorAll('.room-pin').forEach(pin => {
+          const room = VENUE_DATA.rooms.find(r => r.id === pin.dataset.id);
+          if (room) {
+            const desc = room.desc || '';
+            const match = desc.includes('Zone: ' + zoneKey) || desc.includes('Zone: ' + zoneKey + ',') || desc.includes('Zone: ' + zoneKey + '+') || (zoneKey === 'BLUE' && (desc.includes('BLUE') || desc.includes('FOP')));
+            pin.style.opacity = match ? '1' : '0.15';
+            if (match) count++;
+          }
+        });
+
+        const panel = document.getElementById('info-panel');
+        if (panel) {
+          const zoneNames = {
+            'WHITE': 'WHITE (薄灰) - 駐車場・外周・物流エリア',
+            'RED': 'RED (赤) - 競技専用・セキュリティエリア',
+            '2': 'Zone 2 (薄青) - 選手諸室・ウォーミングアップ・運営',
+            'BLUE': 'BLUE (濃青) - メインプール・ダイビング・FOP',
+            '4': 'Zone 4 (薄緑) - 報道・プレスエリア',
+            '5': 'Zone 5 (濃緑) - 放送・中継・HBエリア',
+            '6': 'Zone 6 (紫) - 大会要人・プロトコルエリア'
+          };
+          panel.innerHTML = `
+            <div class="detail-card">
+              <div class="detail-header">
+                <div class="detail-title">🗾 ゾーン区分: <b>${zoneNames[zoneKey] || zoneKey}</b></div>
+                <span class="badge" style="background:var(--accent-zone, #af52de); color:#fff; font-weight:800;">該当: ${count}室</span>
+              </div>
+              <div style="font-size:12px; color:var(--text-secondary); margin-top:4px; line-height:1.4;">
+                マップ上の対象諸室がハイライトされています。凡例をもう一度タップすると通常表示に戻ります。
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        document.querySelectorAll('.room-pin').forEach(pin => {
+          pin.style.opacity = '';
+        });
+      }
+    });
+  });
+
 });
 
 

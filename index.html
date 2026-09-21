@@ -101,7 +101,7 @@
     #map-2f { width: 1024px; height: 678px; }
     .floor-map img.bg-svg { width: 100%; height: 100%; object-fit: fill; pointer-events: none; user-select: none; display: block; }
 
-    .zoom-controls { position: absolute; right: 12px; top: 12px; z-index: 35; display: flex; flex-direction: column; gap: 6px; }
+    .zoom-controls { position: absolute; right: 14px; bottom: 20px; z-index: 130; display: flex; flex-direction: column; gap: 6px; pointer-events: auto; }
     .zoom-btn { width: 34px; height: 34px; background: var(--panel-bg); border: 1px solid var(--panel-border); color: var(--text-primary); border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); backdrop-filter: blur(8px); }
 
     .room-pin-container, .acp-pin-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
@@ -415,6 +415,32 @@
         max-width: 130px !important;
       }
 
+      /* ⑤ スマホ対応: 凡例と拡大ボタンの重なり完全解消 */
+      .zoom-controls {
+        top: auto !important;
+        bottom: 16px !important;
+        right: 12px !important;
+        z-index: 130 !important;
+      }
+      .zoom-btn {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 18px !important;
+        border-radius: 10px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+      }
+      .zone-legend-bar {
+        top: 6px !important;
+        left: 6px !important;
+        right: 6px !important;
+        padding: 5px 8px !important;
+        gap: 6px !important;
+      }
+      .legend-chip {
+        padding: 3px 7px !important;
+        font-size: 11px !important;
+      }
+
       /* ③ 画面下レイアウト詳細情報を持ち上げ、スクロール不要で全表示 */
       .info-panel {
         height: auto !important;
@@ -513,6 +539,30 @@
       white-space: nowrap;
     }
 
+    .legend-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .legend-group-title {
+      font-weight: 800;
+      font-size: 11px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .legend-divider {
+      width: 1px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.25);
+      flex-shrink: 0;
+      margin: 0 4px;
+    }
+
     .legend-chip {
       display: inline-flex;
       align-items: center;
@@ -606,19 +656,37 @@
   <div class="map-viewport">
     <div class="editor-badge">📍 ピン編集モード ON</div>
 
-    <!-- ゾーン色分け凡例バー (Zone Legend) -->
+    <!-- ゾーン＆シート色分け凡例バー (Zone & Seat Legend) -->
     <div id="zone-legend-bar" class="zone-legend-bar">
-      <span style="font-weight:800; font-size:11px; color:#c084fc; white-space:nowrap; display:flex; align-items:center; gap:3px;">
-        🗾 ゾーン凡例:
-      </span>
-      <div class="zone-legend-items">
-        <span class="legend-chip" data-zone="WHITE" style="border-color:#94a3b8; background:rgba(148,163,184,0.22); cursor:pointer;" title="WHITE (薄いグレーの枠): 駐車場・物流・外周"><span class="chip-color-box" style="background:#94a3b8;"></span><b>WHITE</b></span>
-        <span class="legend-chip" data-zone="RED" style="border-color:#ef4444; background:rgba(239,68,68,0.22); cursor:pointer;" title="RED (赤い枠): 競技専用・セキュリティ"><span class="chip-color-box" style="background:#ef4444;"></span><b>RED</b></span>
-        <span class="legend-chip" data-zone="2" style="border-color:#38bdf8; background:rgba(56,189,248,0.22); cursor:pointer;" title="2 (薄いブルーの枠): 選手控室・諸室・運営"><span class="chip-color-box" style="background:#38bdf8;"></span><b>2</b></span>
-        <span class="legend-chip" data-zone="BLUE" style="border-color:#0284c7; background:rgba(2,132,199,0.30); cursor:pointer;" title="BLUE (濃いブルーの枠): メインプール・ダイビング・FOP"><span class="chip-color-box" style="background:#0284c7;"></span><b>BLUE</b></span>
-        <span class="legend-chip" data-zone="4" style="border-color:#86efac; background:rgba(134,239,172,0.22); cursor:pointer;" title="4 (薄い緑の枠): 報道・プレス"><span class="chip-color-box" style="background:#86efac;"></span><b>4</b></span>
-        <span class="legend-chip" data-zone="5" style="border-color:#22c55e; background:rgba(34,197,94,0.26); cursor:pointer;" title="5 (濃い緑の枠): 放送・中継"><span class="chip-color-box" style="background:#22c55e;"></span><b>5</b></span>
-        <span class="legend-chip" data-zone="6" style="border-color:#a855f7; background:rgba(168,85,247,0.24); cursor:pointer;" title="6 (紫の枠): 大会要人・プロトコル"><span class="chip-color-box" style="background:#a855f7;"></span><b>6</b></span>
+      <!-- ゾーン区分 -->
+      <div class="legend-group">
+        <span class="legend-group-title" style="color:#c084fc;">
+          🗾 ゾーン:
+        </span>
+        <div class="zone-legend-items">
+          <span class="legend-chip" data-zone="WHITE" style="border-color:#94a3b8; background:rgba(148,163,184,0.22); cursor:pointer;" title="WHITE (薄いグレーの枠): 駐車場・外周・西エントランス"><span class="chip-color-box" style="background:#94a3b8;"></span><b>WHITE</b></span>
+          <span class="legend-chip" data-zone="RED" style="border-color:#ef4444; background:rgba(239,68,68,0.22); cursor:pointer;" title="RED (赤い枠): 競技専用・セキュリティ"><span class="chip-color-box" style="background:#ef4444;"></span><b>RED</b></span>
+          <span class="legend-chip" data-zone="2" style="border-color:#38bdf8; background:rgba(56,189,248,0.22); cursor:pointer;" title="2 (薄いブルーの枠): 選手控室・諸室・運営"><span class="chip-color-box" style="background:#38bdf8;"></span><b>2</b></span>
+          <span class="legend-chip" data-zone="BLUE" style="border-color:#0284c7; background:rgba(2,132,199,0.30); cursor:pointer;" title="BLUE (濃いブルーの枠): メインプール・ダイビング・FOP"><span class="chip-color-box" style="background:#0284c7;"></span><b>BLUE</b></span>
+          <span class="legend-chip" data-zone="4" style="border-color:#86efac; background:rgba(134,239,172,0.22); cursor:pointer;" title="4 (薄い緑の枠): 報道・プレス"><span class="chip-color-box" style="background:#86efac;"></span><b>4</b></span>
+          <span class="legend-chip" data-zone="5" style="border-color:#22c55e; background:rgba(34,197,94,0.26); cursor:pointer;" title="5 (濃い緑の枠): 放送・中継"><span class="chip-color-box" style="background:#22c55e;"></span><b>5</b></span>
+          <span class="legend-chip" data-zone="6" style="border-color:#a855f7; background:rgba(168,85,247,0.24); cursor:pointer;" title="6 (紫の枠): 大会要人・プロトコル"><span class="chip-color-box" style="background:#a855f7;"></span><b>6</b></span>
+        </div>
+      </div>
+
+      <div class="legend-divider"></div>
+
+      <!-- シート区分 (Seating Legend) -->
+      <div class="legend-group">
+        <span class="legend-group-title" style="color:#fbbf24;">
+          💺 シート:
+        </span>
+        <div class="zone-legend-items">
+          <span class="legend-chip legend-chip-seat" data-seat="VIP" style="border-color:#eab308; background:rgba(234,179,8,0.25); cursor:pointer;" title="Vipシート: VIP・OCAファミリー専用席"><span class="chip-color-box" style="background:#eab308;"></span><b>Vipシート</b></span>
+          <span class="legend-chip legend-chip-seat" data-seat="P" style="border-color:#a855f7; background:rgba(168,85,247,0.25); cursor:pointer;" title="Pシート: プロトコル・大会役員専用席"><span class="chip-color-box" style="background:#a855f7;"></span><b>Pシート</b></span>
+          <span class="legend-chip legend-chip-seat" data-seat="B" style="border-color:#10b981; background:rgba(16,185,129,0.25); cursor:pointer;" title="Bシート: 放送・中継メディア席 (Broadcast)"><span class="chip-color-box" style="background:#10b981;"></span><b>Bシート</b></span>
+          <span class="legend-chip legend-chip-seat" data-seat="A" style="border-color:#f97316; background:rgba(249,115,22,0.25); cursor:pointer;" title="Aシート: 選手席・カテゴリーA指定席"><span class="chip-color-box" style="background:#f97316;"></span><b>Aシート</b></span>
+        </div>
       </div>
     </div>
 
@@ -640,7 +708,7 @@
       <!-- 1階マップ (通常図面 ＋ ゾーン色分け図面オーバーレイ) -->
       <div id="map-1f" class="floor-map">
         <img src="assets/floor1.png" alt="1F Floor Map" class="bg-svg bg-normal">
-        <img src="assets/floor1-zone.png?v=24.0" alt="1F Zone Map" class="bg-svg bg-zone">
+        <img src="assets/floor1-zone.png?v=25.0" alt="1F Zone Map" class="bg-svg bg-zone">
       </div>
 
       <!-- 2階マップ -->
@@ -848,8 +916,8 @@
   </div>
 
   <!-- スクリプト読み込み (重要: data.js -> map-engine.js -> app.js) -->
-  <script src="js/data.js?v=24.0"></script>
-  <script src="js/map-engine.js?v=24.0"></script>
-  <script src="js/app.js?v=24.0"></script>
+  <script src="js/data.js?v=25.0"></script>
+  <script src="js/map-engine.js?v=25.0"></script>
+  <script src="js/app.js?v=25.0"></script>
 </body>
 </html>

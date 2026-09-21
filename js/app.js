@@ -26,11 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // 6. データ書き出しモーダルのセットアップ
   setupExportModal();
 
-  // ゾーン凡例（Legend）チップのタップ連動（諸室ハイライト＆解説表示）
+  // ゾーン凡例＆シート凡例（Legend）チップのタップ連動（諸室ハイライト＆詳細表示）
   document.querySelectorAll('.legend-chip').forEach(chip => {
     chip.addEventListener('click', (e) => {
       e.stopPropagation();
       const zoneKey = chip.dataset.zone;
+      const seatKey = chip.dataset.seat;
       const wasActive = chip.classList.contains('active');
 
       document.querySelectorAll('.legend-chip').forEach(c => c.classList.remove('active'));
@@ -38,38 +39,99 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!wasActive) {
         chip.classList.add('active');
         let count = 0;
-        document.querySelectorAll('.room-pin').forEach(pin => {
-          const room = VENUE_DATA.rooms.find(r => r.id === pin.dataset.id);
-          if (room) {
-            const desc = room.desc || '';
-            const match = desc.includes('Zone: ' + zoneKey) || desc.includes('Zone: ' + zoneKey + ',') || desc.includes('Zone: ' + zoneKey + '+') || (zoneKey === 'BLUE' && (desc.includes('BLUE') || desc.includes('FOP')));
-            pin.style.opacity = match ? '1' : '0.15';
-            if (match) count++;
-          }
-        });
 
-        const panel = document.getElementById('info-panel');
-        if (panel) {
-          const zoneNames = {
-            'WHITE': 'WHITE (薄灰) - 駐車場・外周・物流エリア',
-            'RED': 'RED (赤) - 競技専用・セキュリティエリア',
-            '2': 'Zone 2 (薄青) - 選手諸室・ウォーミングアップ・運営',
-            'BLUE': 'BLUE (濃青) - メインプール・ダイビング・FOP',
-            '4': 'Zone 4 (薄緑) - 報道・プレスエリア',
-            '5': 'Zone 5 (濃緑) - 放送・中継・HBエリア',
-            '6': 'Zone 6 (紫) - 大会要人・プロトコルエリア'
+        if (zoneKey) {
+          document.querySelectorAll('.room-pin').forEach(pin => {
+            const room = VENUE_DATA.rooms.find(r => r.id === pin.dataset.id);
+            if (room) {
+              const desc = room.desc || '';
+              const match = desc.includes('Zone: ' + zoneKey) || desc.includes('Zone: ' + zoneKey + ',') || desc.includes('Zone: ' + zoneKey + '+') || (zoneKey === 'BLUE' && (desc.includes('BLUE') || desc.includes('FOP')));
+              pin.style.opacity = match ? '1' : '0.15';
+              if (match) count++;
+            }
+          });
+
+          const panel = document.getElementById('info-panel');
+          if (panel) {
+            const zoneNames = {
+              'WHITE': 'WHITE (薄灰) - 駐車場・外周・西エントランス',
+              'RED': 'RED (赤) - 競技専用・セキュリティエリア',
+              '2': 'Zone 2 (薄青) - 選手諸室・ウォーミングアップ・運営',
+              'BLUE': 'BLUE (濃青) - メインプール・ダイビング・FOP',
+              '4': 'Zone 4 (薄緑) - 報道・プレスエリア',
+              '5': 'Zone 5 (濃緑) - 放送・中継・HBエリア',
+              '6': 'Zone 6 (紫) - 大会要人・プロトコルエリア'
+            };
+            panel.innerHTML = `
+              <div class="detail-card">
+                <div class="detail-header">
+                  <div class="detail-title">🗾 ゾーン区分: <b>${zoneNames[zoneKey] || zoneKey}</b></div>
+                  <span class="badge" style="background:var(--accent-zone, #af52de); color:#fff; font-weight:800;">該当: ${count}室</span>
+                </div>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px; line-height:1.4;">
+                  マップ上の対象諸室がハイライトされています。凡例をもう一度タップすると通常表示に戻ります。
+                </div>
+              </div>
+            `;
+          }
+        } else if (seatKey) {
+          const seatMeta = {
+            'VIP': {
+              name: 'Vipシート (VIP / OCA Family)',
+              color: '#eab308',
+              dept: ['OFS', 'CER'],
+              desc: 'VIP・OCAファミリー・貴賓関係者専用の最上級スタンド席です。メインスタンド中央最良視界位置に配置されます。'
+            },
+            'P': {
+              name: 'Pシート (Protocol / 大会役員席)',
+              color: '#a855f7',
+              dept: ['CER', 'OFS'],
+              desc: 'プロトコル・各競技連盟（IF/NF）会長・理事および大会役員専用の指定席エリアです。'
+            },
+            'B': {
+              name: 'Bシート (Broadcast / 放送中継席)',
+              color: '#10b981',
+              dept: ['BRS', 'PRS'],
+              desc: 'ホストブロードキャスター（HB）・権利保有放送局（RHB）・実況解説コメンタリー専用席エリアです。'
+            },
+            'A': {
+              name: 'Aシート (Athlete / 選手席・カテゴリーA)',
+              color: '#f97316',
+              dept: ['SPT', 'EVS'],
+              desc: '出場選手・チーム役員同伴者専用席（SDA）、およびカテゴリーA観戦スタンド席エリアです。'
+            }
           };
-          panel.innerHTML = `
-            <div class="detail-card">
-              <div class="detail-header">
-                <div class="detail-title">🗾 ゾーン区分: <b>${zoneNames[zoneKey] || zoneKey}</b></div>
-                <span class="badge" style="background:var(--accent-zone, #af52de); color:#fff; font-weight:800;">該当: ${count}室</span>
+
+          const curSeat = seatMeta[seatKey] || { name: seatKey + 'シート', color: '#fbbf24', dept: [], desc: '指定シートエリア' };
+
+          document.querySelectorAll('.room-pin').forEach(pin => {
+            const room = VENUE_DATA.rooms.find(r => r.id === pin.dataset.id);
+            if (room) {
+              const deptMatch = curSeat.dept.includes(room.dept);
+              const nameMatch = (room.name || '').includes(seatKey) || (room.desc || '').includes(seatKey);
+              const match = deptMatch || nameMatch;
+              pin.style.opacity = match ? '1' : '0.15';
+              if (match) count++;
+            }
+          });
+
+          const panel = document.getElementById('info-panel');
+          if (panel) {
+            panel.innerHTML = `
+              <div class="detail-card">
+                <div class="detail-header">
+                  <div class="detail-title">💺 シート区分: <b>${curSeat.name}</b></div>
+                  <span class="badge" style="background:${curSeat.color}; color:#000; font-weight:800;">関連諸室: ${count}室</span>
+                </div>
+                <div style="font-size:12px; color:var(--text-primary); margin-top:4px; line-height:1.4;">
+                  ${curSeat.desc}
+                </div>
+                <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">
+                  ※関連諸室がハイライトされています。凡例をもう一度タップすると通常表示に戻ります。
+                </div>
               </div>
-              <div style="font-size:12px; color:var(--text-secondary); margin-top:4px; line-height:1.4;">
-                マップ上の対象諸室がハイライトされています。凡例をもう一度タップすると通常表示に戻ります。
-              </div>
-            </div>
-          `;
+            `;
+          }
         }
       } else {
         document.querySelectorAll('.room-pin').forEach(pin => {

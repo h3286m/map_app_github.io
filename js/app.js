@@ -45,7 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const room = VENUE_DATA.rooms.find(r => r.id === pin.dataset.id);
             if (room) {
               const desc = room.desc || '';
-              const match = desc.includes('Zone: ' + zoneKey) || desc.includes('Zone: ' + zoneKey + ',') || desc.includes('Zone: ' + zoneKey + '+') || (zoneKey === 'BLUE' && (desc.includes('BLUE') || desc.includes('FOP')));
+              const match = (zoneKey === 'CONCOURSE') 
+                ? (room.floor === '2f' || desc.includes('Concourse') || desc.includes('観客') || room.dept === 'EVS')
+                : (desc.includes('Zone: ' + zoneKey) || desc.includes('Zone: ' + zoneKey + ',') || desc.includes('Zone: ' + zoneKey + '+') || (zoneKey === 'BLUE' && (desc.includes('BLUE') || desc.includes('FOP'))));
               pin.style.opacity = match ? '1' : '0.15';
               if (match) count++;
             }
@@ -60,7 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
               'BLUE': 'BLUE (濃青) - メインプール・ダイビング・FOP',
               '4': 'Zone 4 (薄緑) - 報道・プレスエリア',
               '5': 'Zone 5 (濃緑) - 放送・中継・HBエリア',
-              '6': 'Zone 6 (紫) - 大会要人・プロトコルエリア'
+              '6': 'Zone 6 (紫) - 大会要人・プロトコルエリア',
+              'CONCOURSE': '観客エリア (塗り黄色・線黒) - 2F観客動線・西側コンコース'
             };
             panel.innerHTML = `
               <div class="detail-card">
@@ -103,6 +106,13 @@ document.addEventListener('DOMContentLoaded', () => {
               zone: '2',
               dept: ['SPT', 'EVS'],
               desc: 'Zone 2（選手控室・諸室）の出場選手およびチーム役員が着席する選手専用席（SDA席）です。'
+            },
+            'SPECTATOR': {
+              name: '客席 (一般観客スタンド席 - 黄色・線オレンジ)',
+              color: '#ea580c',
+              zone: '',
+              dept: ['EVS'],
+              desc: '2Fメインスタンドおよび南側スタンドの一般観客席エリアです。（黄色のスペース、線はオレンジ）'
             }
           };
 

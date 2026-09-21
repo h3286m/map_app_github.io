@@ -421,7 +421,8 @@
         border-radius: 10px !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
       }
-      .zone-legend-bar {
+      .editor-badge { display: none !important; }
+    .zone-legend-bar {
         top: 6px !important;
         left: 6px !important;
         right: 6px !important;
@@ -497,6 +498,7 @@
       border-color: var(--accent-zone, #af52de);
     }
 
+    .editor-badge { display: none !important; }
     .zone-legend-bar {
       position: absolute;
       top: 8px;
@@ -519,7 +521,8 @@
     }
     .zone-legend-bar::-webkit-scrollbar { display: none; }
 
-    #layer-zone:checked ~ .map-viewport .zone-legend-bar {
+    #layer-zone:checked ~ .map-viewport .editor-badge { display: none !important; }
+    .zone-legend-bar {
       display: flex;
     }
 

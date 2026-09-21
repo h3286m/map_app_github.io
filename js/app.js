@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const panel = document.getElementById('info-panel');
           if (panel) {
             const zoneNames = {
-              'WHITE': 'WHITE (薄灰) - 駐車場・外周・西エントランス',
+              'WHITE': 'WHITE (薄灰) - 西エントランス・外周 (※濃いグレーは利用しないSpace)',
               'RED': 'RED (赤) - 競技専用・セキュリティエリア',
               '2': 'Zone 2 (薄青) - 選手諸室・ウォーミングアップ・運営',
               'BLUE': 'BLUE (濃青) - メインプール・ダイビング・FOP',
@@ -77,28 +77,32 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (seatKey) {
           const seatMeta = {
             'VIP': {
-              name: 'Vipシート (VIP / OCA Family)',
-              color: '#eab308',
+              name: 'Vipシート (Zone 6 連動・VIP/OCA席)',
+              color: '#a855f7',
+              zone: '6',
               dept: ['OFS', 'CER'],
-              desc: 'VIP・OCAファミリー・貴賓関係者専用の最上級スタンド席です。メインスタンド中央最良視界位置に配置されます。'
+              desc: 'Zone 6（大会要人・プロトコル）関係者が着席するVIP・OCAファミリー専用席です。'
             },
             'P': {
-              name: 'Pシート (Protocol / 大会役員席)',
-              color: '#a855f7',
-              dept: ['CER', 'OFS'],
-              desc: 'プロトコル・各競技連盟（IF/NF）会長・理事および大会役員専用の指定席エリアです。'
+              name: 'Pシート (Zone 4 連動・Press記者席)',
+              color: '#86efac',
+              zone: '4',
+              dept: ['PRS', 'BRS'],
+              desc: 'Zone 4（報道・プレス）関係者のみが着席できる専用記者席（Press席）です。'
             },
             'B': {
-              name: 'Bシート (Broadcast / 放送中継席)',
-              color: '#10b981',
+              name: 'Bシート (Zone 5 連動・放送中継席)',
+              color: '#22c55e',
+              zone: '5',
               dept: ['BRS', 'PRS'],
-              desc: 'ホストブロードキャスター（HB）・権利保有放送局（RHB）・実況解説コメンタリー専用席エリアです。'
+              desc: 'Zone 5（放送・中継・HB）関係者が着席する実況解説コメンタリー専用席です。'
             },
             'A': {
-              name: 'Aシート (Athlete / 選手席・カテゴリーA)',
-              color: '#f97316',
+              name: 'Aシート (Zone 2 連動・選手席)',
+              color: '#38bdf8',
+              zone: '2',
               dept: ['SPT', 'EVS'],
-              desc: '出場選手・チーム役員同伴者専用席（SDA）、およびカテゴリーA観戦スタンド席エリアです。'
+              desc: 'Zone 2（選手控室・諸室）の出場選手およびチーム役員が着席する選手専用席（SDA席）です。'
             }
           };
 
@@ -107,9 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
           document.querySelectorAll('.room-pin').forEach(pin => {
             const room = VENUE_DATA.rooms.find(r => r.id === pin.dataset.id);
             if (room) {
-              const deptMatch = curSeat.dept.includes(room.dept);
+              const desc = room.desc || '';
+              const zoneMatch = curSeat.zone && (desc.includes('Zone: ' + curSeat.zone) || desc.includes('Zone: ' + curSeat.zone + ',') || desc.includes('Zone: ' + curSeat.zone + '+'));
+              const deptMatch = curSeat.dept && curSeat.dept.includes(room.dept);
               const nameMatch = (room.name || '').includes(seatKey) || (room.desc || '').includes(seatKey);
-              const match = deptMatch || nameMatch;
+              const match = zoneMatch || deptMatch || nameMatch;
               pin.style.opacity = match ? '1' : '0.15';
               if (match) count++;
             }
@@ -121,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="detail-card">
                 <div class="detail-header">
                   <div class="detail-title">💺 シート区分: <b>${curSeat.name}</b></div>
-                  <span class="badge" style="background:${curSeat.color}; color:#000; font-weight:800;">関連諸室: ${count}室</span>
+                  <span class="badge" style="background:${curSeat.color}; color:#0f172a; font-weight:800; border:none; opacity:1;">Zone ${curSeat.zone} 連動: ${count}室</span>
                 </div>
                 <div style="font-size:12px; color:var(--text-primary); margin-top:4px; line-height:1.4;">
                   ${curSeat.desc}

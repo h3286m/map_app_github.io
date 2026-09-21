@@ -430,6 +430,54 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
       }
       .editor-badge { display: none !important; }
+    /* 🙈 下書き・非表示ピン（編集モード時のみ点線・半透明で表示・編集可能） */
+    .room-pin.is-draft-hidden {
+      opacity: 0.55 !important;
+      border-style: dashed !important;
+      border-width: 2px !important;
+      filter: saturate(0.6);
+    }
+    .room-pin.is-draft-hidden::before {
+      content: '下書き';
+      position: absolute;
+      top: -16px;
+      left: 0;
+      font-size: 9px;
+      font-weight: 800;
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 1px 4px;
+      border-radius: 3px;
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1.1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    .acp-pin.is-draft-hidden {
+      opacity: 0.55 !important;
+      border: 2px dashed #f59e0b !important;
+      filter: saturate(0.6);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.4) !important;
+    }
+    .acp-pin.is-draft-hidden::after {
+      content: '下書き';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      font-weight: 800;
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 1px 3px;
+      border-radius: 2px;
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1.1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
     .zone-legend-bar {
         top: 6px !important;
         left: 6px !important;
@@ -507,6 +555,54 @@
     }
 
     .editor-badge { display: none !important; }
+    /* 🙈 下書き・非表示ピン（編集モード時のみ点線・半透明で表示・編集可能） */
+    .room-pin.is-draft-hidden {
+      opacity: 0.55 !important;
+      border-style: dashed !important;
+      border-width: 2px !important;
+      filter: saturate(0.6);
+    }
+    .room-pin.is-draft-hidden::before {
+      content: '下書き';
+      position: absolute;
+      top: -16px;
+      left: 0;
+      font-size: 9px;
+      font-weight: 800;
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 1px 4px;
+      border-radius: 3px;
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1.1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    .acp-pin.is-draft-hidden {
+      opacity: 0.55 !important;
+      border: 2px dashed #f59e0b !important;
+      filter: saturate(0.6);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.4) !important;
+    }
+    .acp-pin.is-draft-hidden::after {
+      content: '下書き';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      font-weight: 800;
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 1px 3px;
+      border-radius: 2px;
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1.1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
     .zone-legend-bar {
       position: absolute;
       top: 8px;
@@ -530,6 +626,54 @@
     .zone-legend-bar::-webkit-scrollbar { display: none; }
 
     #layer-zone:checked ~ .map-viewport .editor-badge { display: none !important; }
+    /* 🙈 下書き・非表示ピン（編集モード時のみ点線・半透明で表示・編集可能） */
+    .room-pin.is-draft-hidden {
+      opacity: 0.55 !important;
+      border-style: dashed !important;
+      border-width: 2px !important;
+      filter: saturate(0.6);
+    }
+    .room-pin.is-draft-hidden::before {
+      content: '下書き';
+      position: absolute;
+      top: -16px;
+      left: 0;
+      font-size: 9px;
+      font-weight: 800;
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 1px 4px;
+      border-radius: 3px;
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1.1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    .acp-pin.is-draft-hidden {
+      opacity: 0.55 !important;
+      border: 2px dashed #f59e0b !important;
+      filter: saturate(0.6);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.4) !important;
+    }
+    .acp-pin.is-draft-hidden::after {
+      content: '下書き';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      font-weight: 800;
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 1px 3px;
+      border-radius: 2px;
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1.1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
     .zone-legend-bar {
       display: flex;
     }
@@ -714,7 +858,7 @@
       <!-- 1階マップ (通常図面 ＋ ゾーン色分け図面オーバーレイ) -->
       <div id="map-1f" class="floor-map">
         <img src="assets/floor1.png" alt="1F Floor Map" class="bg-svg bg-normal">
-        <img src="assets/floor1-zone.png?v=26.0" alt="1F Zone Map" class="bg-svg bg-zone">
+        <img src="assets/floor1-zone.png?v=27.0" alt="1F Zone Map" class="bg-svg bg-zone">
       </div>
 
       <!-- 2階マップ -->
@@ -756,6 +900,26 @@
             <label style="cursor:pointer;"><input type="radio" name="spot-type" value="acp" style="display:inline;"> 🛡️ ACP</label>
           </div>
         </div>
+
+        <!-- 表示・非表示（下書き / 検討中）ステータス切り替え -->
+        <div class="form-group" style="background:rgba(255,255,255,0.05); padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.14);">
+          <label style="font-size:12px; font-weight:800; color:var(--text-primary); margin-bottom:6px; display:flex; align-items:center; justify-content:space-between;">
+            <span>👁️ マップ表示状態 (公開 / 下書き非表示):</span>
+            <span style="font-size:11px; font-weight:normal; color:#f59e0b;">設置判断の保留に便利</span>
+          </label>
+          <div style="display:flex; gap:16px; align-items:center;">
+            <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-size:13px; font-weight:bold; color:#10b981;">
+              <input type="radio" name="form-visibility" value="visible" checked style="cursor:pointer;"> 👁️ 表示（通常公開・設置確定）
+            </label>
+            <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-size:13px; font-weight:bold; color:#f59e0b;">
+              <input type="radio" name="form-visibility" value="hidden" style="cursor:pointer;"> 🙈 非表示（下書き・設置検討中）
+            </label>
+          </div>
+          <div style="font-size:11px; color:var(--text-secondary); margin-top:4px; line-height:1.3;">
+            ※「非表示」に設定すると通常モードではマップから完全に隠れ、ピン編集モード時のみ点線の下書きとして表示・編集できます。
+          </div>
+        </div>
+
 
         <div class="form-group">
           <label for="form-name">名称 (部屋名 / ACP名): *</label>
@@ -922,8 +1086,8 @@
   </div>
 
   <!-- スクリプト読み込み (重要: data.js -> map-engine.js -> app.js) -->
-  <script src="js/data.js?v=26.0"></script>
-  <script src="js/map-engine.js?v=26.0"></script>
-  <script src="js/app.js?v=26.0"></script>
+  <script src="js/data.js?v=27.0"></script>
+  <script src="js/map-engine.js?v=27.0"></script>
+  <script src="js/app.js?v=27.0"></script>
 </body>
 </html>

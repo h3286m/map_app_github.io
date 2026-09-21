@@ -422,6 +422,54 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
       }
       .editor-badge { display: none !important; }
+    /* 🙈 下書き・非表示ピン（編集モード時のみ点線・半透明で表示・編集可能） */
+    .room-pin.is-draft-hidden {
+      opacity: 0.55 !important;
+      border-style: dashed !important;
+      border-width: 2px !important;
+      filter: saturate(0.6);
+    }
+    .room-pin.is-draft-hidden::before {
+      content: '下書き';
+      position: absolute;
+      top: -16px;
+      left: 0;
+      font-size: 9px;
+      font-weight: 800;
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 1px 4px;
+      border-radius: 3px;
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1.1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    .acp-pin.is-draft-hidden {
+      opacity: 0.55 !important;
+      border: 2px dashed #f59e0b !important;
+      filter: saturate(0.6);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.4) !important;
+    }
+    .acp-pin.is-draft-hidden::after {
+      content: '下書き';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      font-weight: 800;
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 1px 3px;
+      border-radius: 2px;
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1.1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
     .zone-legend-bar {
         top: 6px !important;
         left: 6px !important;
@@ -499,6 +547,54 @@
     }
 
     .editor-badge { display: none !important; }
+    /* 🙈 下書き・非表示ピン（編集モード時のみ点線・半透明で表示・編集可能） */
+    .room-pin.is-draft-hidden {
+      opacity: 0.55 !important;
+      border-style: dashed !important;
+      border-width: 2px !important;
+      filter: saturate(0.6);
+    }
+    .room-pin.is-draft-hidden::before {
+      content: '下書き';
+      position: absolute;
+      top: -16px;
+      left: 0;
+      font-size: 9px;
+      font-weight: 800;
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 1px 4px;
+      border-radius: 3px;
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1.1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    .acp-pin.is-draft-hidden {
+      opacity: 0.55 !important;
+      border: 2px dashed #f59e0b !important;
+      filter: saturate(0.6);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.4) !important;
+    }
+    .acp-pin.is-draft-hidden::after {
+      content: '下書き';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      font-weight: 800;
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 1px 3px;
+      border-radius: 2px;
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1.1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
     .zone-legend-bar {
       position: absolute;
       top: 8px;
@@ -522,6 +618,54 @@
     .zone-legend-bar::-webkit-scrollbar { display: none; }
 
     #layer-zone:checked ~ .map-viewport .editor-badge { display: none !important; }
+    /* 🙈 下書き・非表示ピン（編集モード時のみ点線・半透明で表示・編集可能） */
+    .room-pin.is-draft-hidden {
+      opacity: 0.55 !important;
+      border-style: dashed !important;
+      border-width: 2px !important;
+      filter: saturate(0.6);
+    }
+    .room-pin.is-draft-hidden::before {
+      content: '下書き';
+      position: absolute;
+      top: -16px;
+      left: 0;
+      font-size: 9px;
+      font-weight: 800;
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 1px 4px;
+      border-radius: 3px;
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1.1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    .acp-pin.is-draft-hidden {
+      opacity: 0.55 !important;
+      border: 2px dashed #f59e0b !important;
+      filter: saturate(0.6);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.4) !important;
+    }
+    .acp-pin.is-draft-hidden::after {
+      content: '下書き';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      font-weight: 800;
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 1px 3px;
+      border-radius: 2px;
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1.1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
     .zone-legend-bar {
       display: flex;
     }

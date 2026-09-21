@@ -235,11 +235,14 @@ function setupEditorModal() {
       }
     }
 
+    // 編集モード切替時に下書きピンの表示・非表示を即座に再描画
+    MapEngine.renderAllFloors();
+
     const panel = document.getElementById('info-panel');
     if (panel) {
       panel.innerHTML = MapEngine.isEditorMode
-        ? '<div style="color:#f59e0b; font-weight:bold;">✏️ ピン移動・編集モード有効: マップ上のドットを掴んで好きな場所へドラッグ移動、またはクリックで名称編集ができます！</div>'
-        : '<div style="color:var(--text-secondary);">💡 編集モードを終了しました。</div>';
+        ? '<div style="color:#f59e0b; font-weight:bold;">✏️ ピン移動・編集モード有効: マップ上のドットをドラッグ移動、クリックで編集できます。（※下書き・非表示のピンも点線で表示・編集可能）</div>'
+        : '<div style="color:var(--text-secondary);">💡 編集モードを終了しました。（非表示・下書きピンは非表示に戻りました）</div>';
     }
   });
 
@@ -326,6 +329,7 @@ function setupEditorModal() {
 
     const pdfUrl = document.getElementById('form-pdf').value.trim();
     const desc = document.getElementById('form-desc').value.trim();
+    const isHidden = document.querySelector('input[name="form-visibility"]:checked')?.value === 'hidden';
 
     if (spotId) {
       // 既存データの更新
@@ -334,7 +338,8 @@ function setupEditorModal() {
       if (roomIdx !== -1) {
         VENUE_DATA.rooms[roomIdx] = {
           ...VENUE_DATA.rooms[roomIdx],
-          name, code, nameEn, dept, floor, x, y, w, h, acp, pdfUrl, desc
+          name, code, nameEn, dept, floor, x, y, w, h, acp, pdfUrl, desc,
+          isHidden: isHidden
         };
         found = true;
       }
@@ -349,7 +354,8 @@ function setupEditorModal() {
           name, code, floor, x, y, passLevel: acp, pdfUrl, desc,
           isManned: isManned,
           importance: isManned ? 'high' : 'normal',
-          color: acpColor
+          color: acpColor,
+          isHidden: isHidden
         };
         found = true;
       }
@@ -370,7 +376,8 @@ function setupEditorModal() {
           h: h,
           acp: acp,
           pdfUrl: pdfUrl,
-          desc: desc
+          desc: desc,
+          isHidden: isHidden
         });
       } else {
         const isManned = document.querySelector('input[name="form-acp-manned"]:checked')?.value === 'manned';
@@ -467,6 +474,11 @@ window.openSpotEditor = function({ spotItem, x, y, floor }) {
     if (wEl) wEl.value = spotItem.w !== undefined ? spotItem.w : 5.0;
     const hEl = document.getElementById('form-h');
     if (hEl) hEl.value = spotItem.h !== undefined ? spotItem.h : 3.5;
+
+    // 表示・非表示（下書き）ステータスの反映
+    const isHidden = spotItem.isHidden === true || spotItem.status === 'hidden' || spotItem.isDraft === true;
+    const visRadio = document.querySelector(`input[name="form-visibility"][value="${isHidden ? 'hidden' : 'visible'}"]`);
+    if (visRadio) visRadio.checked = true;
 
     // 表示切替
     const acpOptionsGroup = document.querySelector('.acp-options-group');
@@ -649,3 +661,33 @@ function setupExportModal() {
     }
   });
 }
+
+
+// 👁️ ワンクリックで表示・非表示（下書き）をトグル切り替え
+window.toggleSpotVisibility = function(spotId) {
+  const isRoom = VENUE_DATA.rooms.some(r => r.id === spotId);
+  const spotItem = isRoom 
+    ? VENUE_DATA.rooms.find(r => r.id === spotId) 
+    : VENUE_DATA.acps.find(a => a.id === spotId);
+
+  if (!spotItem) return;
+
+  spotItem.isHidden = !spotItem.isHidden;
+  DataStorage.save();
+  MapEngine.renderAllFloors();
+
+  const type = isRoom ? 'room' : 'acp';
+  MapEngine.renderSpotInfo(type, spotItem, false);
+
+  const panel = document.getElementById('info-panel');
+  const toastMsg = spotItem.isHidden 
+    ? `🙈 「${spotItem.name || spotItem.code}」を【非表示（下書き）】に設定しました。（通常モードでは非表示になります）`
+    : `👁️ 「${spotItem.name || spotItem.code}」を【通常表示（設置確定）】に戻しました！`;
+
+  // 一時通知トースト
+  const notice = document.createElement('div');
+  notice.style.cssText = 'color:#f59e0b; font-size:11px; font-weight:bold; margin-top:4px;';
+  notice.textContent = toastMsg;
+  const detailCard = panel?.querySelector('.detail-card');
+  if (detailCard) detailCard.appendChild(notice);
+};

@@ -83,7 +83,14 @@ const MapEngine = {
 
       const floorRooms = VENUE_DATA.rooms.filter(r => r.floor === floor.id);
       floorRooms.forEach(room => {
+        const isHidden = room.isHidden === true || room.status === 'hidden' || room.isDraft === true;
+        // 通常モードでは非表示（下書き）ピンは描画しない
+        if (isHidden && !this.isEditorMode) return;
+
         const pin = document.createElement('div');
+        if (isHidden) {
+          pin.classList.add('is-draft-hidden');
+        }
         pin.className = 'room-pin';
         pin.dataset.id = room.id;
 
@@ -155,7 +162,14 @@ const MapEngine = {
 
       const floorAcps = VENUE_DATA.acps.filter(a => a.floor === floor.id);
       floorAcps.forEach(acp => {
+        const isHidden = acp.isHidden === true || acp.status === 'hidden' || acp.isDraft === true;
+        // 通常モードでは非表示（下書き）ピンは描画しない
+        if (isHidden && !this.isEditorMode) return;
+
         const pin = document.createElement('div');
+        if (isHidden) {
+          pin.classList.add('is-draft-hidden');
+        }
         const isManned = acp.isManned === true || acp.importance === 'high';
         const acpColor = acp.color || (isManned ? '#f59e0b' : '#06b6d4');
 
@@ -477,6 +491,8 @@ const MapEngine = {
             </div>
             <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap;">
               <button onclick="window.openSpotEditorById('${item.id}')" class="btn-secondary" style="padding:3px 8px; font-size:10px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">✏️ 編集</button>
+              <button onclick="window.toggleSpotVisibility('${item.id}')" class="btn-secondary" style="padding:3px 8px; font-size:10px; background:${item.isHidden ? '#10b981' : '#f59e0b'}; color:${item.isHidden ? '#fff' : '#0f172a'}; font-weight:bold; cursor:pointer;" title="表示・非表示（下書き）をワンクリック切り替え">${item.isHidden ? '👁️ 表示にする' : '🙈 非表示にする'}</button>
+              ${item.isHidden ? '<span class="badge" style="background:#f59e0b; color:#0f172a; font-weight:800;">🙈 非表示 (下書き)</span>' : ''}
               <span class="badge" style="background:${acpColor}; color:#fff; font-weight:bold;">${isManned ? '👤 有人 (スタッフ)' : '無人'}</span>
               <span class="badge badge-acp" style="background:${acpColor}; color:#fff;">${item.passLevel}</span>
             </div>

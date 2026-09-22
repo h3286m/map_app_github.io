@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.stopPropagation();
       const zoneKey = chip.dataset.zone;
       const seatKey = chip.dataset.seat;
+      const toiletKey = chip.dataset.toilet;
       const wasActive = chip.classList.contains('active');
 
       document.querySelectorAll('.legend-chip').forEach(c => c.classList.remove('active'));
@@ -148,9 +149,49 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
             `;
           }
+        } else if (toiletKey) {
+          document.querySelectorAll('.room-pin').forEach(pin => {
+            const room = VENUE_DATA.rooms.find(r => r.id === pin.dataset.id);
+            if (room) {
+              const meta = (window.MapEngine && window.MapEngine.getToiletMeta) ? window.MapEngine.getToiletMeta(room) : null;
+              let match = false;
+              if (meta) {
+                if (toiletKey === 'all') match = true;
+                else if (toiletKey === 'men' && (meta.type === 'men_urinal' || meta.type === 'men_cubicle')) match = true;
+                else if (toiletKey === 'women' && meta.type === 'women') match = true;
+                else if (toiletKey === 'accessible' && meta.type === 'accessible') match = true;
+                else if (toiletKey === 'dog' && meta.type === 'dog') match = true;
+              }
+              pin.style.opacity = match ? '1' : '0.15';
+              if (match) count++;
+            }
+          });
+          document.querySelectorAll('.acp-pin').forEach(p => p.style.opacity = '0.15');
+
+          const panel = document.getElementById('info-panel');
+          if (panel) {
+            const toiletNames = {
+              'all': '🚻 トイレ施設 (全館)',
+              'men': '🚹 男子トイレ (小便器・個室)',
+              'women': '🚺 女子トイレ',
+              'accessible': '♿ 多機能トイレ (車椅子対応)',
+              'dog': '🐕 介助犬トイレ'
+            };
+            panel.innerHTML = `
+              <div class="detail-card">
+                <div class="detail-header">
+                  <div class="detail-title">🚻 施設案内: <b>${toiletNames[toiletKey] || toiletKey}</b></div>
+                  <span class="badge" style="background:#0284c7; color:#fff; font-weight:800; border:none;">該当: ${count}箇所</span>
+                </div>
+                <div style="font-size:12px; color:var(--text-primary); margin-top:4px; line-height:1.4;">
+                  マップ上の対象トイレがハイライトされています。凡例をもう一度タップすると通常表示に戻ります。
+                </div>
+              </div>
+            `;
+          }
         }
       } else {
-        document.querySelectorAll('.room-pin').forEach(pin => {
+        document.querySelectorAll('.room-pin, .acp-pin').forEach(pin => {
           pin.style.opacity = '';
         });
       }
@@ -175,22 +216,46 @@ function setupSearchAndFilters() {
     formDept.innerHTML = VENUE_DATA.departments.filter(d => d.code !== 'ALL').map(d => `<option value="${d.code}">${d.name}</option>`).join('');
   }
 
-  // 検索サジェストリストの登録
+  // 検索サジェストリストの登録（トイレ候補を先頭に追加）
   if (datalist) {
     const allItems = [...VENUE_DATA.rooms, ...VENUE_DATA.acps];
-    datalist.innerHTML = allItems.map(item => `<option value="${item.name}">${item.code} - ${item.nameEn || ''}</option>`).join('');
+    const toiletSuggestions = [
+      '<option value="トイレ">🚻 トイレ施設 (全フロア)</option>',
+      '<option value="男子トイレ">🚹 男子トイレ (小便器・個室)</option>',
+      '<option value="女子トイレ">🚺 女子トイレ</option>',
+      '<option value="多機能トイレ">♿ 多機能・車椅子トイレ</option>',
+      '<option value="介助犬トイレ">🐕 介助犬トイレ</option>'
+    ];
+    datalist.innerHTML = toiletSuggestions.join('') + allItems.map(item => `<option value="${item.name}">${item.code} - ${item.nameEn || ''}</option>`).join('');
   }
 
-  // リアルタイム検索フィルター
+  // リアルタイム検索フィルター（「トイレ」や「wc」での一括抽出、および男女・多機能個別絞り込みに対応）
   const applyFilter = () => {
     const query = searchInput.value.toLowerCase().trim();
     const dept = deptSelect.value;
+    const isMenToilet = /男子|男性|小便器/.test(query);
+    const isWomenToilet = /女子|女性/.test(query);
+    const isAccessibleToilet = /多機能|車椅子|身障者|accessible|wheelchair/.test(query);
+    const isDogToilet = /介助犬|サービスドッグ|dog/.test(query);
+    const isSpecificToilet = isMenToilet || isWomenToilet || isAccessibleToilet || isDogToilet;
+    const isGeneralToilet = !isSpecificToilet && /toilet|wc|restroom|トイレ|便所|お手洗い|便器|洗面/.test(query);
 
     document.querySelectorAll('.room-pin').forEach(pin => {
       const room = VENUE_DATA.rooms.find(r => r.id === pin.dataset.id);
       if (!room) return;
 
-      const matchesQuery = !query || room.name.toLowerCase().includes(query) || room.code.toLowerCase().includes(query) || room.nameEn.toLowerCase().includes(query);
+      const toiletMeta = (window.MapEngine && window.MapEngine.getToiletMeta) ? window.MapEngine.getToiletMeta(room) : null;
+
+      let matchesQuery = !query || room.name.toLowerCase().includes(query) || room.code.toLowerCase().includes(query) || room.nameEn.toLowerCase().includes(query);
+
+      if (toiletMeta) {
+        if (isGeneralToilet) matchesQuery = true;
+        if (isMenToilet && (toiletMeta.type === 'men_urinal' || toiletMeta.type === 'men_cubicle')) matchesQuery = true;
+        if (isWomenToilet && toiletMeta.type === 'women') matchesQuery = true;
+        if (isAccessibleToilet && toiletMeta.type === 'accessible') matchesQuery = true;
+        if (isDogToilet && toiletMeta.type === 'dog') matchesQuery = true;
+      }
+
       const matchesDept = (dept === 'ALL' || room.dept === dept);
 
       pin.style.display = (matchesQuery && matchesDept) ? 'block' : 'none';

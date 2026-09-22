@@ -121,6 +121,44 @@
       z-index: 920 !important;
       box-shadow: 0 0 15px rgba(56, 189, 248, 0.8), inset 0 0 10px rgba(56, 189, 248, 0.25) !important;
     }
+        /* 🚻 トイレ専用マーク & ピン */
+    .room-pin.is-toilet {
+      z-index: 28 !important;
+    }
+    .room-pin.is-toilet:hover {
+      z-index: 935 !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.9), inset 0 0 10px rgba(56, 189, 248, 0.3) !important;
+    }
+    .toilet-badge-mark {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.85);
+      flex-shrink: 0;
+      transition: transform 0.15s ease-out;
+      pointer-events: none;
+    }
+    .room-pin.is-toilet:hover .toilet-badge-mark {
+      transform: scale(1.15);
+    }
+    .toilet-men_urinal .toilet-badge-mark { background: #2563eb; }
+    .toilet-men_cubicle .toilet-badge-mark { background: #1d4ed8; }
+    .toilet-women .toilet-badge-mark { background: #e11d48; }
+    .toilet-accessible .toilet-badge-mark { background: #0284c7; }
+    .toilet-dog .toilet-badge-mark { background: #d97706; }
+    .toilet-general .toilet-badge-mark { background: #4f46e5; }
+
+    .pin-tooltip-toilet-note {
+      font-size: 10px;
+      color: #38bdf8;
+      margin-top: 3px;
+      font-weight: bold;
+    }
+
     .room-pin-center-mark {
       display: flex;
       align-items: center;

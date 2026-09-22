@@ -71,6 +71,78 @@ const MapEngine = {
   },
 
   // 1. 各階のピン・ゾーン・SVGレイヤーの動的生成
+    getToiletMeta(room) {
+    if (!room) return null;
+    const str = ((room.name || '') + ' ' + (room.nameEn || '') + ' ' + (room.code || '') + ' ' + (room.desc || '')).toLowerCase();
+    const isToilet = /toilet|urinal|cubicle|restroom|wc|お手洗い|便所|便器|lavatory/.test(str);
+    if (!isToilet) return null;
+
+    if (/dog|介助犬/.test(str)) {
+      return {
+        type: 'dog',
+        badge: '🐕',
+        label: '介助犬トイレ',
+        shortLabel: '🐕 介助犬',
+        color: '#d97706',
+        bg: 'rgba(217, 119, 6, 0.22)',
+        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><path d="M19 8c-.6 0-1.1.2-1.5.5L16 6.8V5a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v1.5L9.6 8.2A1.5 1.5 0 0 0 8 8.3L5.7 9.5a1.5 1.5 0 0 0-.9 1.6L5.3 15a1 1 0 0 0 1 1h1.5v4a1 1 0 0 0 2 0v-4h2v4a1 1 0 0 0 2 0v-5.2l2.3-1.8c.4-.3.7-.8.7-1.3V9a1 1 0 0 0-1-1z"/></svg>'
+      };
+    }
+    if (/accessible|wheelchair|多機能|車椅子|身障者/.test(str)) {
+      return {
+        type: 'accessible',
+        badge: '♿',
+        label: '多機能トイレ (車椅子対応)',
+        shortLabel: '♿ 多機能',
+        color: '#0284c7',
+        bg: 'rgba(2, 132, 199, 0.22)',
+        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="14.5" cy="4.5" r="2.1"/><path d="M12 8h-3a1 1 0 0 0-1 1v4h2v-3h1.5l1.6 3.2A4.5 4.5 0 1 0 17 17.5h-2a2.5 2.5 0 1 1-2.5-2.5l.3-.6L14 11l-1.5-3z"/></svg>'
+      };
+    }
+    if (/women|female|女子|女性/.test(str)) {
+      return {
+        type: 'women',
+        badge: '🚺',
+        label: '女子トイレ',
+        shortLabel: '🚺 女子',
+        color: '#e11d48',
+        bg: 'rgba(225, 29, 72, 0.22)',
+        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="12" cy="4.5" r="2.3"/><path d="M10 8h4l2 6.5a0.8 0.8 0 0 1-.8 1H13.5v4.5a1 1 0 0 1-2 0V15.5h-1.7a0.8 0.8 0 0 1-.8-1L10 8z"/></svg>'
+      };
+    }
+    if (/urinal|小便器/.test(str)) {
+      return {
+        type: 'men_urinal',
+        badge: '🚹',
+        label: '男子トイレ (小便器)',
+        shortLabel: '🚹 小便器',
+        color: '#2563eb',
+        bg: 'rgba(37, 99, 235, 0.22)',
+        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="12" cy="4.5" r="2.3"/><path d="M9 8h6a1 1 0 0 1 1 1v6h-1.5v5a1 1 0 0 1-2 0v-5h-1v5a1 1 0 0 1-2 0v-5H8V9a1 1 0 0 1 1-1z"/></svg>'
+      };
+    }
+    if (/men|male|男子|男性/.test(str)) {
+      return {
+        type: 'men_cubicle',
+        badge: '🚹',
+        label: '男子トイレ (個室)',
+        shortLabel: '🚹 男子個室',
+        color: '#1d4ed8',
+        bg: 'rgba(29, 78, 216, 0.22)',
+        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="12" cy="4.5" r="2.3"/><path d="M9 8h6a1 1 0 0 1 1 1v6h-1.5v5a1 1 0 0 1-2 0v-5h-1v5a1 1 0 0 1-2 0v-5H8V9a1 1 0 0 1 1-1z"/></svg>'
+      };
+    }
+    return {
+      type: 'general',
+      badge: '🚻',
+      label: 'トイレ',
+      shortLabel: '🚻 トイレ',
+      color: '#4f46e5',
+      bg: 'rgba(79, 70, 229, 0.22)',
+      svg: '<svg viewBox="0 0 24 24" width="15" height="15" fill="#ffffff"><circle cx="7.5" cy="4.5" r="1.8"/><path d="M5.5 8h4a.8.8 0 0 1 .8.8v4.5H9v4.5a.8.8 0 0 1-1.6 0V13.3h-.8v4.5a.8.8 0 0 1-1.6 0V13.3H4.2V8.8A.8.8 0 0 1 5 8h.5z"/><circle cx="16.5" cy="4.5" r="1.8"/><path d="M15 8h3l1.4 4.8a.6.6 0 0 1-.6.7h-1v4.3a.8.8 0 0 1-1.6 0V13.5h-.4v4.3a.8.8 0 0 1-1.6 0V13.5h-1a.6.6 0 0 1-.6-.7L15 8z"/></svg>'
+    };
+  },
+
   renderAllFloors() {
     VENUE_DATA.floors.forEach(floor => {
       const mapEl = document.getElementById(`map-${floor.id}`);
@@ -104,28 +176,58 @@ const MapEngine = {
         pin.style.width = `${rw}%`;
         pin.style.height = `${rh}%`;
 
-// 部署カラー
+// 部署カラー & トイレ判定
         const dept = VENUE_DATA.departments.find(d => d.code === room.dept) || { name: room.dept, color: '#007aff' };
-        const pinColor = dept.color || '#007aff';
-        pin.style.borderColor = pinColor;
-        pin.style.backgroundColor = pinColor.startsWith('#') ? (pinColor + '22') : 'rgba(0, 122, 255, 0.15)';
+        const toiletMeta = this.getToiletMeta(room);
 
-        // 枠の中央に 担当部署カラーの📍ピンと部屋コード、右下にサイズ調整用リサイズハンドル
+        const pinColor = toiletMeta ? toiletMeta.color : (dept.color || '#007aff');
+        const pinBg = toiletMeta ? toiletMeta.bg : (pinColor.startsWith('#') ? (pinColor + '22') : 'rgba(0, 122, 255, 0.15)');
+
+        pin.style.borderColor = pinColor;
+        pin.style.backgroundColor = pinBg;
+
+        if (toiletMeta) {
+          pin.classList.add('is-toilet', `toilet-${toiletMeta.type}`);
+        }
+
+        // 枠の中央アイコン（トイレは視認性抜群の専用ピクトグラムバッジ、通常諸室は📍ピン）
+        const centerMarkHtml = toiletMeta ? `
+          <div class="toilet-badge-mark" title="${toiletMeta.label}">
+            ${toiletMeta.svg}
+          </div>
+        ` : `
+          <svg class="room-pin-marker" viewBox="0 0 24 24" width="18" height="18" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.85)); display: block;">
+            <path fill="${pinColor}" stroke="#ffffff" stroke-width="1.3" stroke-linejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            <circle cx="12" cy="9" r="2.8" fill="#ffffff"/>
+          </svg>
+        `;
+
+        const codeTextHtml = toiletMeta ? `
+          <div class="room-pin-code-text is-toilet-code" style="border-left: 3px solid ${pinColor};">${toiletMeta.shortLabel} [${room.code || room.name}]</div>
+        ` : `
+          <div class="room-pin-code-text" style="border-left: 3px solid ${pinColor};">${room.code || room.name}</div>
+        `;
+
+        const tooltipTitleHtml = toiletMeta ? `
+          <span class="dept-badge" style="background:${toiletMeta.color}">${toiletMeta.badge} ${toiletMeta.label}</span>
+          ${room.name}
+        ` : `
+          <span class="dept-badge" style="background:${dept.color}">${room.dept}</span>
+          ${room.name}
+        `;
+
         pin.innerHTML = `
           <div class="room-pin-center-mark">
-            <svg class="room-pin-marker" viewBox="0 0 24 24" width="18" height="18" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.85)); display: block;">
-              <path fill="${pinColor}" stroke="#ffffff" stroke-width="1.3" stroke-linejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-              <circle cx="12" cy="9" r="2.8" fill="#ffffff"/>
-            </svg>
+            ${centerMarkHtml}
           </div>
-          <div class="room-pin-code-text" style="border-left: 3px solid ${pinColor};">${room.code || room.name}</div>
+          ${codeTextHtml}
           <div class="room-resize-handle" title="ドラッグして四角形枠のサイズを変更"></div>
           <div class="pin-tooltip">
             <div class="pin-tooltip-title">
-              <span class="dept-badge" style="background:${dept.color}">${room.dept}</span>
-              ${room.name}
+              ${tooltipTitleHtml}
             </div>
             <div class="pin-tooltip-sub">${room.code} ${room.nameEn ? '| ' + room.nameEn : ''}</div>
+            ${toiletMeta ? `<div class="pin-tooltip-toilet-note">🚻 トイレ施設 (${dept.name})</div>` : ''}
             ${room.acp && room.acp !== 'なし' ? `<div class="pin-tooltip-acp-badge">🛡️ 最寄ACP: ${room.acp}</div>` : ''}
           </div>
         `;
@@ -427,24 +529,43 @@ const MapEngine = {
     if (type === 'room') {
       const dept = VENUE_DATA.departments.find(d => d.code === item.dept) || { name: item.dept, color: '#007aff' };
       const zone = VENUE_DATA.zones.find(z => z.id === item.zoneId) || { name: '指定なし' };
+      const toiletMeta = this.getToiletMeta(item);
+
+      const titleIconHtml = toiletMeta ? `
+        <span class="toilet-badge-mark" style="width:20px; height:20px; background:${toiletMeta.color}; border:1.5px solid #fff; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; vertical-align:-3px; margin-right:5px; box-shadow:0 1px 3px rgba(0,0,0,0.5);">
+          ${toiletMeta.svg}
+        </span>
+      ` : `
+        <svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-2px; margin-right:4px; display:inline-block; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));">
+          <path fill="${dept.color}" stroke="#ffffff" stroke-width="1.3" stroke-linejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+          <circle cx="12" cy="9" r="2.8" fill="#ffffff"/>
+        </svg>
+      `;
+
+      const titleNameHtml = toiletMeta ? `${toiletMeta.badge} ${toiletMeta.label} <span style="font-size:12px; font-weight:normal; opacity:0.85;">(${item.name})</span>` : item.name;
 
       panel.innerHTML = `
         <div class="detail-card">
           <div class="detail-header">
             <div>
               <div class="detail-title">
-              <svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-2px; margin-right:4px; display:inline-block; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));">
-                <path fill="${dept.color}" stroke="#ffffff" stroke-width="1.3" stroke-linejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-                <circle cx="12" cy="9" r="2.8" fill="#ffffff"/>
-              </svg>${item.name} ${isPreview ? '<span style="font-size:10px; opacity:0.7;">(プレビュー)</span>' : ''}</div>
+                ${titleIconHtml}${titleNameHtml} ${isPreview ? '<span style="font-size:10px; opacity:0.7;">(プレビュー)</span>' : ''}
+              </div>
               <div class="detail-code">ID: ${item.id} | 英語: ${item.nameEn || '-'}</div>
             </div>
             <div style="display:flex; gap:5px; align-items:center;">
               <button onclick="window.openSpotEditorById('${item.id}')" class="btn-secondary" style="padding:3px 8px; font-size:10px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">✏️ 編集</button>
+              ${toiletMeta ? `<span class="badge" style="background:${toiletMeta.color}; color:#fff; font-weight:bold;">${toiletMeta.badge} ${toiletMeta.label}</span>` : ''}
               <span class="badge badge-dept" style="background:${dept.color}">${dept.name}</span>
             </div>
           </div>
           <div class="detail-grid">
+            ${toiletMeta ? `
+              <div class="detail-item">
+                <span class="label">施設種別</span>
+                <span class="value" style="color:${toiletMeta.color}; font-weight:bold;">${toiletMeta.badge} ${toiletMeta.label}</span>
+              </div>
+            ` : ''}
             <div class="detail-item">
               <span class="label">担当部署</span>
               <span class="value">${item.dept} (${dept.name})</span>

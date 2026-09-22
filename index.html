@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>オフライン多機能会場マップ (ACP・部屋・ゾーン連動)</title>
-  <link rel="stylesheet" href="css/styles.css?v=31.0">
+  <link rel="stylesheet" href="css/styles.css?v=32.0">
   <style>
     /* 多機能オフライン会場マップ - 完全統合レスポンシブスタイル */
     :root {
@@ -129,6 +129,44 @@
       z-index: 920 !important;
       box-shadow: 0 0 15px rgba(56, 189, 248, 0.8), inset 0 0 10px rgba(56, 189, 248, 0.25) !important;
     }
+        /* 🚻 トイレ専用マーク & ピン */
+    .room-pin.is-toilet {
+      z-index: 28 !important;
+    }
+    .room-pin.is-toilet:hover {
+      z-index: 935 !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.9), inset 0 0 10px rgba(56, 189, 248, 0.3) !important;
+    }
+    .toilet-badge-mark {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.85);
+      flex-shrink: 0;
+      transition: transform 0.15s ease-out;
+      pointer-events: none;
+    }
+    .room-pin.is-toilet:hover .toilet-badge-mark {
+      transform: scale(1.15);
+    }
+    .toilet-men_urinal .toilet-badge-mark { background: #2563eb; }
+    .toilet-men_cubicle .toilet-badge-mark { background: #1d4ed8; }
+    .toilet-women .toilet-badge-mark { background: #e11d48; }
+    .toilet-accessible .toilet-badge-mark { background: #0284c7; }
+    .toilet-dog .toilet-badge-mark { background: #d97706; }
+    .toilet-general .toilet-badge-mark { background: #4f46e5; }
+
+    .pin-tooltip-toilet-note {
+      font-size: 10px;
+      color: #38bdf8;
+      margin-top: 3px;
+      font-weight: bold;
+    }
+
     .room-pin-center-mark {
       display: flex;
       align-items: center;
@@ -853,6 +891,21 @@
           <span class="legend-chip" data-zone="CONCOURSE" style="border-color:#0f172a; background:rgba(250,204,21,0.25); cursor:pointer;" title="観客エリア (塗り黄色・線黒): 2F観客動線・西側コンコース"><span class="chip-color-box" style="background:#facc15; border:1px solid #0f172a;"></span><b>観客エリア</b></span>
         </div>
       </div>
+      <div class="legend-divider"></div>
+
+      <!-- 🚻 トイレ区分 (全フロアの各トイレと1対1連動) -->
+      <div class="legend-group">
+        <span class="legend-group-title" style="color:#38bdf8;">
+          🚻 トイレ:
+        </span>
+        <div class="zone-legend-items">
+          <span class="legend-chip" data-toilet="all" style="border-color:#38bdf8; background:rgba(56,189,248,0.22); cursor:pointer;" title="すべてのトイレ施設をハイライト"><span class="chip-color-box" style="background:#38bdf8; border:1px solid #38bdf8;"></span><b>🚻 全トイレ</b></span>
+          <span class="legend-chip" data-toilet="men" style="border-color:#2563eb; background:rgba(37,99,235,0.22); cursor:pointer;" title="男子トイレ (小便器・個室) をハイライト"><span class="chip-color-box" style="background:#2563eb; border:1px solid #2563eb;"></span><b>🚹 男子</b></span>
+          <span class="legend-chip" data-toilet="women" style="border-color:#e11d48; background:rgba(225,29,72,0.22); cursor:pointer;" title="女子トイレをハイライト"><span class="chip-color-box" style="background:#e11d48; border:1px solid #e11d48;"></span><b>🚺 女子</b></span>
+          <span class="legend-chip" data-toilet="accessible" style="border-color:#0284c7; background:rgba(2,132,199,0.22); cursor:pointer;" title="多機能・車椅子トイレをハイライト"><span class="chip-color-box" style="background:#0284c7; border:1px solid #0284c7;"></span><b>♿ 多機能</b></span>
+          <span class="legend-chip" data-toilet="dog" style="border-color:#d97706; background:rgba(217,119,6,0.22); cursor:pointer;" title="介助犬トイレをハイライト"><span class="chip-color-box" style="background:#d97706; border:1px solid #d97706;"></span><b>🐕 介助犬</b></span>
+        </div>
+      </div>
     </div>
 
     <!-- ズーム・パン物理コントロール -->
@@ -879,7 +932,7 @@
       <!-- 2階マップ (通常図面 ＋ ゾーン色分け図面オーバーレイ) -->
       <div id="map-2f" class="floor-map">
         <img src="assets/floor2.png" alt="2F Floor Map" class="bg-svg bg-normal">
-        <img src="assets/floor2-zone.png?v=31.0" alt="2F Zone Map" class="bg-svg bg-zone">
+        <img src="assets/floor2-zone.png?v=32.0" alt="2F Zone Map" class="bg-svg bg-zone">
       </div>
 
     </div>
@@ -1102,8 +1155,8 @@
   </div>
 
   <!-- スクリプト読み込み (重要: data.js -> map-engine.js -> app.js) -->
-  <script src="js/data.js?v=31.0"></script>
-  <script src="js/map-engine.js?v=31.0"></script>
-  <script src="js/app.js?v=31.0"></script>
+  <script src="js/data.js?v=32.0"></script>
+  <script src="js/map-engine.js?v=32.0"></script>
+  <script src="js/app.js?v=32.0"></script>
 </body>
 </html>

@@ -121,15 +121,15 @@
       z-index: 920 !important;
       box-shadow: 0 0 15px rgba(56, 189, 248, 0.8), inset 0 0 10px rgba(56, 189, 248, 0.25) !important;
     }
-        /* 🚻 トイレ専用マーク & ピン */
-    .room-pin.is-toilet {
+        /* 🏛️ 主要施設（医療・ショップ・ボランティア・案内・トイレ等）専用マーク & ピン */
+    .room-pin.is-facility, .room-pin.is-toilet {
       z-index: 28 !important;
     }
-    .room-pin.is-toilet:hover {
+    .room-pin.is-facility:hover, .room-pin.is-toilet:hover {
       z-index: 935 !important;
       box-shadow: 0 0 16px rgba(56, 189, 248, 0.9), inset 0 0 10px rgba(56, 189, 248, 0.3) !important;
     }
-    .toilet-badge-mark {
+    .facility-badge-mark, .toilet-badge-mark {
       width: 22px;
       height: 22px;
       border-radius: 50%;
@@ -142,19 +142,28 @@
       transition: transform 0.15s ease-out;
       pointer-events: none;
     }
+    .room-pin.is-facility:hover .facility-badge-mark,
     .room-pin.is-toilet:hover .toilet-badge-mark {
-      transform: scale(1.15);
+      transform: scale(1.18);
     }
-    .toilet-men_urinal .toilet-badge-mark { background: #2563eb; }
-    .toilet-men_cubicle .toilet-badge-mark { background: #1d4ed8; }
-    .toilet-women .toilet-badge-mark { background: #e11d48; }
-    .toilet-accessible .toilet-badge-mark { background: #0284c7; }
-    .toilet-dog .toilet-badge-mark { background: #d97706; }
-    .toilet-general .toilet-badge-mark { background: #4f46e5; }
+    /* 施設カテゴリ別バッジ背景色 */
+    .facility-medical_aid .facility-badge-mark, .facility-medical_doping .facility-badge-mark { background: #ef4444; }
+    .facility-shop_store .facility-badge-mark { background: #10b981; }
+    .facility-shop_ticket .facility-badge-mark { background: #0ea5e9; }
+    .facility-volunteer_checkin .facility-badge-mark, .facility-volunteer_voc .facility-badge-mark { background: #8b5cf6; }
+    .facility-info_booth .facility-badge-mark { background: #06b6d4; }
+    .facility-nursery_baby .facility-badge-mark { background: #ec4899; }
 
-    .pin-tooltip-toilet-note {
+    /* トイレ別バッジ背景色 */
+    .toilet-men_urinal .facility-badge-mark, .toilet-men_urinal .toilet-badge-mark { background: #2563eb; }
+    .toilet-men_cubicle .facility-badge-mark, .toilet-men_cubicle .toilet-badge-mark { background: #1d4ed8; }
+    .toilet-women .facility-badge-mark, .toilet-women .toilet-badge-mark { background: #e11d48; }
+    .toilet-accessible .facility-badge-mark, .toilet-accessible .toilet-badge-mark { background: #0284c7; }
+    .toilet-dog .facility-badge-mark, .toilet-dog .toilet-badge-mark { background: #d97706; }
+    .toilet-general .facility-badge-mark, .toilet-general .toilet-badge-mark { background: #4f46e5; }
+
+    .pin-tooltip-facility-note, .pin-tooltip-toilet-note {
       font-size: 10px;
-      color: #38bdf8;
       margin-top: 3px;
       font-weight: bold;
     }

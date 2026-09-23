@@ -71,76 +71,177 @@ const MapEngine = {
   },
 
   // 1. 各階のピン・ゾーン・SVGレイヤーの動的生成
-    getToiletMeta(room) {
+    getFacilityMeta(room) {
     if (!room) return null;
     const str = ((room.name || '') + ' ' + (room.nameEn || '') + ' ' + (room.code || '') + ' ' + (room.desc || '')).toLowerCase();
-    const isToilet = /toilet|urinal|cubicle|restroom|wc|お手洗い|便所|便器|lavatory/.test(str);
-    if (!isToilet) return null;
+    const dept = (room.dept || '').toUpperCase();
 
-    if (/dog|介助犬/.test(str)) {
+    // 1. トイレ施設 (JIS/国際規格ピクトグラム)
+    if (/toilet|urinal|cubicle|restroom|wc|お手洗い|便所|便器|lavatory/.test(str)) {
+      if (/dog|介助犬/.test(str)) {
+        return {
+          category: 'toilet',
+          type: 'toilet_dog',
+          badge: '🐕',
+          label: '介助犬トイレ',
+          shortLabel: '🐕 介助犬',
+          categoryLabel: '🚻 トイレ施設',
+          color: '#d97706',
+          bg: 'rgba(217, 119, 6, 0.22)',
+          svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><path d="M19 8c-.6 0-1.1.2-1.5.5L16 6.8V5a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v1.5L9.6 8.2A1.5 1.5 0 0 0 8 8.3L5.7 9.5a1.5 1.5 0 0 0-.9 1.6L5.3 15a1 1 0 0 0 1 1h1.5v4a1 1 0 0 0 2 0v-4h2v4a1 1 0 0 0 2 0v-5.2l2.3-1.8c.4-.3.7-.8.7-1.3V9a1 1 0 0 0-1-1z"/></svg>'
+        };
+      }
+      if (/accessible|wheelchair|多機能|車椅子|身障者/.test(str)) {
+        return {
+          category: 'toilet',
+          type: 'toilet_accessible',
+          badge: '♿',
+          label: '多機能トイレ (車椅子対応)',
+          shortLabel: '♿ 多機能',
+          categoryLabel: '🚻 トイレ施設',
+          color: '#0284c7',
+          bg: 'rgba(2, 132, 199, 0.22)',
+          svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="14.5" cy="4.5" r="2.1"/><path d="M12 8h-3a1 1 0 0 0-1 1v4h2v-3h1.5l1.6 3.2A4.5 4.5 0 1 0 17 17.5h-2a2.5 2.5 0 1 1-2.5-2.5l.3-.6L14 11l-1.5-3z"/></svg>'
+        };
+      }
+      if (/women|female|女子|女性/.test(str)) {
+        return {
+          category: 'toilet',
+          type: 'toilet_women',
+          badge: '🚺',
+          label: '女子トイレ',
+          shortLabel: '🚺 女子',
+          categoryLabel: '🚻 トイレ施設',
+          color: '#e11d48',
+          bg: 'rgba(225, 29, 72, 0.22)',
+          svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="12" cy="4.5" r="2.3"/><path d="M10 8h4l2 6.5a0.8 0.8 0 0 1-.8 1H13.5v4.5a1 1 0 0 1-2 0V15.5h-1.7a0.8 0.8 0 0 1-.8-1L10 8z"/></svg>'
+        };
+      }
+      if (/urinal|小便器/.test(str)) {
+        return {
+          category: 'toilet',
+          type: 'toilet_men_urinal',
+          badge: '🚹',
+          label: '男子トイレ (小便器)',
+          shortLabel: '🚹 小便器',
+          categoryLabel: '🚻 トイレ施設',
+          color: '#2563eb',
+          bg: 'rgba(37, 99, 235, 0.22)',
+          svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="12" cy="4.5" r="2.3"/><path d="M9 8h6a1 1 0 0 1 1 1v6h-1.5v5a1 1 0 0 1-2 0v-5h-1v5a1 1 0 0 1-2 0v-5H8V9a1 1 0 0 1 1-1z"/></svg>'
+        };
+      }
+      if (/men|male|男子|男性/.test(str)) {
+        return {
+          category: 'toilet',
+          type: 'toilet_men_cubicle',
+          badge: '🚹',
+          label: '男子トイレ (個室)',
+          shortLabel: '🚹 男子個室',
+          categoryLabel: '🚻 トイレ施設',
+          color: '#1d4ed8',
+          bg: 'rgba(29, 78, 216, 0.22)',
+          svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="12" cy="4.5" r="2.3"/><path d="M9 8h6a1 1 0 0 1 1 1v6h-1.5v5a1 1 0 0 1-2 0v-5h-1v5a1 1 0 0 1-2 0v-5H8V9a1 1 0 0 1 1-1z"/></svg>'
+        };
+      }
       return {
-        type: 'dog',
-        badge: '🐕',
-        label: '介助犬トイレ',
-        shortLabel: '🐕 介助犬',
-        color: '#d97706',
-        bg: 'rgba(217, 119, 6, 0.22)',
-        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><path d="M19 8c-.6 0-1.1.2-1.5.5L16 6.8V5a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v1.5L9.6 8.2A1.5 1.5 0 0 0 8 8.3L5.7 9.5a1.5 1.5 0 0 0-.9 1.6L5.3 15a1 1 0 0 0 1 1h1.5v4a1 1 0 0 0 2 0v-4h2v4a1 1 0 0 0 2 0v-5.2l2.3-1.8c.4-.3.7-.8.7-1.3V9a1 1 0 0 0-1-1z"/></svg>'
+        category: 'toilet',
+        type: 'toilet_general',
+        badge: '🚻',
+        label: 'トイレ',
+        shortLabel: '🚻 トイレ',
+        categoryLabel: '🚻 トイレ施設',
+        color: '#4f46e5',
+        bg: 'rgba(79, 70, 229, 0.22)',
+        svg: '<svg viewBox="0 0 24 24" width="15" height="15" fill="#ffffff"><circle cx="7.5" cy="4.5" r="1.8"/><path d="M5.5 8h4a.8.8 0 0 1 .8.8v4.5H9v4.5a.8.8 0 0 1-1.6 0V13.3h-.8v4.5a.8.8 0 0 1-1.6 0V13.3H4.2V8.8A.8.8 0 0 1 5 8h.5z"/><circle cx="16.5" cy="4.5" r="1.8"/><path d="M15 8h3l1.4 4.8a.6.6 0 0 1-.6.7h-1v4.3a.8.8 0 0 1-1.6 0V13.5h-.4v4.3a.8.8 0 0 1-1.6 0V13.5h-1a.6.6 0 0 1-.6-.7L15 8z"/></svg>'
       };
     }
-    if (/accessible|wheelchair|多機能|車椅子|身障者/.test(str)) {
+
+    // 2. 授乳室・ベビールーム
+    if (/nursery|baby change|baby room|授乳|ベビー/.test(str)) {
       return {
-        type: 'accessible',
-        badge: '♿',
-        label: '多機能トイレ (車椅子対応)',
-        shortLabel: '♿ 多機能',
-        color: '#0284c7',
-        bg: 'rgba(2, 132, 199, 0.22)',
-        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="14.5" cy="4.5" r="2.1"/><path d="M12 8h-3a1 1 0 0 0-1 1v4h2v-3h1.5l1.6 3.2A4.5 4.5 0 1 0 17 17.5h-2a2.5 2.5 0 1 1-2.5-2.5l.3-.6L14 11l-1.5-3z"/></svg>'
+        category: 'nursery',
+        type: 'nursery_baby',
+        badge: '🍼',
+        label: '授乳室・ベビールーム',
+        shortLabel: '🍼 授乳室',
+        categoryLabel: '🍼 ベビールーム',
+        color: '#ec4899',
+        bg: 'rgba(236, 72, 153, 0.22)',
+        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M19 12a6 6 0 0 0-6-6H9.7l1.7-3.4A1 1 0 0 0 10.5 1H6a1 1 0 0 0 0 2h3.3L7.6 6.4A6 6 0 0 0 5 11v3h14v-2z"/></svg>'
       };
     }
-    if (/women|female|女子|女性/.test(str)) {
+
+    // 3. 医療系 (MED, 救護所, 医務室, ドーピング検査室)
+    if (dept === 'MED' || dept === 'DOP' || /aid station|first aid|medical|clinic|doctor|nurse|救護|医務|診療|ドクター|doping|ドーピング/.test(str)) {
+      const isDoping = /doping|ドーピング/.test(str);
       return {
-        type: 'women',
-        badge: '🚺',
-        label: '女子トイレ',
-        shortLabel: '🚺 女子',
-        color: '#e11d48',
-        bg: 'rgba(225, 29, 72, 0.22)',
-        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="12" cy="4.5" r="2.3"/><path d="M10 8h4l2 6.5a0.8 0.8 0 0 1-.8 1H13.5v4.5a1 1 0 0 1-2 0V15.5h-1.7a0.8 0.8 0 0 1-.8-1L10 8z"/></svg>'
+        category: 'medical',
+        type: isDoping ? 'medical_doping' : 'medical_aid',
+        badge: '🏥',
+        label: isDoping ? 'ドーピング検査室 (Doping Control)' : '救護所・医務室 (First Aid / MED)',
+        shortLabel: isDoping ? '🏥 ドーピング検査' : '🏥 救護所 (MED)',
+        categoryLabel: '🏥 医療・救護施設',
+        color: '#ef4444',
+        bg: 'rgba(239, 68, 68, 0.22)',
+        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6V3z"/></svg>'
       };
     }
-    if (/urinal|小便器/.test(str)) {
+
+    // 4. お店・お金系 (オフィシャルショップ, 売店, POS, チケット売場)
+    if (dept === 'TKT' || /official shop|shop|store|merch|goods|concession|pos|point of sale|ticket|box office|tro|tbo|tto|atm|cash|売店|ショップ|オフィシャルショップ|物販|グッズ|チケット売場|発券/.test(str)) {
+      const isTicket = dept === 'TKT' || /ticket|tbo|tro|tto|チケット|発券/.test(str);
       return {
-        type: 'men_urinal',
-        badge: '🚹',
-        label: '男子トイレ (小便器)',
-        shortLabel: '🚹 小便器',
-        color: '#2563eb',
-        bg: 'rgba(37, 99, 235, 0.22)',
-        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="12" cy="4.5" r="2.3"/><path d="M9 8h6a1 1 0 0 1 1 1v6h-1.5v5a1 1 0 0 1-2 0v-5h-1v5a1 1 0 0 1-2 0v-5H8V9a1 1 0 0 1 1-1z"/></svg>'
+        category: 'shop',
+        type: isTicket ? 'shop_ticket' : 'shop_store',
+        badge: isTicket ? '🎫' : '🛍️',
+        label: isTicket ? 'チケット売場・発券所 (Ticket Box Office)' : 'オフィシャルショップ・売店 (Shop / POS)',
+        shortLabel: isTicket ? '🎫 チケット売場' : '🛍️ ショップ・売店',
+        categoryLabel: isTicket ? '🎫 チケット発券所' : '🛍️ 物販・売店',
+        color: isTicket ? '#0ea5e9' : '#10b981',
+        bg: isTicket ? 'rgba(14, 165, 233, 0.22)' : 'rgba(16, 185, 129, 0.22)',
+        svg: isTicket
+          ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><path d="M20 4H4a2 2 0 0 0-2 2v4c1.1 0 2 .9 2 2s-.9 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2s.9-2 2-2V6c0-1.1-.9-2-2-2zm0 4.5c-.8.4-1.5 1.4-1.5 2.5s.7 2.1 1.5 2.5v2.5H4v-2.5c.8-.4 1.5-1.4 1.5-2.5S4.8 8.9 4 8.5V6h16v2.5z"/></svg>'
+          : '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1l1.5 12a2 2 0 0 0 2 1.8h9a2 2 0 0 0 2-1.8L20 8a1 1 0 0 0-1-1zm-9-1a2 2 0 0 1 4 0v1h-4V6zm2 7a3 3 0 0 1-3-3h1.8a1.2 1.2 0 0 0 2.4 0H15a3 3 0 0 1-3 3z"/></svg>'
       };
     }
-    if (/men|male|男子|男性/.test(str)) {
+
+    // 5. ボランティアスタッフ・受付 (Checkindesk, Check-in, VOC, Workforce)
+    if (dept === 'PEM' || dept === 'VEM' || /check-in|checkin|check in|voc|volunteer|workforce|accreditation|ボランティア|チェックイン|スタッフ受付|ヘルプデスク|ワークフォース/.test(str)) {
+      const isCheckin = /check-in|checkin|check in|desk|受付/.test(str);
       return {
-        type: 'men_cubicle',
-        badge: '🚹',
-        label: '男子トイレ (個室)',
-        shortLabel: '🚹 男子個室',
-        color: '#1d4ed8',
-        bg: 'rgba(29, 78, 216, 0.22)',
-        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><circle cx="12" cy="4.5" r="2.3"/><path d="M9 8h6a1 1 0 0 1 1 1v6h-1.5v5a1 1 0 0 1-2 0v-5h-1v5a1 1 0 0 1-2 0v-5H8V9a1 1 0 0 1 1-1z"/></svg>'
+        category: 'volunteer',
+        type: isCheckin ? 'volunteer_checkin' : 'volunteer_voc',
+        badge: isCheckin ? '🪪' : '🤝',
+        label: isCheckin ? 'Check-in Desk (ボランティア・スタッフ受付)' : 'VOC (ボランティア・スタッフ運営センター)',
+        shortLabel: isCheckin ? '🪪 Check-in Desk' : '🤝 VOC (ボランティア)',
+        categoryLabel: '🤝 ボランティア・スタッフ施設',
+        color: '#8b5cf6',
+        bg: 'rgba(139, 92, 246, 0.22)',
+        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 2a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm5 14H7v-1c0-1.7 2.3-2.5 5-2.5s5 .8 5 2.5v1zm-5-4.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>'
       };
     }
-    return {
-      type: 'general',
-      badge: '🚻',
-      label: 'トイレ',
-      shortLabel: '🚻 トイレ',
-      color: '#4f46e5',
-      bg: 'rgba(79, 70, 229, 0.22)',
-      svg: '<svg viewBox="0 0 24 24" width="15" height="15" fill="#ffffff"><circle cx="7.5" cy="4.5" r="1.8"/><path d="M5.5 8h4a.8.8 0 0 1 .8.8v4.5H9v4.5a.8.8 0 0 1-1.6 0V13.3h-.8v4.5a.8.8 0 0 1-1.6 0V13.3H4.2V8.8A.8.8 0 0 1 5 8h.5z"/><circle cx="16.5" cy="4.5" r="1.8"/><path d="M15 8h3l1.4 4.8a.6.6 0 0 1-.6.7h-1v4.3a.8.8 0 0 1-1.6 0V13.5h-.4v4.3a.8.8 0 0 1-1.6 0V13.5h-1a.6.6 0 0 1-.6-.7L15 8z"/></svg>'
-    };
+
+    // 6. 総合案内所 (Information Booth)
+    if (/information booth|public info|総合案内|インフォメーション/.test(str)) {
+      return {
+        category: 'info',
+        type: 'info_booth',
+        badge: 'ℹ️',
+        label: '総合案内所 (Information Booth)',
+        shortLabel: 'ℹ️ 総合案内所',
+        categoryLabel: 'ℹ️ 案内施設',
+        color: '#06b6d4',
+        bg: 'rgba(6, 182, 212, 0.22)',
+        svg: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#ffffff"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>'
+      };
+    }
+
+    return null;
+  },
+
+  getToiletMeta(room) {
+    const f = this.getFacilityMeta(room);
+    return (f && f.category === 'toilet') ? f : null;
   },
 
   renderAllFloors() {
@@ -176,24 +277,27 @@ const MapEngine = {
         pin.style.width = `${rw}%`;
         pin.style.height = `${rh}%`;
 
-// 部署カラー & トイレ判定
+// 部署カラー & 主要施設ピクトグラム判定 (医療・ショップ・ボランティア・トイレ等)
         const dept = VENUE_DATA.departments.find(d => d.code === room.dept) || { name: room.dept, color: '#007aff' };
-        const toiletMeta = this.getToiletMeta(room);
+        const facilityMeta = this.getFacilityMeta(room);
 
-        const pinColor = toiletMeta ? toiletMeta.color : (dept.color || '#007aff');
-        const pinBg = toiletMeta ? toiletMeta.bg : (pinColor.startsWith('#') ? (pinColor + '22') : 'rgba(0, 122, 255, 0.15)');
+        const pinColor = facilityMeta ? facilityMeta.color : (dept.color || '#007aff');
+        const pinBg = facilityMeta ? facilityMeta.bg : (pinColor.startsWith('#') ? (pinColor + '22') : 'rgba(0, 122, 255, 0.15)');
 
         pin.style.borderColor = pinColor;
         pin.style.backgroundColor = pinBg;
 
-        if (toiletMeta) {
-          pin.classList.add('is-toilet', `toilet-${toiletMeta.type}`);
+        if (facilityMeta) {
+          pin.classList.add('is-facility', `is-${facilityMeta.category}`, `facility-${facilityMeta.type}`);
+          if (facilityMeta.category === 'toilet') {
+            pin.classList.add('is-toilet', `toilet-${facilityMeta.type}`);
+          }
         }
 
-        // 枠の中央アイコン（トイレは視認性抜群の専用ピクトグラムバッジ、通常諸室は📍ピン）
-        const centerMarkHtml = toiletMeta ? `
-          <div class="toilet-badge-mark" title="${toiletMeta.label}">
-            ${toiletMeta.svg}
+        // 枠の中央アイコン（主要施設は視認性抜群の専用ピクトグラムバッジ、通常諸室は📍ピン）
+        const centerMarkHtml = facilityMeta ? `
+          <div class="facility-badge-mark" title="${facilityMeta.label}">
+            ${facilityMeta.svg}
           </div>
         ` : `
           <svg class="room-pin-marker" viewBox="0 0 24 24" width="18" height="18" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.85)); display: block;">
@@ -202,14 +306,14 @@ const MapEngine = {
           </svg>
         `;
 
-        const codeTextHtml = toiletMeta ? `
-          <div class="room-pin-code-text is-toilet-code" style="border-left: 3px solid ${pinColor};">${toiletMeta.shortLabel} [${room.code || room.name}]</div>
+        const codeTextHtml = facilityMeta ? `
+          <div class="room-pin-code-text is-facility-code" style="border-left: 3px solid ${pinColor};">${facilityMeta.shortLabel} [${room.code || room.name}]</div>
         ` : `
           <div class="room-pin-code-text" style="border-left: 3px solid ${pinColor};">${room.code || room.name}</div>
         `;
 
-        const tooltipTitleHtml = toiletMeta ? `
-          <span class="dept-badge" style="background:${toiletMeta.color}">${toiletMeta.badge} ${toiletMeta.label}</span>
+        const tooltipTitleHtml = facilityMeta ? `
+          <span class="dept-badge" style="background:${facilityMeta.color}">${facilityMeta.badge} ${facilityMeta.label}</span>
           ${room.name}
         ` : `
           <span class="dept-badge" style="background:${dept.color}">${room.dept}</span>
@@ -227,7 +331,7 @@ const MapEngine = {
               ${tooltipTitleHtml}
             </div>
             <div class="pin-tooltip-sub">${room.code} ${room.nameEn ? '| ' + room.nameEn : ''}</div>
-            ${toiletMeta ? `<div class="pin-tooltip-toilet-note">🚻 トイレ施設 (${dept.name})</div>` : ''}
+            ${facilityMeta ? `<div class="pin-tooltip-facility-note" style="color:${facilityMeta.color};">${facilityMeta.categoryLabel || facilityMeta.label} (${dept.name})</div>` : ''}
             ${room.acp && room.acp !== 'なし' ? `<div class="pin-tooltip-acp-badge">🛡️ 最寄ACP: ${room.acp}</div>` : ''}
           </div>
         `;
@@ -529,11 +633,11 @@ const MapEngine = {
     if (type === 'room') {
       const dept = VENUE_DATA.departments.find(d => d.code === item.dept) || { name: item.dept, color: '#007aff' };
       const zone = VENUE_DATA.zones.find(z => z.id === item.zoneId) || { name: '指定なし' };
-      const toiletMeta = this.getToiletMeta(item);
+      const facilityMeta = this.getFacilityMeta(item);
 
-      const titleIconHtml = toiletMeta ? `
-        <span class="toilet-badge-mark" style="width:20px; height:20px; background:${toiletMeta.color}; border:1.5px solid #fff; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; vertical-align:-3px; margin-right:5px; box-shadow:0 1px 3px rgba(0,0,0,0.5);">
-          ${toiletMeta.svg}
+      const titleIconHtml = facilityMeta ? `
+        <span class="facility-badge-mark" style="width:20px; height:20px; background:${facilityMeta.color}; border:1.5px solid #fff; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; vertical-align:-3px; margin-right:5px; box-shadow:0 1px 3px rgba(0,0,0,0.5);">
+          ${facilityMeta.svg}
         </span>
       ` : `
         <svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-2px; margin-right:4px; display:inline-block; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));">
@@ -542,7 +646,7 @@ const MapEngine = {
         </svg>
       `;
 
-      const titleNameHtml = toiletMeta ? `${toiletMeta.badge} ${toiletMeta.label} <span style="font-size:12px; font-weight:normal; opacity:0.85;">(${item.name})</span>` : item.name;
+      const titleNameHtml = facilityMeta ? `${facilityMeta.badge} ${facilityMeta.label} <span style="font-size:12px; font-weight:normal; opacity:0.85;">(${item.name})</span>` : item.name;
 
       panel.innerHTML = `
         <div class="detail-card">
@@ -555,15 +659,15 @@ const MapEngine = {
             </div>
             <div style="display:flex; gap:5px; align-items:center;">
               <button onclick="window.openSpotEditorById('${item.id}')" class="btn-secondary" style="padding:3px 8px; font-size:10px; background:#f59e0b; color:#000; font-weight:bold; cursor:pointer;">✏️ 編集</button>
-              ${toiletMeta ? `<span class="badge" style="background:${toiletMeta.color}; color:#fff; font-weight:bold;">${toiletMeta.badge} ${toiletMeta.label}</span>` : ''}
+              ${facilityMeta ? `<span class="badge" style="background:${facilityMeta.color}; color:#fff; font-weight:bold;">${facilityMeta.badge} ${facilityMeta.label}</span>` : ''}
               <span class="badge badge-dept" style="background:${dept.color}">${dept.name}</span>
             </div>
           </div>
           <div class="detail-grid">
-            ${toiletMeta ? `
+            ${facilityMeta ? `
               <div class="detail-item">
                 <span class="label">施設種別</span>
-                <span class="value" style="color:${toiletMeta.color}; font-weight:bold;">${toiletMeta.badge} ${toiletMeta.label}</span>
+                <span class="value" style="color:${facilityMeta.color}; font-weight:bold;">${facilityMeta.badge} ${facilityMeta.label}</span>
               </div>
             ` : ''}
             <div class="detail-item">

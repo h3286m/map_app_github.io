@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const zoneKey = chip.dataset.zone;
       const seatKey = chip.dataset.seat;
       const toiletKey = chip.dataset.toilet;
+      const facilityKey = chip.dataset.facility;
       const wasActive = chip.classList.contains('active');
 
       document.querySelectorAll('.legend-chip').forEach(c => c.classList.remove('active'));
@@ -149,18 +150,65 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
             `;
           }
+        } else if (facilityKey) {
+          document.querySelectorAll('.room-pin').forEach(pin => {
+            const room = VENUE_DATA.rooms.find(r => r.id === pin.dataset.id);
+            if (room) {
+              const meta = (window.MapEngine && window.MapEngine.getFacilityMeta) ? window.MapEngine.getFacilityMeta(room) : null;
+              let match = false;
+              if (meta) {
+                if (facilityKey === 'all') match = true;
+                else if (facilityKey === meta.category) match = true;
+                else if (facilityKey === 'toilet' && meta.category === 'toilet') match = true;
+              }
+              pin.style.opacity = match ? '1' : '0.15';
+              if (match) count++;
+            }
+          });
+          document.querySelectorAll('.acp-pin').forEach(p => p.style.opacity = '0.15');
+
+          const panel = document.getElementById('info-panel');
+          if (panel) {
+            const facilityNames = {
+              'medical': '🏥 医療・救護所・ドーピング検査室 (MED)',
+              'shop': '🛍️ オフィシャルショップ・売店・チケット売場 (Shop / TKT)',
+              'volunteer': '🪪 ボランティアスタッフ・Check-in Desk (VOC / Workforce)',
+              'info': 'ℹ️ 総合案内所 (Information Booth)',
+              'toilet': '🚻 トイレ施設 (全フロア)',
+              'nursery': '🍼 授乳室・ベビールーム'
+            };
+            const facilityColors = {
+              'medical': '#ef4444',
+              'shop': '#10b981',
+              'volunteer': '#8b5cf6',
+              'info': '#06b6d4',
+              'toilet': '#38bdf8',
+              'nursery': '#ec4899'
+            };
+            panel.innerHTML = `
+              <div class="detail-card">
+                <div class="detail-header">
+                  <div class="detail-title">🏛️ 施設案内: <b>${facilityNames[facilityKey] || facilityKey}</b></div>
+                  <span class="badge" style="background:${facilityColors[facilityKey] || '#0284c7'}; color:#fff; font-weight:800; border:none;">該当: ${count}箇所</span>
+                </div>
+                <div style="font-size:12px; color:var(--text-primary); margin-top:4px; line-height:1.4;">
+                  マップ上の該当施設がハイライトされています。凡例をもう一度タップすると通常表示に戻ります。
+                </div>
+              </div>
+            `;
+          }
         } else if (toiletKey) {
           document.querySelectorAll('.room-pin').forEach(pin => {
             const room = VENUE_DATA.rooms.find(r => r.id === pin.dataset.id);
             if (room) {
-              const meta = (window.MapEngine && window.MapEngine.getToiletMeta) ? window.MapEngine.getToiletMeta(room) : null;
+              const meta = (window.MapEngine && window.MapEngine.getFacilityMeta) ? window.MapEngine.getFacilityMeta(room) : null;
               let match = false;
-              if (meta) {
+              if (meta && meta.category === 'toilet') {
                 if (toiletKey === 'all') match = true;
-                else if (toiletKey === 'men' && (meta.type === 'men_urinal' || meta.type === 'men_cubicle')) match = true;
-                else if (toiletKey === 'women' && meta.type === 'women') match = true;
-                else if (toiletKey === 'accessible' && meta.type === 'accessible') match = true;
-                else if (toiletKey === 'dog' && meta.type === 'dog') match = true;
+                else if (toiletKey === 'men' && (meta.type === 'toilet_men_urinal' || meta.type === 'toilet_men_cubicle')) match = true;
+                else if (toiletKey === 'women' && meta.type === 'toilet_women') match = true;
+                else if (toiletKey === 'accessible' && meta.type === 'toilet_accessible') match = true;
+                else if (toiletKey === 'dog' && meta.type === 'toilet_dog') match = true;
               }
               pin.style.opacity = match ? '1' : '0.15';
               if (match) count++;
@@ -216,23 +264,38 @@ function setupSearchAndFilters() {
     formDept.innerHTML = VENUE_DATA.departments.filter(d => d.code !== 'ALL').map(d => `<option value="${d.code}">${d.name}</option>`).join('');
   }
 
-  // 検索サジェストリストの登録（トイレ候補を先頭に追加）
+  // 検索サジェストリストの登録（主要施設候補を先頭に追加）
   if (datalist) {
     const allItems = [...VENUE_DATA.rooms, ...VENUE_DATA.acps];
-    const toiletSuggestions = [
+    const facilitySuggestions = [
+      '<option value="医療">🏥 医療・救護所・医務室 (MED)</option>',
+      '<option value="MED">🏥 救護所 (MED)</option>',
+      '<option value="オフィシャルショップ">🛍️ オフィシャルショップ・売店 (Shop)</option>',
+      '<option value="ショップ">🛍️ グッズ・売店・POS</option>',
+      '<option value="Checkindesk">🪪 Check-in Desk (ボランティア・スタッフ受付)</option>',
+      '<option value="ボランティア">🤝 ボランティア・VOC (Volunteer)</option>',
+      '<option value="総合案内所">ℹ️ 総合案内所 (Information)</option>',
+      '<option value="授乳室">🍼 授乳室・ベビールーム</option>',
       '<option value="トイレ">🚻 トイレ施設 (全フロア)</option>',
       '<option value="男子トイレ">🚹 男子トイレ (小便器・個室)</option>',
       '<option value="女子トイレ">🚺 女子トイレ</option>',
       '<option value="多機能トイレ">♿ 多機能・車椅子トイレ</option>',
       '<option value="介助犬トイレ">🐕 介助犬トイレ</option>'
     ];
-    datalist.innerHTML = toiletSuggestions.join('') + allItems.map(item => `<option value="${item.name}">${item.code} - ${item.nameEn || ''}</option>`).join('');
+    datalist.innerHTML = facilitySuggestions.join('') + allItems.map(item => `<option value="${item.name}">${item.code} - ${item.nameEn || ''}</option>`).join('');
   }
 
-  // リアルタイム検索フィルター（「トイレ」や「wc」での一括抽出、および男女・多機能個別絞り込みに対応）
+  // リアルタイム検索フィルター（MED・オフィシャルショップ・Checkindesk・トイレ等の一括抽出に対応）
   const applyFilter = () => {
     const query = searchInput.value.toLowerCase().trim();
     const dept = deptSelect.value;
+
+    const isMedicalQuery = /med|医療|救護|医務|first aid|clinic|doping|ドーピング/.test(query);
+    const isShopQuery = /shop|ショップ|オフィシャルショップ|売店|store|merch|goods|\bpos\b|ticket|チケット|お金/.test(query);
+    const isVolunteerQuery = /check-in|checkin|checkindesk|ボランティア|volunteer|voc|スタッフ|受付|workforce/.test(query);
+    const isInfoQuery = /info|案内|インフォメーション/.test(query);
+    const isNurseryQuery = /nursery|授乳|ベビー/.test(query);
+
     const isMenToilet = /男子|男性|小便器/.test(query);
     const isWomenToilet = /女子|女性/.test(query);
     const isAccessibleToilet = /多機能|車椅子|身障者|accessible|wheelchair/.test(query);
@@ -244,16 +307,24 @@ function setupSearchAndFilters() {
       const room = VENUE_DATA.rooms.find(r => r.id === pin.dataset.id);
       if (!room) return;
 
-      const toiletMeta = (window.MapEngine && window.MapEngine.getToiletMeta) ? window.MapEngine.getToiletMeta(room) : null;
+      const facilityMeta = (window.MapEngine && window.MapEngine.getFacilityMeta) ? window.MapEngine.getFacilityMeta(room) : null;
 
-      let matchesQuery = !query || room.name.toLowerCase().includes(query) || room.code.toLowerCase().includes(query) || room.nameEn.toLowerCase().includes(query);
+      let matchesQuery = !query || room.name.toLowerCase().includes(query) || room.code.toLowerCase().includes(query) || (room.nameEn || '').toLowerCase().includes(query);
 
-      if (toiletMeta) {
-        if (isGeneralToilet) matchesQuery = true;
-        if (isMenToilet && (toiletMeta.type === 'men_urinal' || toiletMeta.type === 'men_cubicle')) matchesQuery = true;
-        if (isWomenToilet && toiletMeta.type === 'women') matchesQuery = true;
-        if (isAccessibleToilet && toiletMeta.type === 'accessible') matchesQuery = true;
-        if (isDogToilet && toiletMeta.type === 'dog') matchesQuery = true;
+      if (facilityMeta) {
+        if (isMedicalQuery && facilityMeta.category === 'medical') matchesQuery = true;
+        if (isShopQuery && facilityMeta.category === 'shop') matchesQuery = true;
+        if (isVolunteerQuery && facilityMeta.category === 'volunteer') matchesQuery = true;
+        if (isInfoQuery && facilityMeta.category === 'info') matchesQuery = true;
+        if (isNurseryQuery && facilityMeta.category === 'nursery') matchesQuery = true;
+
+        if (facilityMeta.category === 'toilet') {
+          if (isGeneralToilet) matchesQuery = true;
+          if (isMenToilet && (facilityMeta.type === 'toilet_men_urinal' || facilityMeta.type === 'toilet_men_cubicle')) matchesQuery = true;
+          if (isWomenToilet && facilityMeta.type === 'toilet_women') matchesQuery = true;
+          if (isAccessibleToilet && facilityMeta.type === 'toilet_accessible') matchesQuery = true;
+          if (isDogToilet && facilityMeta.type === 'toilet_dog') matchesQuery = true;
+        }
       }
 
       const matchesDept = (dept === 'ALL' || room.dept === dept);
